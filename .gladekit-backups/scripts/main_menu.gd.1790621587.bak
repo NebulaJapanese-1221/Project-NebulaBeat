@@ -1,0 +1,105 @@
+extends Control
+
+# Title-screen controller. Play loads the gameplay scene; Quit exits. Buttons are
+# wired by node lookup in _ready so there's no reliance on editor connections that
+# break when the tree is edited. play_target is exported so it shows in the
+# inspector and can be repointed without touching code.
+
+# res:// path of the gameplay scene Play loads.
+@export_file("*.tscn") var play_target: String = ""
+
+@onready var _menu_container: CenterContainer = get_node_or_null("CenterContainer")
+@onready var _play_button: Button = get_node_or_null("CenterContainer/VBox/PlayButton")
+@onready var _settings_button: Button = get_node_or_null("CenterContainer/VBox/SettingsButton")
+@onready var _quit_button: Button = get_node_or_null("CenterContainer/VBox/QuitButton")
+@onready var _settings_panel: PanelContainer = get_node_or_null("SettingsPanel")
+@onready var _master_volume_slider: HSlider = get_node_or_null("SettingsPanel/SettingsVBox/MasterVolumeSlider")
+@onready var _fullscreen_toggle: CheckButton = get_node_or_null("SettingsPanel/SettingsVBox/FullscreenToggle")
+@onready var _back_button: Button = get_node_or_null("SettingsPanel/SettingsVBox/BackButton")
+@onready var _about_button: Button = get_node_or_null("CenterContainer/VBox/AboutButton")
+@onready var _about_panel: PanelContainer = get_node_or_null("AboutPanel")
+@onready var _about_back_button: Button = get_node_or_null("AboutPanel/AboutVBox/AboutBackButton")
+@onready var _menu_confirm: AudioStreamPlayer = get_node_or_null("MenuConfirm")
+@onready var _menu_back: AudioStreamPlayer = get_node_or_null("MenuBack")
+
+
+func _ready() -> void:
+	_show_main_menu()
+	if _play_button != null:
+		_play_button.pressed.connect(_on_play_pressed)
+		_play_button.grab_focus()
+	if _settings_button != null:
+		_settings_button.pressed.connect(_on_settings_pressed)
+	if _about_button != null:
+		_about_button.pressed.connect(_on_about_pressed)
+	if _quit_button != null:
+		_quit_button.pressed.connect(_on_quit_pressed)
+	if _master_volume_slider != null:
+		_master_volume_slider.value_changed.connect(_on_master_volume_changed)
+		_sync_volume_slider()
+	if _fullscreen_toggle != null:
+		_fullscreen_toggle.toggled.connect(_on_fullscreen_toggled)
+		_fullscreen_toggle.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	if _back_button != null:
+		_back_button.pressed.connect(_on_back_pressed)
+	if _about_back_button != null:
+		_about_back_button.pressed.connect(_on_about_back_pressed)
+
+
+func _on_play_pressed() -> void:
+	_play_confirm()
+	if play_target.is_empty():
+		push_warning("MainMenu: play_target is not set — nothing to load. Set it in the inspector or re-run create_main_menu with play_target.")
+		return
+	get_tree().change_scene_to_file(play_target)
+
+
+func _on_settings_pressed() -> void:
+	if _menu_container != null:
+		_menu_container.hide()
+	if _settings_panel != null:
+		_settings_panel.show()
+	if _back_button != null:
+		_back_button.grab_focus()
+
+
+func _on_back_pressed() -> void:
+	_show_main_menu()
+	if _settings_button != null:
+		_settings_button.grab_focus()
+
+
+func _show_main_menu() -> void:
+	if _menu_container != null:
+		_menu_container.show()
+	if _settings_panel != null:
+		_settings_panel.hide()
+
+
+func _sync_volume_slider() -> void:
+	if _master_volume_slider == null:
+		return
+	var master_bus_index: int = AudioServer.get_bus_index(&"Master")
+	if master_bus_index < 0:
+		return
+	var volume_linear: float = db_to_linear(AudioServer.get_bus_volume_db(master_bus_index))
+	_master_volume_slider.value = volume_linear * 100.0
+
+
+func _on_master_volume_changed(value: float) -> void:
+	var master_bus_index: int = AudioServer.get_bus_index(&"Master")
+	if master_bus_index < 0:
+		return
+	var volume_linear: float = maxf(value / 100.0, 0.0001)
+	AudioServer.set_bus_volume_db(master_bus_index, linear_to_db(volume_linear))
+
+
+func _on_fullscreen_toggled(enabled: bool) -> void:
+	if enabled:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()

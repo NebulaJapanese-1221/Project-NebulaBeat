@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://bbqxl3lf8unxx"]
+
+[node name="SettingsMenu" type="Control" unique_id=1034317824]
+layout_mode = 3
+anchors_preset = 0

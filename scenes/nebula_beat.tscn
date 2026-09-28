@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://gjy6qjv3vxxr"]
+
+[ext_resource type="Script" uid="uid://df2ff58nhrxjg" path="res://scripts/nebula_beat.gd" id="1_fcpvn"]
+
+[node name="NebulaBeat" type="Control" unique_id=926916036]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_fcpvn")

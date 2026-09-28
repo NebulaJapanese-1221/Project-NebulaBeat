@@ -1,0 +1,218 @@
+[gd_scene format=3 uid="uid://ctg4m05m0rgjk"]
+
+[ext_resource type="Script" uid="uid://r4htxv3eeghm" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Texture2D" uid="uid://bjvyevvmqdww1" path="res://assets/sprites/ui-pack/PNG/Green/Default/button_rectangle_depth_gloss.png" id="2_oa1go"]
+[ext_resource type="Texture2D" uid="uid://dig27j81hgj8l" path="res://assets/sprites/ui-pack/PNG/Red/Default/button_rectangle_depth_gloss.png" id="3_tbmy8"]
+[ext_resource type="Texture2D" uid="uid://d21au6lcm8r1a" path="res://assets/sprites/ui-pack/PNG/Blue/Default/button_rectangle_depth_gloss.png" id="4_jk1qb"]
+[ext_resource type="Texture2D" uid="uid://c6br30v84m8o0" path="res://assets/sprites/ui-pack/PNG/Grey/Default/button_rectangle_depth_gloss.png" id="5_5dd4i"]
+[ext_resource type="AudioStream" uid="uid://d0y7dsfc0jpsg" path="res://assets/audio/sfx/interface-sounds/Audio/confirmation_001.ogg" id="6_lgwnu"]
+[ext_resource type="AudioStream" uid="uid://c6wgycuexbpnf" path="res://assets/audio/sfx/interface-sounds/Audio/back_001.ogg" id="7_flqon"]
+
+[node name="MainMenu" type="Control" unique_id=1836967131]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_l6cm7")
+play_target = "res://scenes/nebula_beat.tscn"
+
+[node name="Background" type="ColorRect" parent="." unique_id=1116786923]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.07, 0.08, 0.12, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=734490848]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=1967445209]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBox" unique_id=199036516]
+layout_mode = 2
+theme_override_font_sizes/font_size = 56
+text = "Project NebulaBeat"
+horizontal_alignment = 1
+
+[node name="PlayButton" type="Button" parent="CenterContainer/VBox" unique_id=1056086890]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="CenterContainer/VBox/PlayButton" unique_id=785870032]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_oa1go")
+
+[node name="Caption" type="Label" parent="CenterContainer/VBox/PlayButton" unique_id=510030026]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "PLAY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="QuitButton" type="Button" parent="CenterContainer/VBox" unique_id=1775533644]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="CenterContainer/VBox/QuitButton" unique_id=1874415868]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("3_tbmy8")
+
+[node name="Caption" type="Label" parent="CenterContainer/VBox/QuitButton" unique_id=597395876]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "QUIT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsButton" type="Button" parent="CenterContainer/VBox" unique_id=1340184231]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="CenterContainer/VBox/SettingsButton" unique_id=1768974025]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("4_jk1qb")
+
+[node name="Caption" type="Label" parent="CenterContainer/VBox/SettingsButton" unique_id=1903187387]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AboutButton" type="Button" parent="CenterContainer/VBox" unique_id=2078440699]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="CenterContainer/VBox/AboutButton" unique_id=524603933]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("4_jk1qb")
+
+[node name="Caption" type="Label" parent="CenterContainer/VBox/AboutButton" unique_id=961494804]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "ABOUT / CREDITS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsPanel" type="PanelContainer" parent="." unique_id=191593816]
+visible = false
+custom_minimum_size = Vector2(360, 300)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+
+[node name="SettingsVBox" type="VBoxContainer" parent="SettingsPanel" unique_id=1527884874]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SettingsTitle" type="Label" parent="SettingsPanel/SettingsVBox" unique_id=1827409239]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "SETTINGS"
+
+[node name="VolumeLabel" type="Label" parent="SettingsPanel/SettingsVBox" unique_id=114296809]
+layout_mode = 2
+text = "Master Volume"
+
+[node name="MasterVolumeSlider" type="HSlider" parent="SettingsPanel/SettingsVBox" unique_id=1123646166]
+layout_mode = 2
+value = 100.0
+
+[node name="FullscreenToggle" type="CheckButton" parent="SettingsPanel/SettingsVBox" unique_id=341496747]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="BackButton" type="Button" parent="SettingsPanel/SettingsVBox" unique_id=345488803]
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="SettingsPanel/SettingsVBox/BackButton" unique_id=1032442680]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("5_5dd4i")
+
+[node name="Caption" type="Label" parent="SettingsPanel/SettingsVBox/BackButton" unique_id=341431861]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AboutPanel" type="PanelContainer" parent="." unique_id=113019806]
+visible = false
+custom_minimum_size = Vector2(500, 320)
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+
+[node name="AboutVBox" type="VBoxContainer" parent="AboutPanel" unique_id=1826504682]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="AboutTitle" type="Label" parent="AboutPanel/AboutVBox" unique_id=100230225]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "ABOUT NEBULA BEAT"
+horizontal_alignment = 1
+
+[node name="AboutBody" type="Label" parent="AboutPanel/AboutVBox" unique_id=225628837]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "A rhythm-action prototype about slicing explosive notes before they reach the energy core.
+
+UI art and interface sounds
+by Kenney.nl
+
+Assets are released under CC0 1.0 — no attribution required.
+Thank you, Kenney.nl, for making game creation accessible."
+horizontal_alignment = 1
+
+[node name="AboutBackButton" type="Button" parent="AboutPanel/AboutVBox" unique_id=1222814880]
+layout_mode = 2
+
+[node name="KenneySkin" type="TextureRect" parent="AboutPanel/AboutVBox/AboutBackButton" unique_id=664437072]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("5_5dd4i")
+
+[node name="Caption" type="Label" parent="AboutPanel/AboutVBox/AboutBackButton" unique_id=2117884442]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuConfirm" type="AudioStreamPlayer" parent="." unique_id=349910590]
+stream = ExtResource("6_lgwnu")
+volume_db = -8.0
+
+[node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1172759395]
+stream = ExtResource("7_flqon")
+volume_db = -8.0
