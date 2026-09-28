@@ -36,7 +36,6 @@ var _combo: int = 0
 var _core_health: int = MAX_CORE_HEALTH
 var _dragging: bool = false
 var _last_drag_position: Vector2 = Vector2.ZERO
-var _drag_stroke_id: int = 0
 var _hit_flash: float = 0.0
 var _game_over: bool = false
 
@@ -97,7 +96,6 @@ func _input(event: InputEvent) -> void:
 				_restart()
 				return
 			_dragging = true
-			_drag_stroke_id += 1
 			_last_drag_position = mouse_button.position
 		else:
 			_dragging = false
@@ -113,7 +111,6 @@ func _input(event: InputEvent) -> void:
 				_restart()
 				return
 			_dragging = true
-			_drag_stroke_id += 1
 			_last_drag_position = screen_touch.position
 		else:
 			_dragging = false
@@ -148,10 +145,6 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 		var hit_radius: float = NOTE_RADIUS + (22.0 if note.is_long else 7.0)
 		if _distance_to_segment(note.position, start, finish) > hit_radius:
 			continue
-		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
-			continue
-		if note.is_long:
-			note.last_sliced_stroke = _drag_stroke_id
 		note.hits_remaining -= 1
 		_hit_flash = 0.09
 		if note.hits_remaining <= 0:
