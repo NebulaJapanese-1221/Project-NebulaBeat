@@ -66,16 +66,8 @@ func _make_level_list_scrollable() -> void:
 
 
 func _apply_localized_text() -> void:
-	_set_label_text("CenterContainer/VBox/Title", "levels")
-	_set_label_text("CenterContainer/VBox/Subtitle", "levels_subtitle")
 	_set_button_text("CenterContainer/VBox/EditorButton", "editor")
 	_set_button_text("CenterContainer/VBox/BackButton", "back")
-
-
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
 
 
 func _set_button_text(path: String, key: String) -> void:

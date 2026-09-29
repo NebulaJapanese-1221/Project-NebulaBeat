@@ -163,8 +163,6 @@ const STRINGS: Dictionary = {
 		"back": "戻る",
 		"play": "プレイ",
 		"about": "ゲームについて",
-		"about_body": "生きた星を守るリズムディフェンスゲーム。ノートがコアに届く前に、ビートに合わせてスライスします。",
-		"about_credit": "PROJECT NEBULA BEAT",
 		"quit": "終了",
 		"levels": "レベル選択",
 		"editor": "レベルエディター",

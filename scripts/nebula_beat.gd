@@ -485,7 +485,7 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
 	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
-	draw_string(font, Vector2(32.0, 44.0), "NEBULA BEAT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
+	draw_string(font, Vector2(32.0, 44.0), Localization.text("game_title"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
 	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
 	draw_string(font, Vector2(32.0, 94.0), "%s  %06d" % [Localization.text("score"), _score], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
 	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
@@ -500,9 +500,11 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	if _last_grade_life > 0.0:
 		var grade_width: float = font.get_string_size(_last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32).x
 		draw_string(font, Vector2((viewport_size.x - grade_width) * 0.5, viewport_size.y * 0.26), _last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32, Color(0.92, 1.0, 1.0, _last_grade_life / 0.62))
-	if _elapsed < 5.5 and not _game_over and not _level_complete:
+	if _elapsed < 7.0 and not _game_over and not _level_complete:
 		var prompt_key: String = "swipe_prompt" if _is_mobile_platform() else "drag_prompt"
 		var prompt: String = Localization.text(prompt_key) % LONG_NOTE_HITS
+		if bool(_level_data.get("tutorial", false)):
+			prompt = String(_level_data.get("tutorial_hint", prompt))
 		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
 		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 	if _game_over:

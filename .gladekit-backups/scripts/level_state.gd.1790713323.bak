@@ -45,15 +45,15 @@ static func get_level_data() -> Dictionary:
 		var active_notes: int = maxi(custom_note_pattern.count(true), 1)
 		return {
 			"id": 0,
-			"title": Localization.text("custom_chart"),
-			"subtitle": Localization.text("custom_chart_subtitle"),
+			"title": selected_level_title,
+			"subtitle": "Custom editor chart",
 			"spawn_interval": custom_spawn_interval,
 			"speed_multiplier": custom_speed_multiplier,
 			"long_every": 0,
 			"target_notes": active_notes,
 			"tutorial": false
 		}
-	return level_data_for(selected_level_id)
+	return BUILT_IN_LEVELS[clampi(selected_level_id, 1, BUILT_IN_LEVELS.size()) - 1].duplicate()
 
 
 static func is_custom_long_note(note_index: int) -> bool:

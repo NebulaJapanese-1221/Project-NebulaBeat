@@ -48,15 +48,7 @@ func _apply_localized_text() -> void:
 	_set_button_text("CenterContainer/VBox/SettingsButton", "settings")
 	_set_button_text("CenterContainer/VBox/AboutButton", "about")
 	_set_button_text("CenterContainer/VBox/QuitButton", "quit")
-	_set_label_text("CenterContainer/VBox/TitleLabel", "game_title")
 	_set_label_text("CenterContainer/VBox/VersionLabel", "version")
-
-
-func _move_quit_to_bottom() -> void:
-	var menu_column: VBoxContainer = get_node_or_null("CenterContainer/VBox")
-	if menu_column != null and _quit_button != null:
-		# Keep the version label as a footer while making Quit the final menu action.
-		menu_column.move_child(_quit_button, menu_column.get_child_count() - 2)
 
 
 func _set_label_text(path: String, key: String) -> void:
