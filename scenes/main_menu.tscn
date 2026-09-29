@@ -15,7 +15,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_l6cm7")
-play_target = "res://scenes/nebula_beat.tscn"
 
 [node name="Background" type="ColorRect" parent="." unique_id=1116786923]
 layout_mode = 0
