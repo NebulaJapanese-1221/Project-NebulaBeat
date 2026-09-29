@@ -9,6 +9,7 @@ class Note extends RefCounted:
 	var speed: float = 100.0
 	var is_long: bool = false
 	var hits_remaining: int = 1
+	var last_sliced_stroke: int = -1
 	var hue: float = 0.55
 	var phase: float = 0.0
 
@@ -35,6 +36,7 @@ var _combo: int = 0
 var _core_health: int = MAX_CORE_HEALTH
 var _dragging: bool = false
 var _last_drag_position: Vector2 = Vector2.ZERO
+var _drag_stroke_id: int = 0
 var _hit_flash: float = 0.0
 var _game_over: bool = false
 
@@ -95,6 +97,7 @@ func _input(event: InputEvent) -> void:
 				_restart()
 				return
 			_dragging = true
+			_drag_stroke_id += 1
 			_last_drag_position = mouse_button.position
 		else:
 			_dragging = false
@@ -103,6 +106,22 @@ func _input(event: InputEvent) -> void:
 		if mouse_motion.position.distance_to(_last_drag_position) >= 4.0:
 			_slice_between(_last_drag_position, mouse_motion.position)
 			_last_drag_position = mouse_motion.position
+	elif event is InputEventScreenTouch:
+		var screen_touch: InputEventScreenTouch = event
+		if screen_touch.pressed:
+			if _game_over:
+				_restart()
+				return
+			_dragging = true
+			_drag_stroke_id += 1
+			_last_drag_position = screen_touch.position
+		else:
+			_dragging = false
+	elif event is InputEventScreenDrag and _dragging and not _game_over:
+		var screen_drag: InputEventScreenDrag = event
+		if screen_drag.position.distance_to(_last_drag_position) >= 4.0:
+			_slice_between(_last_drag_position, screen_drag.position)
+			_last_drag_position = screen_drag.position
 
 
 func _spawn_note() -> void:
@@ -129,6 +148,10 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 		var hit_radius: float = NOTE_RADIUS + (22.0 if note.is_long else 7.0)
 		if _distance_to_segment(note.position, start, finish) > hit_radius:
 			continue
+		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
+			continue
+		if note.is_long:
+			note.last_sliced_stroke = _drag_stroke_id
 		note.hits_remaining -= 1
 		_hit_flash = 0.09
 		if note.hits_remaining <= 0:

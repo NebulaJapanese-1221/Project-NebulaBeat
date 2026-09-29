@@ -28,7 +28,10 @@ func _ready() -> void:
 
 
 func _on_play_pressed() -> void:
-	_change_scene(LEVELS_MENU_PATH)
+	if play_target.is_empty():
+		push_warning("MainMenu: play_target is not set — nothing to load. Set it in the inspector.")
+		return
+	_change_scene(play_target)
 
 
 func _open_settings() -> void:

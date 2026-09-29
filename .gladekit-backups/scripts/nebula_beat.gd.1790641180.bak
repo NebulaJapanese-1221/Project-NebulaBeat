@@ -35,13 +35,20 @@ var _score: int = 0
 var _combo: int = 0
 var _core_health: int = MAX_CORE_HEALTH
 var _dragging: bool = false
+var _active_touch_index: int = -1
 var _last_drag_position: Vector2 = Vector2.ZERO
 var _drag_stroke_id: int = 0
 var _hit_flash: float = 0.0
 var _game_over: bool = false
+var _level_data: Dictionary = {}
+
+
+func _is_mobile_platform() -> bool:
+	return OS.has_feature("mobile")
 
 
 func _ready() -> void:
+	_level_data = LevelState.get_level_data()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	queue_redraw()
@@ -55,7 +62,8 @@ func _process(delta: float) -> void:
 
 	_elapsed += delta
 	_spawn_timer += delta
-	var beat_interval: float = maxf(0.34, 0.78 - _elapsed * 0.007)
+	var base_interval: float = float(_level_data.get("spawn_interval", 0.78))
+	var beat_interval: float = maxf(0.30, base_interval - _elapsed * 0.007)
 	if _spawn_timer >= beat_interval:
 		_spawn_timer -= beat_interval
 		_spawn_note()
@@ -88,7 +96,16 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
+	if event.is_action_pressed(&"ui_cancel"):
+		var pause_menu: Node = get_tree().get_first_node_in_group("pause_menu")
+		if pause_menu != null and pause_menu.has_method("_set_paused"):
+			pause_menu.call("_set_paused", not get_tree().paused)
+			get_viewport().set_input_as_handled()
+		return
+
+	# Android can emit both touch and emulated mouse events for one gesture.
+	# Native touch owns mobile slicing so each physical drag produces one stroke.
+	if event is InputEventMouseButton and not _is_mobile_platform():
 		var mouse_button: InputEventMouseButton = event
 		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 			return
@@ -101,7 +118,7 @@ func _input(event: InputEvent) -> void:
 			_last_drag_position = mouse_button.position
 		else:
 			_dragging = false
-	elif event is InputEventMouseMotion and _dragging and not _game_over:
+	elif event is InputEventMouseMotion and _dragging and not _game_over and not _is_mobile_platform():
 		var mouse_motion: InputEventMouseMotion = event
 		if mouse_motion.position.distance_to(_last_drag_position) >= 4.0:
 			_slice_between(_last_drag_position, mouse_motion.position)
@@ -109,15 +126,22 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventScreenTouch:
 		var screen_touch: InputEventScreenTouch = event
 		if screen_touch.pressed:
+			if _dragging:
+				return
 			if _game_over:
 				_restart()
 				return
 			_dragging = true
+			_active_touch_index = screen_touch.index
+			_drag_stroke_id += 1
 			_last_drag_position = screen_touch.position
-		else:
+		elif screen_touch.index == _active_touch_index:
 			_dragging = false
+			_active_touch_index = -1
 	elif event is InputEventScreenDrag and _dragging and not _game_over:
 		var screen_drag: InputEventScreenDrag = event
+		if screen_drag.index != _active_touch_index:
+			return
 		if screen_drag.position.distance_to(_last_drag_position) >= 4.0:
 			_slice_between(_last_drag_position, screen_drag.position)
 			_last_drag_position = screen_drag.position
@@ -128,8 +152,13 @@ func _spawn_note() -> void:
 	var angle: float = fmod(float(_spawn_index) * 2.399963 + _elapsed * 0.23, TAU)
 	var core_position: Vector2 = _core_position()
 	note.position = core_position + Vector2(cos(angle), sin(angle)) * _spawn_radius()
-	note.speed = 98.0 + minf(_elapsed * 3.8, 100.0)
-	note.is_long = _spawn_index > 0 and _spawn_index % 5 == 0
+	var speed_multiplier: float = float(_level_data.get("speed_multiplier", 1.0))
+	note.speed = (98.0 + minf(_elapsed * 3.8, 100.0)) * speed_multiplier
+	if LevelState.selected_level_id == 0:
+		note.is_long = LevelState.is_custom_long_note(_spawn_index)
+	else:
+		var long_every: int = int(_level_data.get("long_every", 5))
+		note.is_long = long_every > 0 and _spawn_index > 0 and _spawn_index % long_every == 0
 	note.hits_remaining = LONG_NOTE_HITS if note.is_long else 1
 	note.hue = fmod(0.52 + float(_spawn_index % 4) * 0.095, 1.0)
 	_notes.append(note)
@@ -147,6 +176,10 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 		var hit_radius: float = NOTE_RADIUS + (22.0 if note.is_long else 7.0)
 		if _distance_to_segment(note.position, start, finish) > hit_radius:
 			continue
+		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
+			continue
+		if note.is_long:
+			note.last_sliced_stroke = _drag_stroke_id
 		note.hits_remaining -= 1
 		_hit_flash = 0.09
 		if note.hits_remaining <= 0:
@@ -276,7 +309,9 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
 	draw_string(font, Vector2(32.0, 44.0), "NEBULA BEAT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
-	draw_string(font, Vector2(32.0, 74.0), "SCORE  %06d" % _score, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
+	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
+	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
+	draw_string(font, Vector2(32.0, 94.0), "SCORE  %06d" % _score, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
 	if _combo > 1:
 		draw_string(font, Vector2(32.0, 102.0), "%d COMBO" % _combo, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(1.0, 0.56, 0.94))
 
@@ -287,7 +322,8 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	draw_rect(health_rect, Color(0.48, 0.78, 1.0, 0.8), false, 1.0)
 
 	if _elapsed < 5.5 and not _game_over:
-		var prompt: String = "DRAG THROUGH NOTES  •  LONG NOTES NEED %d SLICES" % LONG_NOTE_HITS
+		var action_label: String = "SWIPE" if _is_mobile_platform() else "DRAG"
+		var prompt: String = "%s THROUGH NOTES  •  LONG NOTES NEED %d SLICES" % [action_label, LONG_NOTE_HITS]
 		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
 		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 

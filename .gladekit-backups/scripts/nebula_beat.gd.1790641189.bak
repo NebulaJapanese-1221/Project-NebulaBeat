@@ -497,4 +497,4 @@ func _draw_result_overlay(viewport_size: Vector2, font: Font, title: String, tit
 	var title_width: float = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36).x
 	var detail_width: float = font.get_string_size(detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17).x
 	draw_string(font, Vector2((viewport_size.x - title_width) * 0.5, viewport_size.y * 0.48), title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36, title_color)
-	draw_multiline_string(font, Vector2(32.0, viewport_size.y * 0.53), detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17, -1, Color(0.86, 0.94, 1.0))
+	draw_multiline_string(font, Rect2(32.0, viewport_size.y * 0.53, viewport_size.x - 64.0, 80.0), detail, HORIZONTAL_ALIGNMENT_CENTER, -1.0, 17, Color(0.86, 0.94, 1.0))

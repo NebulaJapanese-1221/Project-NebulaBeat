@@ -31,43 +31,29 @@ func _ready() -> void:
 	_apply_saved_audio()
 
 
-func _profile() -> Node:
-	return get_tree().root.get_node_or_null("SaveManager")
-
-
-func _saved_value(key: String, fallback: Variant) -> Variant:
-	var profile: Node = _profile()
-	if profile == null:
-		return fallback
-	return profile.call("get_value", key, fallback)
-
-
 func _setup_slider(slider: HSlider, key: String, callback: Callable) -> void:
 	if slider == null:
 		return
-	slider.value = float(_saved_value(key, slider.value))
+	slider.value = float(SaveManager.get_value(key, slider.value))
 	slider.value_changed.connect(callback)
 
 
 func _setup_toggle(toggle: CheckButton, key: String, callback: Callable, fallback: bool) -> void:
 	if toggle == null:
 		return
-	toggle.button_pressed = bool(_saved_value(key, fallback))
+	toggle.button_pressed = bool(SaveManager.get_value(key, fallback))
 	toggle.toggled.connect(callback)
 
 
 func _set_saved(key: String, value: Variant) -> void:
-	var profile: Node = _profile()
-	if profile == null:
-		return
-	profile.call("set_value", key, value)
-	profile.call("save")
+	SaveManager.set_value(key, value)
+	SaveManager.save()
 
 
 func _apply_saved_audio() -> void:
-	_set_bus_volume(&"Master", float(_saved_value("master_volume", 100.0)))
-	_set_bus_volume(&"Music", float(_saved_value("music_volume", 80.0)))
-	_set_bus_volume(&"SFX", float(_saved_value("sfx_volume", 90.0)))
+	_set_bus_volume(&"Master", float(SaveManager.get_value("master_volume", 100.0)))
+	_set_bus_volume(&"Music", float(SaveManager.get_value("music_volume", 80.0)))
+	_set_bus_volume(&"SFX", float(SaveManager.get_value("sfx_volume", 90.0)))
 
 
 func _set_bus_volume(bus_name: StringName, percentage: float) -> void:

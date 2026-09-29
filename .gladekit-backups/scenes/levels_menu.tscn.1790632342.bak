@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://erm3hx8x7w4i"]
+
+[node name="LevelsMenu" type="Control" unique_id=1527709531]
+layout_mode = 3
+anchors_preset = 0

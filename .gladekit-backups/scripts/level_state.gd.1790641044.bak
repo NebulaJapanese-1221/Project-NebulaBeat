@@ -1,0 +1,56 @@
+extends RefCounted
+class_name LevelState
+
+# Session-level selection shared by the level selector, editor, and gameplay scene.
+const BUILT_IN_LEVELS: Array[Dictionary] = [
+	{"id": 1, "title": "Tutorial 01 — First Slice", "subtitle": "Learn the drag-slice rhythm.", "spawn_interval": 0.92, "speed_multiplier": 0.72, "long_every": 0, "tutorial": true},
+	{"id": 2, "title": "Tutorial 02 — Core Guard", "subtitle": "Protect the core as the tempo rises.", "spawn_interval": 0.78, "speed_multiplier": 0.82, "long_every": 0, "tutorial": true},
+	{"id": 3, "title": "Tutorial 03 — Long Notes", "subtitle": "Chain repeated cuts through long notes.", "spawn_interval": 0.74, "speed_multiplier": 0.88, "long_every": 4, "tutorial": true},
+	{"id": 4, "title": "Phase Shift", "subtitle": "A steady barrage with wider slicing lanes.", "spawn_interval": 0.67, "speed_multiplier": 1.00, "long_every": 5, "tutorial": false},
+	{"id": 5, "title": "Ion Rush", "subtitle": "Fast notes converge on the core.", "spawn_interval": 0.59, "speed_multiplier": 1.14, "long_every": 4, "tutorial": false},
+	{"id": 6, "title": "Supernova", "subtitle": "Dense long-note patterns under pressure.", "spawn_interval": 0.51, "speed_multiplier": 1.28, "long_every": 3, "tutorial": false},
+	{"id": 7, "title": "Nebula Breaker", "subtitle": "The final high-speed endurance chart.", "spawn_interval": 0.44, "speed_multiplier": 1.42, "long_every": 3, "tutorial": false}
+]
+
+static var selected_level_id: int = 1
+static var selected_level_title: String = "Tutorial 01 — First Slice"
+static var custom_note_pattern: Array[bool] = []
+static var custom_spawn_interval: float = 0.68
+static var custom_speed_multiplier: float = 1.0
+
+
+static func select_builtin(level_id: int) -> void:
+	selected_level_id = clampi(level_id, 1, BUILT_IN_LEVELS.size())
+	var level: Dictionary = BUILT_IN_LEVELS[selected_level_id - 1]
+	selected_level_title = String(level["title"])
+
+
+static func select_custom() -> void:
+	selected_level_id = 0
+	selected_level_title = "Custom Chart"
+
+
+static func get_level_data() -> Dictionary:
+	if selected_level_id == 0:
+		return {
+			"id": 0,
+			"title": selected_level_title,
+			"subtitle": "Custom editor chart",
+			"spawn_interval": custom_spawn_interval,
+			"speed_multiplier": custom_speed_multiplier,
+			"long_every": 0,
+			"tutorial": false
+		}
+	return BUILT_IN_LEVELS[clampi(selected_level_id, 1, BUILT_IN_LEVELS.size()) - 1].duplicate()
+
+
+static func is_custom_long_note(note_index: int) -> bool:
+	if selected_level_id != 0 or custom_note_pattern.is_empty():
+		return false
+	return custom_note_pattern[note_index % custom_note_pattern.size()]
+
+
+static func reset_custom_chart() -> void:
+	custom_note_pattern.clear()
+	custom_spawn_interval = 0.68
+	custom_speed_multiplier = 1.0

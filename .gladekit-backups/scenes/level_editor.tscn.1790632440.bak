@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://p26eo3nptor4"]
+
+[node name="LevelEditor" type="Control" unique_id=436013595]
+layout_mode = 3
+anchors_preset = 0

@@ -74,34 +74,6 @@ text = "BACK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MusicVolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=289793252]
-layout_mode = 2
-text = "MUSIC VOLUME"
-
-[node name="MusicVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1459395154]
-layout_mode = 2
-value = 80.0
-
-[node name="SfxVolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1647173824]
-layout_mode = 2
-text = "SFX VOLUME"
-
-[node name="SfxVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=351753948]
-layout_mode = 2
-value = 90.0
-
-[node name="ReducedMotionToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1051971326]
-layout_mode = 2
-text = "REDUCED MOTION"
-
-[node name="HapticsToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1139356491]
-layout_mode = 2
-text = "HAPTIC FEEDBACK"
-
-[node name="ColorSafeToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1909587926]
-layout_mode = 2
-text = "COLOR-SAFE NOTE SHAPES"
-
 [node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1488491782]
 stream = ExtResource("2_wswnh")
 volume_db = -8.0

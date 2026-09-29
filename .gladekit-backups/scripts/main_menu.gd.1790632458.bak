@@ -4,9 +4,10 @@ extends Control
 # and About in their own scenes keeps this entry scene lightweight and easier to
 # extend with further menu pages later.
 
-const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
 const SETTINGS_MENU_PATH: String = "res://scenes/settings_menu.tscn"
 const ABOUT_MENU_PATH: String = "res://scenes/about_menu.tscn"
+
+@export_file("*.tscn") var play_target: String = ""
 
 @onready var _play_button: Button = get_node_or_null("CenterContainer/VBox/PlayButton")
 @onready var _settings_button: Button = get_node_or_null("CenterContainer/VBox/SettingsButton")
@@ -28,7 +29,10 @@ func _ready() -> void:
 
 
 func _on_play_pressed() -> void:
-	_change_scene(LEVELS_MENU_PATH)
+	if play_target.is_empty():
+		push_warning("MainMenu: play_target is not set — nothing to load. Set it in the inspector.")
+		return
+	_change_scene(play_target)
 
 
 func _open_settings() -> void:

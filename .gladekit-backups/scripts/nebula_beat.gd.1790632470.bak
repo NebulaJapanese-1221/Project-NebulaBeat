@@ -35,13 +35,20 @@ var _score: int = 0
 var _combo: int = 0
 var _core_health: int = MAX_CORE_HEALTH
 var _dragging: bool = false
+var _active_touch_index: int = -1
 var _last_drag_position: Vector2 = Vector2.ZERO
 var _drag_stroke_id: int = 0
 var _hit_flash: float = 0.0
 var _game_over: bool = false
+var _level_data: Dictionary = {}
+
+
+func _is_mobile_platform() -> bool:
+	return OS.has_feature("mobile")
 
 
 func _ready() -> void:
+	_level_data = LevelState.get_level_data()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	queue_redraw()
@@ -88,7 +95,16 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
+	if event.is_action_pressed(&"ui_cancel"):
+		var pause_menu: Node = get_tree().get_first_node_in_group("pause_menu")
+		if pause_menu != null and pause_menu.has_method("_set_paused"):
+			pause_menu.call("_set_paused", not get_tree().paused)
+			get_viewport().set_input_as_handled()
+		return
+
+	# Android can emit both touch and emulated mouse events for one gesture.
+	# Native touch owns mobile slicing so each physical drag produces one stroke.
+	if event is InputEventMouseButton and not _is_mobile_platform():
 		var mouse_button: InputEventMouseButton = event
 		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 			return
@@ -97,10 +113,11 @@ func _input(event: InputEvent) -> void:
 				_restart()
 				return
 			_dragging = true
+			_drag_stroke_id += 1
 			_last_drag_position = mouse_button.position
 		else:
 			_dragging = false
-	elif event is InputEventMouseMotion and _dragging and not _game_over:
+	elif event is InputEventMouseMotion and _dragging and not _game_over and not _is_mobile_platform():
 		var mouse_motion: InputEventMouseMotion = event
 		if mouse_motion.position.distance_to(_last_drag_position) >= 4.0:
 			_slice_between(_last_drag_position, mouse_motion.position)
@@ -108,15 +125,22 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventScreenTouch:
 		var screen_touch: InputEventScreenTouch = event
 		if screen_touch.pressed:
+			if _dragging:
+				return
 			if _game_over:
 				_restart()
 				return
 			_dragging = true
+			_active_touch_index = screen_touch.index
+			_drag_stroke_id += 1
 			_last_drag_position = screen_touch.position
-		else:
+		elif screen_touch.index == _active_touch_index:
 			_dragging = false
+			_active_touch_index = -1
 	elif event is InputEventScreenDrag and _dragging and not _game_over:
 		var screen_drag: InputEventScreenDrag = event
+		if screen_drag.index != _active_touch_index:
+			return
 		if screen_drag.position.distance_to(_last_drag_position) >= 4.0:
 			_slice_between(_last_drag_position, screen_drag.position)
 			_last_drag_position = screen_drag.position
@@ -146,6 +170,10 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 		var hit_radius: float = NOTE_RADIUS + (22.0 if note.is_long else 7.0)
 		if _distance_to_segment(note.position, start, finish) > hit_radius:
 			continue
+		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
+			continue
+		if note.is_long:
+			note.last_sliced_stroke = _drag_stroke_id
 		note.hits_remaining -= 1
 		_hit_flash = 0.09
 		if note.hits_remaining <= 0:
@@ -286,7 +314,8 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	draw_rect(health_rect, Color(0.48, 0.78, 1.0, 0.8), false, 1.0)
 
 	if _elapsed < 5.5 and not _game_over:
-		var prompt: String = "DRAG THROUGH NOTES  •  LONG NOTES NEED %d SLICES" % LONG_NOTE_HITS
+		var action_label: String = "SWIPE" if _is_mobile_platform() else "DRAG"
+		var prompt: String = "%s THROUGH NOTES  •  LONG NOTES NEED %d SLICES" % [action_label, LONG_NOTE_HITS]
 		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
 		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 
