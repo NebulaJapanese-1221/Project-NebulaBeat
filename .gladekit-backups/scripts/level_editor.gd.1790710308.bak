@@ -1,0 +1,83 @@
+extends Control
+
+const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
+const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
+const BEAT_COUNT: int = 16
+
+@onready var _beat_grid: GridContainer = get_node_or_null("CenterContainer/VBox/BeatGrid")
+@onready var _tempo_slider: HSlider = get_node_or_null("CenterContainer/VBox/TempoSlider")
+@onready var _speed_slider: HSlider = get_node_or_null("CenterContainer/VBox/SpeedSlider")
+@onready var _playtest_button: Button = get_node_or_null("CenterContainer/VBox/PlaytestButton")
+@onready var _reset_button: Button = get_node_or_null("CenterContainer/VBox/ResetButton")
+@onready var _back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
+
+
+func _ready() -> void:
+	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_localized_text()
+	if LevelState.custom_note_pattern.size() != BEAT_COUNT:
+		LevelState.custom_note_pattern.resize(BEAT_COUNT)
+		for index: int in range(BEAT_COUNT):
+			LevelState.custom_note_pattern[index] = false
+	if _tempo_slider != null:
+		_tempo_slider.value = LevelState.custom_spawn_interval
+		_tempo_slider.value_changed.connect(_on_tempo_changed)
+	if _speed_slider != null:
+		_speed_slider.value = LevelState.custom_speed_multiplier
+		_speed_slider.value_changed.connect(_on_speed_changed)
+	for index: int in range(BEAT_COUNT):
+		var beat_button: CheckButton = get_node_or_null("CenterContainer/VBox/BeatGrid/Beat%02d" % (index + 1))
+		if beat_button != null:
+			beat_button.button_pressed = LevelState.custom_note_pattern[index]
+			beat_button.toggled.connect(_on_beat_toggled.bind(index))
+	if _playtest_button != null:
+		_playtest_button.pressed.connect(_playtest_chart)
+	if _reset_button != null:
+		_reset_button.pressed.connect(_reset_chart)
+	if _back_button != null:
+		_back_button.pressed.connect(_return_to_levels)
+	var first_beat: CheckButton = get_node_or_null("CenterContainer/VBox/BeatGrid/Beat01")
+	if first_beat != null:
+		first_beat.grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_cancel"):
+		_return_to_levels()
+		get_viewport().set_input_as_handled()
+
+
+func _on_beat_toggled(enabled: bool, beat_index: int) -> void:
+	LevelState.custom_note_pattern[beat_index] = enabled
+
+
+func _on_tempo_changed(value: float) -> void:
+	LevelState.custom_spawn_interval = value
+
+
+func _on_speed_changed(value: float) -> void:
+	LevelState.custom_speed_multiplier = value
+
+
+func _playtest_chart() -> void:
+	LevelState.select_custom()
+	get_tree().change_scene_to_file(GAMEPLAY_PATH)
+
+
+func _reset_chart() -> void:
+	LevelState.reset_custom_chart()
+	LevelState.custom_note_pattern.resize(BEAT_COUNT)
+	for index: int in range(BEAT_COUNT):
+		LevelState.custom_note_pattern[index] = false
+		var beat_button: CheckButton = get_node_or_null("CenterContainer/VBox/BeatGrid/Beat%02d" % (index + 1))
+		if beat_button != null:
+			beat_button.button_pressed = false
+	if _tempo_slider != null:
+		_tempo_slider.value = LevelState.custom_spawn_interval
+	if _speed_slider != null:
+		_speed_slider.value = LevelState.custom_speed_multiplier
+
+
+func _return_to_levels() -> void:
+	get_tree().change_scene_to_file(LEVELS_MENU_PATH)

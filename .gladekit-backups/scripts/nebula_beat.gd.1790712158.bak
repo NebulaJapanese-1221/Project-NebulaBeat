@@ -1,0 +1,501 @@
+extends Control
+
+# Finite beat-synced rhythm arena for NebulaBeat. An optional child AudioStreamPlayer
+# named MusicTrack provides the authoritative clock when a music stream is assigned.
+
+class Note extends RefCounted:
+	var position: Vector2 = Vector2.ZERO
+	var speed: float = 100.0
+	var is_long: bool = false
+	var hits_remaining: int = 1
+	var last_sliced_stroke: int = -1
+	var hue: float = 0.55
+	var phase: float = 0.0
+	var spawn_beat: int = 0
+
+
+class SlashTrail extends RefCounted:
+	var start: Vector2 = Vector2.ZERO
+	var finish: Vector2 = Vector2.ZERO
+	var life: float = 0.16
+
+
+class Telegraph extends RefCounted:
+	var position: Vector2 = Vector2.ZERO
+	var is_long: bool = false
+	var hue: float = 0.55
+	var life: float = 0.45
+	var maximum_life: float = 0.45
+
+
+class Spark extends RefCounted:
+	var position: Vector2 = Vector2.ZERO
+	var velocity: Vector2 = Vector2.ZERO
+	var color: Color = Color.WHITE
+	var life: float = 0.24
+	var maximum_life: float = 0.24
+
+
+const CORE_RADIUS: float = 58.0
+const NOTE_RADIUS: float = 25.0
+const OUTER_MARGIN: float = 95.0
+const MAX_CORE_HEALTH: int = 100
+const LONG_NOTE_HITS: int = 3
+const PERFECT_WINDOW: float = 0.075
+const GOOD_WINDOW: float = 0.18
+const TELEGRAPH_LEAD: float = 0.45
+const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
+
+var _notes: Array[Note] = []
+var _slashes: Array[SlashTrail] = []
+var _telegraphs: Array[Telegraph] = []
+var _sparks: Array[Spark] = []
+var _elapsed: float = 0.0
+var _beat_clock: float = 0.0
+var _next_spawn_beat: int = 0
+var _spawn_index: int = 0
+var _score: int = 0
+var _combo: int = 0
+var _max_combo: int = 0
+var _core_health: int = MAX_CORE_HEALTH
+var _dragging: bool = false
+var _active_touch_index: int = -1
+var _last_drag_position: Vector2 = Vector2.ZERO
+var _drag_stroke_id: int = 0
+var _hit_flash: float = 0.0
+var _screen_shake: float = 0.0
+var _game_over: bool = false
+var _level_complete: bool = false
+var _level_data: Dictionary = {}
+var _target_notes: int = 12
+var _beat_interval: float = 0.75
+var _perfect_count: int = 0
+var _good_count: int = 0
+var _miss_count: int = 0
+var _last_grade: String = ""
+var _last_grade_life: float = 0.0
+var _reduced_motion: bool = false
+var _haptics: bool = true
+var _color_safe: bool = false
+@onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
+
+
+func _ready() -> void:
+	Localization.apply_saved_locale()
+	_level_data = LevelState.get_level_data()
+	_target_notes = int(_level_data.get("target_notes", 12))
+	_beat_interval = maxf(float(_level_data.get("spawn_interval", 0.78)), 0.35)
+	_reduced_motion = bool(_profile_value("reduced_motion", false))
+	_haptics = bool(_profile_value("haptics", true))
+	_color_safe = bool(_profile_value("color_safe", false))
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	queue_redraw()
+
+
+func _profile_value(key: String, fallback: Variant) -> Variant:
+	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+	if profile == null:
+		return fallback
+	return profile.call("get_value", key, fallback)
+
+
+func _process(delta: float) -> void:
+	if _game_over or _level_complete:
+		_update_feedback(delta)
+		queue_redraw()
+		return
+
+	_elapsed += delta
+	_beat_clock = _music_track.get_playback_position() if _music_track != null and _music_track.playing else _elapsed
+	_update_telegraphs(delta)
+	_schedule_beats()
+	_update_notes(delta)
+	_update_feedback(delta)
+	if _spawn_index >= _target_notes and _notes.is_empty() and _telegraphs.is_empty():
+		_finish_level()
+	queue_redraw()
+
+
+func _schedule_beats() -> void:
+	while _beat_clock + TELEGRAPH_LEAD >= float(_next_spawn_beat) * _beat_interval and _next_spawn_beat < _target_notes:
+		_create_telegraph(_next_spawn_beat)
+		_next_spawn_beat += 1
+	while _spawn_index < _target_notes and _beat_clock >= float(_spawn_index) * _beat_interval:
+		_spawn_note(_spawn_index)
+
+
+func _create_telegraph(beat_index: int) -> void:
+	var telegraph: Telegraph = Telegraph.new()
+	var angle: float = fmod(float(beat_index) * 2.399963 + float(beat_index) * _beat_interval * 0.23, TAU)
+	telegraph.position = _core_position() + Vector2(cos(angle), sin(angle)) * _spawn_radius()
+	telegraph.is_long = _is_long_note(beat_index)
+	telegraph.hue = fmod(0.52 + float(beat_index % 4) * 0.095, 1.0)
+	telegraph.life = TELEGRAPH_LEAD
+	telegraph.maximum_life = TELEGRAPH_LEAD
+	_telegraphs.append(telegraph)
+
+
+func _spawn_note(beat_index: int) -> void:
+	var note: Note = Note.new()
+	var angle: float = fmod(float(beat_index) * 2.399963 + float(beat_index) * _beat_interval * 0.23, TAU)
+	note.position = _core_position() + Vector2(cos(angle), sin(angle)) * _spawn_radius()
+	var speed_multiplier: float = float(_level_data.get("speed_multiplier", 1.0))
+	note.speed = (98.0 + minf(_elapsed * 3.8, 100.0)) * speed_multiplier
+	note.is_long = _is_long_note(beat_index)
+	note.hits_remaining = LONG_NOTE_HITS if note.is_long else 1
+	note.hue = fmod(0.52 + float(beat_index % 4) * 0.095, 1.0)
+	note.spawn_beat = beat_index
+	_notes.append(note)
+	_spawn_index += 1
+
+
+func _is_long_note(note_index: int) -> bool:
+	if LevelState.selected_level_id == 0:
+		return LevelState.is_custom_long_note(note_index)
+	var long_every: int = int(_level_data.get("long_every", 0))
+	return long_every > 0 and note_index > 0 and note_index % long_every == 0
+
+
+func _update_telegraphs(delta: float) -> void:
+	for index: int in range(_telegraphs.size() - 1, -1, -1):
+		var telegraph: Telegraph = _telegraphs[index]
+		telegraph.life -= delta
+		if telegraph.life <= 0.0:
+			_telegraphs.remove_at(index)
+
+
+func _update_notes(delta: float) -> void:
+	var core_position: Vector2 = _core_position()
+	var start_distance: float = _spawn_radius()
+	for index: int in range(_notes.size() - 1, -1, -1):
+		var note: Note = _notes[index]
+		var distance_to_core: float = note.position.distance_to(core_position)
+		var proximity: float = clampf(1.0 - distance_to_core / start_distance, 0.0, 1.0)
+		var travel_speed: float = note.speed * (1.0 + proximity * 1.9)
+		note.position = note.position.move_toward(core_position, travel_speed * delta)
+		note.phase += delta * (2.0 + proximity * 5.0)
+		if note.position.distance_to(core_position) <= CORE_RADIUS + 8.0:
+			_core_health = maxi(_core_health - (12 if note.is_long else 7), 0)
+			_combo = 0
+			_miss_count += 1
+			_show_grade(Localization.text("miss"), Color(1.0, 0.32, 0.48))
+			_core_impact(note.position)
+			_notes.remove_at(index)
+			if _core_health <= 0:
+				_game_over = true
+
+
+func _update_feedback(delta: float) -> void:
+	for index: int in range(_slashes.size() - 1, -1, -1):
+		var slash: SlashTrail = _slashes[index]
+		slash.life -= delta
+		if slash.life <= 0.0:
+			_slashes.remove_at(index)
+	for index: int in range(_sparks.size() - 1, -1, -1):
+		var spark: Spark = _sparks[index]
+		spark.position += spark.velocity * delta
+		spark.velocity *= maxf(1.0 - delta * 5.0, 0.0)
+		spark.life -= delta
+		if spark.life <= 0.0:
+			_sparks.remove_at(index)
+	_hit_flash = maxf(_hit_flash - delta, 0.0)
+	_screen_shake = maxf(_screen_shake - delta, 0.0)
+	_last_grade_life = maxf(_last_grade_life - delta, 0.0)
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_cancel"):
+		if _level_complete or _game_over:
+			get_tree().change_scene_to_file(LEVELS_MENU_PATH)
+		else:
+			var pause_menu: Node = get_tree().get_first_node_in_group("pause_menu")
+			if pause_menu != null and pause_menu.has_method("_set_paused"):
+				pause_menu.call("_set_paused", not get_tree().paused)
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventMouseButton and not _is_mobile_platform():
+		var mouse_button: InputEventMouseButton = event
+		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if mouse_button.pressed:
+			_handle_press(mouse_button.position)
+		else:
+			_dragging = false
+	elif event is InputEventMouseMotion and _dragging and not _game_over and not _level_complete and not _is_mobile_platform():
+		var mouse_motion: InputEventMouseMotion = event
+		_handle_drag(mouse_motion.position)
+	elif event is InputEventScreenTouch:
+		var screen_touch: InputEventScreenTouch = event
+		if screen_touch.pressed:
+			if not _dragging:
+				_active_touch_index = screen_touch.index
+				_handle_press(screen_touch.position)
+		elif screen_touch.index == _active_touch_index:
+			_dragging = false
+			_active_touch_index = -1
+	elif event is InputEventScreenDrag and _dragging and not _game_over and not _level_complete:
+		var screen_drag: InputEventScreenDrag = event
+		if screen_drag.index == _active_touch_index:
+			_handle_drag(screen_drag.position)
+
+
+func _handle_press(position: Vector2) -> void:
+	if _game_over or _level_complete:
+		get_tree().change_scene_to_file(LEVELS_MENU_PATH)
+		return
+	_dragging = true
+	_drag_stroke_id += 1
+	_last_drag_position = position
+
+
+func _handle_drag(position: Vector2) -> void:
+	if position.distance_to(_last_drag_position) >= 4.0:
+		_slice_between(_last_drag_position, position)
+		_last_drag_position = position
+
+
+func _slice_between(start: Vector2, finish: Vector2) -> void:
+	var trail: SlashTrail = SlashTrail.new()
+	trail.start = start
+	trail.finish = finish
+	_slashes.append(trail)
+	for index: int in range(_notes.size() - 1, -1, -1):
+		var note: Note = _notes[index]
+		if not _slice_hits_note(note, start, finish):
+			continue
+		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
+			continue
+		if note.is_long:
+			note.last_sliced_stroke = _drag_stroke_id
+		note.hits_remaining -= 1
+		var grade: String = _grade_current_slice()
+		var hit_score: int = 175 if grade == Localization.text("perfect") else 100
+		if note.hits_remaining <= 0:
+			_score += hit_score + _combo * 10
+			_combo += 1
+			_max_combo = maxi(_max_combo, _combo)
+			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 12)
+			_notes.remove_at(index)
+		else:
+			_score += 35
+			_combo += 1
+			_max_combo = maxi(_max_combo, _combo)
+			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 5)
+		_hit_flash = 0.10
+		_vibrate(18)
+
+
+func _grade_current_slice() -> String:
+	var beat_phase: float = fmod(_beat_clock, _beat_interval)
+	var timing_error: float = minf(beat_phase, _beat_interval - beat_phase)
+	if timing_error <= PERFECT_WINDOW:
+		_perfect_count += 1
+		_show_grade(Localization.text("perfect"), Color(0.82, 1.0, 0.96))
+		return Localization.text("perfect")
+	_good_count += 1
+	_show_grade(Localization.text("good"), Color(0.62, 0.82, 1.0))
+	return Localization.text("good")
+
+
+func _show_grade(grade: String, color: Color) -> void:
+	_last_grade = grade
+	_last_grade_life = 0.62
+	_hit_flash = maxf(_hit_flash, 0.08)
+
+
+func _slice_burst(origin: Vector2, color: Color, amount: int) -> void:
+	for spark_index: int in range(amount):
+		var spark: Spark = Spark.new()
+		var angle: float = TAU * float(spark_index) / float(amount) + _elapsed * 3.0
+		spark.position = origin
+		spark.velocity = Vector2(cos(angle), sin(angle)) * (70.0 + float(spark_index % 3) * 32.0)
+		spark.color = color
+		spark.life = 0.24
+		spark.maximum_life = 0.24
+		_sparks.append(spark)
+
+
+func _core_impact(origin: Vector2) -> void:
+	_screen_shake = 0.22 if not _reduced_motion else 0.06
+	_hit_flash = 0.42
+	_slice_burst(origin, Color(1.0, 0.28, 0.40), 18)
+	_vibrate(60)
+
+
+func _vibrate(duration_ms: int) -> void:
+	if _haptics and _is_mobile_platform():
+		Input.vibrate_handheld(duration_ms)
+
+
+func _finish_level() -> void:
+	if _level_complete or _game_over:
+		return
+	_level_complete = true
+	var stars: int = _calculate_stars()
+	LevelState.record_completion(LevelState.selected_level_id, _score, stars)
+	_vibrate(42)
+
+
+func _calculate_stars() -> int:
+	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
+	if health_ratio >= 0.80 and _miss_count <= 2:
+		return 3
+	if health_ratio >= 0.45:
+		return 2
+	return 1
+
+
+func _distance_to_segment(point: Vector2, start: Vector2, finish: Vector2) -> float:
+	var segment: Vector2 = finish - start
+	var length_squared: float = segment.length_squared()
+	if length_squared <= 0.001:
+		return point.distance_to(start)
+	var interpolation: float = clampf((point - start).dot(segment) / length_squared, 0.0, 1.0)
+	return point.distance_to(start + segment * interpolation)
+
+
+func _is_mobile_platform() -> bool:
+	return OS.has_feature("mobile")
+
+
+func _core_position() -> Vector2:
+	return size * 0.5
+
+
+func _spawn_radius() -> float:
+	return maxf(size.x, size.y) * 0.58 + OUTER_MARGIN
+
+
+func _draw() -> void:
+	var viewport_size: Vector2 = size
+	var center: Vector2 = _core_position()
+	var arena_radius: float = minf(viewport_size.x, viewport_size.y) * 0.45
+	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color("091225"))
+	for ring_index: int in range(4, 0, -1):
+		var ring_radius: float = arena_radius * float(ring_index) / 4.0
+		var ring_color: Color = Color(0.13, 0.45, 0.72, 0.05 + float(ring_index) * 0.018)
+		draw_arc(center, ring_radius, 0.0, TAU, 96, ring_color, 1.5, true)
+	for spoke_index: int in range(8):
+		var rotation_speed: float = 0.0 if _reduced_motion else _elapsed * 0.05
+		var angle: float = TAU * float(spoke_index) / 8.0 + rotation_speed
+		draw_line(center, center + Vector2(cos(angle), sin(angle)) * arena_radius, Color(0.18, 0.5, 0.78, 0.10), 1.0, true)
+	_draw_telegraphs()
+	_draw_notes(center)
+	_draw_sparks()
+	_draw_core(center + _shake_offset())
+	_draw_slashes()
+	_draw_hud(viewport_size)
+
+
+func _shake_offset() -> Vector2:
+	if _screen_shake <= 0.0 or _reduced_motion:
+		return Vector2.ZERO
+	return Vector2(sin(_elapsed * 83.0), cos(_elapsed * 109.0)) * _screen_shake * 18.0
+
+
+func _draw_telegraphs() -> void:
+	for telegraph: Telegraph in _telegraphs:
+		var alpha: float = clampf(1.0 - telegraph.life / telegraph.maximum_life, 0.0, 1.0) * 0.62
+		var color: Color = Color.from_hsv(telegraph.hue, 0.48, 1.0, alpha)
+		if telegraph.is_long:
+			draw_rect(Rect2(telegraph.position - Vector2(45.0, 11.0), Vector2(90.0, 22.0)), color, false, 2.0)
+		else:
+			draw_arc(telegraph.position, NOTE_RADIUS + 12.0, 0.0, TAU, 24, color, 2.0, true)
+
+
+func _draw_notes(center: Vector2) -> void:
+	for note: Note in _notes:
+		var approach_direction: Vector2 = (center - note.position).normalized()
+		var side_direction: Vector2 = Vector2(-approach_direction.y, approach_direction.x)
+		var pulse: float = 1.0 if _reduced_motion else 1.0 + sin(note.phase * 5.0) * 0.08
+		var note_color: Color = Color.from_hsv(note.hue, 0.72, 1.0)
+		var outline_color: Color = Color.from_hsv(note.hue, 0.35, 1.0, 0.45)
+		if note.is_long:
+			var half_length: float = 58.0
+			var half_width: float = 15.0
+			var long_points: PackedVector2Array = PackedVector2Array([note.position - side_direction * half_length - approach_direction * half_width, note.position + side_direction * half_length - approach_direction * half_width, note.position + side_direction * half_length + approach_direction * half_width, note.position - side_direction * half_length + approach_direction * half_width])
+			draw_colored_polygon(long_points, Color(note_color, 0.78))
+			draw_polyline(long_points + PackedVector2Array([long_points[0]]), outline_color, 3.0, true)
+			var progress_ratio: float = 1.0 - float(note.hits_remaining) / float(LONG_NOTE_HITS)
+			draw_rect(Rect2(note.position - side_direction * 42.0 - approach_direction * 4.0, side_direction * 84.0 + approach_direction * 8.0), Color(0.03, 0.08, 0.16, 0.8))
+			draw_rect(Rect2(note.position - side_direction * 42.0 - approach_direction * 4.0, side_direction * (84.0 * progress_ratio) + approach_direction * 8.0), Color.WHITE)
+			for segment_index: int in range(LONG_NOTE_HITS):
+				var marker_t: float = (float(segment_index) + 0.5) / float(LONG_NOTE_HITS) - 0.5
+				var marker: Vector2 = note.position + side_direction * marker_t * half_length * 2.0
+				var marker_color: Color = Color.WHITE if segment_index < note.hits_remaining else Color(note_color, 0.22)
+				draw_circle(marker, 4.0, marker_color)
+		else:
+			var radius: float = NOTE_RADIUS * pulse
+			if _color_safe:
+				var triangle: PackedVector2Array = PackedVector2Array([note.position + Vector2(0.0, -radius), note.position + Vector2(radius * 0.86, radius * 0.72), note.position + Vector2(-radius * 0.86, radius * 0.72)])
+				draw_colored_polygon(triangle, note_color)
+				draw_polyline(triangle + PackedVector2Array([triangle[0]]), Color.WHITE, 2.5, true)
+			else:
+				var diamond: PackedVector2Array = PackedVector2Array([note.position + Vector2(0.0, -radius), note.position + Vector2(radius, 0.0), note.position + Vector2(0.0, radius), note.position + Vector2(-radius, 0.0)])
+				draw_colored_polygon(diamond, note_color)
+				draw_polyline(diamond + PackedVector2Array([diamond[0]]), Color.WHITE, 2.0, true)
+			draw_circle(note.position, 5.0, Color(0.03, 0.08, 0.16, 0.78))
+
+
+func _draw_sparks() -> void:
+	for spark: Spark in _sparks:
+		var alpha: float = clampf(spark.life / spark.maximum_life, 0.0, 1.0)
+		draw_circle(spark.position, 2.5 + alpha * 2.5, Color(spark.color, alpha))
+
+
+func _draw_core(center: Vector2) -> void:
+	var damage_ratio: float = 1.0 - float(_core_health) / float(MAX_CORE_HEALTH)
+	var pulse: float = 0.0 if _reduced_motion else sin(_elapsed * 3.0) * 3.0
+	var glow_color: Color = Color(0.12 + damage_ratio * 0.75, 0.78 - damage_ratio * 0.42, 1.0, 0.14 + _hit_flash * 0.7)
+	draw_circle(center, CORE_RADIUS + 27.0 + pulse, glow_color)
+	draw_circle(center, CORE_RADIUS + 8.0, Color(0.06, 0.17, 0.34, 0.95))
+	draw_arc(center, CORE_RADIUS + 8.0, _elapsed * (0.0 if _reduced_motion else 1.9), _elapsed * (0.0 if _reduced_motion else 1.9) + TAU * 0.72, 48, Color(0.2, 0.92, 1.0), 4.0, true)
+	draw_circle(center, CORE_RADIUS, Color(0.1 + _hit_flash * 0.9, 0.67, 0.96, 0.96))
+	draw_circle(center, CORE_RADIUS * 0.52, Color(0.85, 0.98, 1.0, 0.95))
+
+
+func _draw_slashes() -> void:
+	for slash: SlashTrail in _slashes:
+		var alpha: float = clampf(slash.life / 0.16, 0.0, 1.0)
+		draw_line(slash.start, slash.finish, Color(0.88, 0.98, 1.0, alpha), 7.0 * alpha + 1.0, true)
+
+
+func _draw_hud(viewport_size: Vector2) -> void:
+	var font: Font = ThemeDB.fallback_font
+	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
+	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
+	draw_string(font, Vector2(32.0, 44.0), "NEBULA BEAT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
+	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
+	draw_string(font, Vector2(32.0, 94.0), "%s  %06d" % [Localization.text("score"), _score], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
+	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
+	if _combo > 1:
+		var combo_scale: float = 1.0 + minf(float(_combo) * 0.015, 0.28)
+		draw_string(font, Vector2(32.0, 148.0), "%d %s" % [_combo, Localization.text("combo")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(19.0 * combo_scale), Color(1.0, 0.56, 0.94))
+	var health_rect: Rect2 = Rect2(viewport_size.x - 252.0, 30.0, 220.0, 16.0)
+	draw_string(font, Vector2(health_rect.position.x, 24.0), Localization.text("core_integrity"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.7, 0.84, 0.98))
+	draw_rect(health_rect, Color(0.05, 0.08, 0.16, 0.9))
+	draw_rect(Rect2(health_rect.position, Vector2(health_rect.size.x * health_ratio, health_rect.size.y)), Color(0.18 + (1.0 - health_ratio) * 0.72, 0.92 * health_ratio, 1.0, 0.95))
+	draw_rect(health_rect, Color(0.48, 0.78, 1.0, 0.8), false, 1.0)
+	if _last_grade_life > 0.0:
+		var grade_width: float = font.get_string_size(_last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32).x
+		draw_string(font, Vector2((viewport_size.x - grade_width) * 0.5, viewport_size.y * 0.26), _last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32, Color(0.92, 1.0, 1.0, _last_grade_life / 0.62))
+	if _elapsed < 5.5 and not _game_over and not _level_complete:
+		var prompt_key: String = "swipe_prompt" if _is_mobile_platform() else "drag_prompt"
+		var prompt: String = Localization.text(prompt_key) % LONG_NOTE_HITS
+		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
+		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
+	if _game_over:
+		_draw_result_overlay(viewport_size, font, Localization.text("core_lost"), Color(1.0, 0.37, 0.63), Localization.text("tap_return"))
+	elif _level_complete:
+		var stars: int = _calculate_stars()
+		var result_detail: String = "%s %06d  •  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
+		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "★".repeat(stars) + "☆".repeat(3 - stars), Color(0.72, 1.0, 0.9), result_detail)
+
+
+func _draw_result_overlay(viewport_size: Vector2, font: Font, title: String, title_color: Color, detail: String) -> void:
+	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.02, 0.03, 0.10, 0.78))
+	var title_width: float = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36).x
+	var detail_width: float = font.get_string_size(detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17).x
+	draw_string(font, Vector2((viewport_size.x - title_width) * 0.5, viewport_size.y * 0.48), title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36, title_color)
+	draw_multiline_string(font, Vector2(32.0, viewport_size.y * 0.53), detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17, -1, Color(0.86, 0.94, 1.0))

@@ -28,6 +28,10 @@ func _ready() -> void:
 	# so a save triggered from a paused state still works.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	load_data()
+	Localization.apply_saved_locale()
+	if OS.get_name() == "Android":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		DisplayServer.screen_set_keep_on(true)
 
 
 func _notification(what: int) -> void:

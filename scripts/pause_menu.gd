@@ -15,7 +15,10 @@ extends CanvasLayer
 
 
 func _ready() -> void:
+	Localization.apply_saved_locale()
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_apply_responsive_layout()
+	_apply_localized_text()
 	add_to_group("pause_menu")
 	if _panel != null:
 		_panel.visible = false
@@ -25,6 +28,36 @@ func _ready() -> void:
 		_restart_button.pressed.connect(_on_restart_pressed)
 	if _quit_button != null:
 		_quit_button.pressed.connect(_on_quit_pressed)
+
+
+func _apply_responsive_layout() -> void:
+	var content: VBoxContainer = get_node_or_null("Panel/CenterContainer/VBox")
+	if content != null:
+		content.custom_minimum_size = Vector2(280.0, 0.0)
+		content.custom_maximum_size = Vector2(520.0, -1.0)
+		content.add_theme_constant_override("separation", 12)
+	for button: Button in [_resume_button, _restart_button, _quit_button]:
+		if button != null:
+			button.custom_minimum_size = Vector2(0.0, 48.0)
+
+
+func _apply_localized_text() -> void:
+	_set_label_text("Panel/CenterContainer/VBox/PausedLabel", "paused")
+	_set_button_text("Panel/CenterContainer/VBox/ResumeButton", "resume")
+	_set_button_text("Panel/CenterContainer/VBox/RestartButton", "restart")
+	_set_button_text("Panel/CenterContainer/VBox/QuitButton", "quit_to_menu")
+
+
+func _set_label_text(path: String, key: String) -> void:
+	var label: Label = get_node_or_null(path)
+	if label != null:
+		label.text = Localization.text(key)
+
+
+func _set_button_text(path: String, key: String) -> void:
+	var button: Button = get_node_or_null(path)
+	if button != null:
+		button.text = Localization.text(key)
 
 
 func _unhandled_input(event: InputEvent) -> void:

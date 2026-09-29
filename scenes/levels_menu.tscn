@@ -4,7 +4,9 @@
 
 [node name="LevelsMenu" type="Control" unique_id=1527709531]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_r3otx")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1839480374]
