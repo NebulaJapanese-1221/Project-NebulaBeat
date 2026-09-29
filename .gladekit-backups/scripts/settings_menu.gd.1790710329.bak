@@ -18,9 +18,6 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
-	_apply_localized_text()
-	_setup_language_option()
 	if _back_skin != null:
 		_back_skin.texture = BACK_BUTTON_TEXTURE
 	_setup_slider(_master_volume_slider, "master_volume", _on_master_volume_changed)
@@ -34,50 +31,6 @@ func _ready() -> void:
 		_back_button.pressed.connect(_return_to_main_menu)
 		_back_button.grab_focus()
 	_apply_saved_audio()
-
-
-func _apply_localized_text() -> void:
-	_set_label_text("CenterContainer/SettingsPanel/SettingsVBox/SettingsTitle", "settings")
-	_set_label_text("CenterContainer/SettingsPanel/SettingsVBox/VolumeLabel", "master_volume")
-	_set_label_text("CenterContainer/SettingsPanel/SettingsVBox/MusicVolumeLabel", "music_volume")
-	_set_label_text("CenterContainer/SettingsPanel/SettingsVBox/SfxVolumeLabel", "sfx_volume")
-	_set_button_text("CenterContainer/SettingsPanel/SettingsVBox/FullscreenToggle", "fullscreen")
-	_set_button_text("CenterContainer/SettingsPanel/SettingsVBox/ReducedMotionToggle", "reduced_motion")
-	_set_button_text("CenterContainer/SettingsPanel/SettingsVBox/HapticsToggle", "haptics")
-	_set_button_text("CenterContainer/SettingsPanel/SettingsVBox/ColorSafeToggle", "color_safe")
-	_set_button_text("CenterContainer/SettingsPanel/SettingsVBox/BackButton", "back")
-	if _language_label != null:
-		_language_label.text = Localization.text("language")
-
-
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
-
-
-func _setup_language_option() -> void:
-	if _language_option == null:
-		return
-	_language_option.clear()
-	_language_option.add_item(Localization.text("english"))
-	_language_option.add_item(Localization.text("french"))
-	_language_option.add_item(Localization.text("japanese"))
-	_language_option.select(Localization.locale_index(Localization.current_locale()))
-	if not _language_option.item_selected.is_connected(_on_language_selected):
-		_language_option.item_selected.connect(_on_language_selected)
-
-
-func _on_language_selected(index: int) -> void:
-	Localization.set_locale(Localization.locale_from_index(index))
-	_apply_localized_text()
-	_setup_language_option()
 
 
 func _profile() -> Node:

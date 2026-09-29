@@ -16,8 +16,6 @@ const ABOUT_MENU_PATH: String = "res://scenes/about_menu.tscn"
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
-	_apply_localized_text()
 	if _play_button != null:
 		_play_button.pressed.connect(_on_play_pressed)
 		_play_button.grab_focus()
@@ -27,19 +25,6 @@ func _ready() -> void:
 		_about_button.pressed.connect(_open_about)
 	if _quit_button != null:
 		_quit_button.pressed.connect(_on_quit_pressed)
-
-
-func _apply_localized_text() -> void:
-	_set_button_text("CenterContainer/VBox/PlayButton", "play")
-	_set_button_text("CenterContainer/VBox/SettingsButton", "settings")
-	_set_button_text("CenterContainer/VBox/AboutButton", "about")
-	_set_button_text("CenterContainer/VBox/QuitButton", "quit")
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
 
 
 func _on_play_pressed() -> void:

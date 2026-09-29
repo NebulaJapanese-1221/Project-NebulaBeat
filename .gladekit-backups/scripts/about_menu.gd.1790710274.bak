@@ -9,11 +9,8 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	if _back_skin != null:
 		_back_skin.texture = BACK_BUTTON_TEXTURE
-	if _back_button != null:
-		_back_button.text = Localization.text("back")
 	if _back_button != null:
 		_back_button.pressed.connect(_return_to_main_menu)
 		_back_button.grab_focus()

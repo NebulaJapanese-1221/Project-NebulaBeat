@@ -468,13 +468,13 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
 	draw_string(font, Vector2(32.0, 44.0), "NEBULA BEAT", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
 	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
-	draw_string(font, Vector2(32.0, 94.0), "%s  %06d" % [Localization.text("score"), _score], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
-	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
+	draw_string(font, Vector2(32.0, 94.0), "SCORE  %06d" % _score, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
+	draw_string(font, Vector2(32.0, 119.0), "BEAT %02d / %02d" % [mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
 	if _combo > 1:
 		var combo_scale: float = 1.0 + minf(float(_combo) * 0.015, 0.28)
-		draw_string(font, Vector2(32.0, 148.0), "%d %s" % [_combo, Localization.text("combo")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(19.0 * combo_scale), Color(1.0, 0.56, 0.94))
+		draw_string(font, Vector2(32.0, 148.0), "%d COMBO" % _combo, HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(19.0 * combo_scale), Color(1.0, 0.56, 0.94))
 	var health_rect: Rect2 = Rect2(viewport_size.x - 252.0, 30.0, 220.0, 16.0)
-	draw_string(font, Vector2(health_rect.position.x, 24.0), Localization.text("core_integrity"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.7, 0.84, 0.98))
+	draw_string(font, Vector2(health_rect.position.x, 24.0), "CORE INTEGRITY", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.7, 0.84, 0.98))
 	draw_rect(health_rect, Color(0.05, 0.08, 0.16, 0.9))
 	draw_rect(Rect2(health_rect.position, Vector2(health_rect.size.x * health_ratio, health_rect.size.y)), Color(0.18 + (1.0 - health_ratio) * 0.72, 0.92 * health_ratio, 1.0, 0.95))
 	draw_rect(health_rect, Color(0.48, 0.78, 1.0, 0.8), false, 1.0)
@@ -482,16 +482,15 @@ func _draw_hud(viewport_size: Vector2) -> void:
 		var grade_width: float = font.get_string_size(_last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32).x
 		draw_string(font, Vector2((viewport_size.x - grade_width) * 0.5, viewport_size.y * 0.26), _last_grade, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 32, Color(0.92, 1.0, 1.0, _last_grade_life / 0.62))
 	if _elapsed < 5.5 and not _game_over and not _level_complete:
-		var prompt_key: String = "swipe_prompt" if _is_mobile_platform() else "drag_prompt"
-		var prompt: String = Localization.text(prompt_key) % LONG_NOTE_HITS
+		var action_label: String = "SWIPE" if _is_mobile_platform() else "DRAG"
+		var prompt: String = "%s ON THE BEAT  •  LONG NOTES NEED %d SLICES" % [action_label, LONG_NOTE_HITS]
 		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
 		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 	if _game_over:
-		_draw_result_overlay(viewport_size, font, Localization.text("core_lost"), Color(1.0, 0.37, 0.63), Localization.text("tap_return"))
+		_draw_result_overlay(viewport_size, font, "CORE LOST", Color(1.0, 0.37, 0.63), "TAP TO RETURN TO LEVELS")
 	elif _level_complete:
 		var stars: int = _calculate_stars()
-		var result_detail: String = "%s %06d  •  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
-		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "★".repeat(stars) + "☆".repeat(3 - stars), Color(0.72, 1.0, 0.9), result_detail)
+		_draw_result_overlay(viewport_size, font, "LEVEL CLEAR  " + "★".repeat(stars) + "☆".repeat(3 - stars), Color(0.72, 1.0, 0.9), "SCORE %06d  •  PERFECT %d  GOOD %d  MISS %d\nTAP TO RETURN TO LEVELS" % [_score, _perfect_count, _good_count, _miss_count])
 
 
 func _draw_result_overlay(viewport_size: Vector2, font: Font, title: String, title_color: Color, detail: String) -> void:

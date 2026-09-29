@@ -70,8 +70,7 @@ func _setup_language_option() -> void:
 	_language_option.add_item(Localization.text("french"))
 	_language_option.add_item(Localization.text("japanese"))
 	_language_option.select(Localization.locale_index(Localization.current_locale()))
-	if not _language_option.item_selected.is_connected(_on_language_selected):
-		_language_option.item_selected.connect(_on_language_selected)
+	_language_option.item_selected.connect(_on_language_selected)
 
 
 func _on_language_selected(index: int) -> void:

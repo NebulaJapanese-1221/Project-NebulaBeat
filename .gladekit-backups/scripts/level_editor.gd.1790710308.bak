@@ -42,18 +42,6 @@ func _ready() -> void:
 		first_beat.grab_focus()
 
 
-func _apply_localized_text() -> void:
-	_set_button_text("CenterContainer/VBox/PlaytestButton", "playtest")
-	_set_button_text("CenterContainer/VBox/ResetButton", "reset")
-	_set_button_text("CenterContainer/VBox/BackButton", "back")
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
-
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		_return_to_levels()

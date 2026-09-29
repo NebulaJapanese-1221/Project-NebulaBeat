@@ -8,9 +8,7 @@ const LEVEL_EDITOR_PATH: String = "res://scenes/level_editor.tscn"
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_apply_localized_text()
 	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
 		var button: Button = get_node_or_null("CenterContainer/VBox/Level%dButton" % level_id)
 		if button == null:
@@ -32,17 +30,6 @@ func _ready() -> void:
 	var first_button: Button = get_node_or_null("CenterContainer/VBox/Level1Button")
 	if first_button != null:
 		first_button.grab_focus()
-
-
-func _apply_localized_text() -> void:
-	_set_button_text("CenterContainer/VBox/EditorButton", "editor")
-	_set_button_text("CenterContainer/VBox/BackButton", "back")
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
 
 
 func _unhandled_input(event: InputEvent) -> void:
