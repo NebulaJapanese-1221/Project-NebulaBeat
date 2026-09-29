@@ -5,7 +5,9 @@
 
 [node name="SettingsMenu" type="Control" unique_id=1034317824]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_cr101")
 
 [node name="Background" type="ColorRect" parent="." unique_id=495667963]
@@ -23,84 +25,50 @@ anchor_bottom = 1.0
 custom_minimum_size = Vector2(460, 330)
 layout_mode = 2
 
-[node name="SettingsVBox" type="VBoxContainer" parent="CenterContainer/SettingsPanel" unique_id=390972847]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/SettingsPanel" unique_id=1820911887]
 layout_mode = 2
-theme_override_constants/separation = 18
 
-[node name="SettingsTitle" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=217388500]
+[node name="SettingsContent" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer" unique_id=1346002595]
+custom_minimum_size = Vector2(420, 900)
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_constants/separation = 14
+
+[node name="SettingsTitle" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1642065464]
+layout_mode = 2
 text = "SETTINGS"
-horizontal_alignment = 1
 
-[node name="VolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1328171456]
+[node name="AudioSection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=255592712]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "MASTER VOLUME"
+text = "AUDIO"
 
-[node name="MasterVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1071441495]
-custom_minimum_size = Vector2(360, 36)
+[node name="AudioGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=527485479]
 layout_mode = 2
-value = 80.0
 
-[node name="FullscreenToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=274791741]
+[node name="DisplaySection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1791303473]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "FULLSCREEN"
+text = "DISPLAY"
 
-[node name="BackButton" type="Button" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1804041918]
+[node name="DisplayGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1672995794]
+layout_mode = 2
+
+[node name="AccessibilitySection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1150272431]
+layout_mode = 2
+text = "ACCESSIBILITY"
+
+[node name="AccessibilityGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=960314612]
+layout_mode = 2
+
+[node name="LanguageLabel" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1448620066]
+layout_mode = 2
+text = "LANGUAGE"
+
+[node name="LanguageOption" type="OptionButton" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1616472077]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1804041918]
 custom_minimum_size = Vector2(220, 64)
 layout_mode = 2
 tooltip_text = "Return to the main menu"
-
-[node name="KenneySkin" type="TextureRect" parent="CenterContainer/SettingsPanel/SettingsVBox/BackButton" unique_id=1807858703]
-texture_filter = 1
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Caption" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox/BackButton" unique_id=937553723]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_colors/font_color = Color(0.95686275, 0.9843137, 1, 1)
-theme_override_colors/font_outline_color = Color(0.02745098, 0.078431375, 0.15294118, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 18
-text = "BACK"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MusicVolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=289793252]
-layout_mode = 2
-text = "MUSIC VOLUME"
-
-[node name="MusicVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1459395154]
-layout_mode = 2
-value = 80.0
-
-[node name="SfxVolumeLabel" type="Label" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1647173824]
-layout_mode = 2
-text = "SFX VOLUME"
-
-[node name="SfxVolumeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=351753948]
-layout_mode = 2
-value = 90.0
-
-[node name="ReducedMotionToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1051971326]
-layout_mode = 2
-text = "REDUCED MOTION"
-
-[node name="HapticsToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1139356491]
-layout_mode = 2
-text = "HAPTIC FEEDBACK"
-
-[node name="ColorSafeToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/SettingsVBox" unique_id=1909587926]
-layout_mode = 2
-text = "COLOR-SAFE NOTE SHAPES"
 
 [node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1488491782]
 stream = ExtResource("2_wswnh")

@@ -214,7 +214,7 @@ func _input(event: InputEvent) -> void:
 				pause_menu.call("_set_paused", not get_tree().paused)
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventMouseButton and not _is_mobile_platform():
+	if event is InputEventMouseButton:
 		var mouse_button: InputEventMouseButton = event
 		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 			return
@@ -222,7 +222,7 @@ func _input(event: InputEvent) -> void:
 			_handle_press(mouse_button.position)
 		else:
 			_dragging = false
-	elif event is InputEventMouseMotion and _dragging and not _game_over and not _level_complete and not _is_mobile_platform():
+	elif event is InputEventMouseMotion and _dragging and not _game_over and not _level_complete:
 		var mouse_motion: InputEventMouseMotion = event
 		_handle_drag(mouse_motion.position)
 	elif event is InputEventScreenTouch:
@@ -262,8 +262,7 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 	_slashes.append(trail)
 	for index: int in range(_notes.size() - 1, -1, -1):
 		var note: Note = _notes[index]
-		var hit_radius: float = NOTE_RADIUS + (22.0 if note.is_long else 7.0)
-		if _distance_to_segment(note.position, start, finish) > hit_radius:
+		if not _slice_hits_note(note, start, finish):
 			continue
 		if note.is_long and note.last_sliced_stroke == _drag_stroke_id:
 			continue
@@ -285,6 +284,25 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 5)
 		_hit_flash = 0.10
 		_vibrate(18)
+
+
+func _slice_hits_note(note: Note, start: Vector2, finish: Vector2) -> bool:
+	if not note.is_long:
+		return _distance_to_segment(note.position, start, finish) <= NOTE_RADIUS + 7.0
+	var approach_direction: Vector2 = (_core_position() - note.position).normalized()
+	if approach_direction.length_squared() <= 0.001:
+		approach_direction = Vector2.RIGHT
+	var side_direction: Vector2 = Vector2(-approach_direction.y, approach_direction.x)
+	var bar_start: Vector2 = note.position - side_direction * 58.0
+	var bar_finish: Vector2 = note.position + side_direction * 58.0
+	var intersection: Variant = Geometry2D.segment_intersects_segment(start, finish, bar_start, bar_finish)
+	if intersection != null:
+		return true
+	var nearest_distance: float = minf(
+		minf(_distance_to_segment(bar_start, start, finish), _distance_to_segment(bar_finish, start, finish)),
+		minf(_distance_to_segment(start, bar_start, bar_finish), _distance_to_segment(finish, bar_start, bar_finish))
+	)
+	return nearest_distance <= 22.0
 
 
 func _grade_current_slice() -> String:
@@ -365,7 +383,8 @@ func _core_position() -> Vector2:
 
 
 func _spawn_radius() -> float:
-	return maxf(size.x, size.y) * 0.58 + OUTER_MARGIN
+	var short_side: float = minf(size.x, size.y)
+	return maxf(short_side * 0.42, CORE_RADIUS + NOTE_RADIUS + 54.0)
 
 
 func _draw() -> void:

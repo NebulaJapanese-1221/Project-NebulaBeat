@@ -8,6 +8,10 @@ const STRINGS: Dictionary = {
 	"en": {
 		"language": "Language",
 		"english": "English",
+		"version": "v0.0.1",
+		"audio": "AUDIO",
+		"display": "DISPLAY",
+		"accessibility": "ACCESSIBILITY",
 		"french": "French",
 		"japanese": "Japanese",
 		"settings": "SETTINGS",
@@ -46,6 +50,10 @@ const STRINGS: Dictionary = {
 	"fr": {
 		"language": "Langue",
 		"english": "Anglais",
+		"version": "v0.0.1",
+		"audio": "AUDIO",
+		"display": "AFFICHAGE",
+		"accessibility": "ACCESSIBILITÉ",
 		"french": "Français",
 		"japanese": "Japonais",
 		"settings": "PARAMÈTRES",
@@ -84,6 +92,10 @@ const STRINGS: Dictionary = {
 	"ja": {
 		"language": "言語",
 		"english": "英語",
+		"version": "v0.0.1",
+		"audio": "オーディオ",
+		"display": "表示",
+		"accessibility": "アクセシビリティ",
 		"french": "フランス語",
 		"japanese": "日本語",
 		"settings": "設定",

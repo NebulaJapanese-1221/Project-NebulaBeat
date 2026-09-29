@@ -10,6 +10,8 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 
 func _ready() -> void:
 	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_responsive_layout()
 	if _back_skin != null:
 		_back_skin.texture = BACK_BUTTON_TEXTURE
 	if _back_button != null:
@@ -17,6 +19,18 @@ func _ready() -> void:
 	if _back_button != null:
 		_back_button.pressed.connect(_return_to_main_menu)
 		_back_button.grab_focus()
+
+
+func _apply_responsive_layout() -> void:
+	var panel: PanelContainer = get_node_or_null("CenterContainer/AboutPanel")
+	if panel != null:
+		panel.custom_minimum_size = Vector2(280.0, 0.0)
+		panel.custom_maximum_size = Vector2(560.0, -1.0)
+	var content: VBoxContainer = get_node_or_null("CenterContainer/AboutPanel/AboutVBox")
+	if content != null:
+		content.add_theme_constant_override("separation", 14)
+	if _back_button != null:
+		_back_button.custom_minimum_size = Vector2(0.0, 48.0)
 
 
 func _unhandled_input(event: InputEvent) -> void:

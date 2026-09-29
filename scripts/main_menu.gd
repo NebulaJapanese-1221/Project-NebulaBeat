@@ -17,6 +17,8 @@ const ABOUT_MENU_PATH: String = "res://scenes/about_menu.tscn"
 
 func _ready() -> void:
 	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_responsive_layout()
 	_apply_localized_text()
 	if _play_button != null:
 		_play_button.pressed.connect(_on_play_pressed)
@@ -29,11 +31,29 @@ func _ready() -> void:
 		_quit_button.pressed.connect(_on_quit_pressed)
 
 
+func _apply_responsive_layout() -> void:
+	var menu_column: VBoxContainer = get_node_or_null("CenterContainer/VBox")
+	if menu_column != null:
+		menu_column.custom_minimum_size = Vector2(280.0, 0.0)
+		menu_column.custom_maximum_size = Vector2(560.0, -1.0)
+		menu_column.add_theme_constant_override("separation", 14)
+	for button: Button in [_play_button, _settings_button, _about_button, _quit_button]:
+		if button != null:
+			button.custom_minimum_size = Vector2(0.0, 56.0)
+
+
 func _apply_localized_text() -> void:
 	_set_button_text("CenterContainer/VBox/PlayButton", "play")
 	_set_button_text("CenterContainer/VBox/SettingsButton", "settings")
 	_set_button_text("CenterContainer/VBox/AboutButton", "about")
 	_set_button_text("CenterContainer/VBox/QuitButton", "quit")
+	_set_label_text("CenterContainer/VBox/VersionLabel", "version")
+
+
+func _set_label_text(path: String, key: String) -> void:
+	var label: Label = get_node_or_null(path)
+	if label != null:
+		label.text = Localization.text(key)
 
 
 func _set_button_text(path: String, key: String) -> void:

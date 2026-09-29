@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://diuoq3ydog3uf"]
+
+[ext_resource type="Script" path="res://scripts/about_menu.gd" id="1_mlqao"]
+[ext_resource type="AudioStream" uid="uid://c6wgycuexbpnf" path="res://assets/audio/sfx/interface-sounds/Audio/back_001.ogg" id="2_6vqxg"]
+
+[node name="AboutMenu" type="Control" unique_id=1160291408]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_mlqao")
+
+[node name="Background" type="ColorRect" parent="." unique_id=41142473]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.03529412, 0.07058824, 0.14509805, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=379843437]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="AboutPanel" type="PanelContainer" parent="CenterContainer" unique_id=1517097968]
+custom_minimum_size = Vector2(560, 360)
+layout_mode = 2
+
+[node name="AboutVBox" type="VBoxContainer" parent="CenterContainer/AboutPanel" unique_id=1070152184]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="AboutTitle" type="Label" parent="CenterContainer/AboutPanel/AboutVBox" unique_id=1741894411]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "ABOUT NEBULA BEAT"
+horizontal_alignment = 1
+
+[node name="AboutBody" type="Label" parent="CenterContainer/AboutPanel/AboutVBox" unique_id=995196753]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "A rhythm-action prototype about slicing explosive notes before they reach the energy core.
+
+UI art and interface sounds by Kenney.nl.
+
+These selected assets are released under CC0 1.0. Attribution is not required, but Kenney.nl is credited with appreciation for making game creation more accessible."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BackButton" type="Button" parent="CenterContainer/AboutPanel/AboutVBox" unique_id=1991012415]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+tooltip_text = "Return to the main menu"
+
+[node name="KenneySkin" type="TextureRect" parent="CenterContainer/AboutPanel/AboutVBox/BackButton" unique_id=819475768]
+texture_filter = 1
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="CenterContainer/AboutPanel/AboutVBox/BackButton" unique_id=1218953788]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_colors/font_color = Color(0.95686275, 0.9843137, 1, 1)
+theme_override_colors/font_outline_color = Color(0.02745098, 0.078431375, 0.15294118, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 18
+text = "BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1754220018]
+stream = ExtResource("2_6vqxg")
+volume_db = -8.0

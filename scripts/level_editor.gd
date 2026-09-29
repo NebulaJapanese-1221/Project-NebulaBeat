@@ -15,6 +15,7 @@ const BEAT_COUNT: int = 16
 func _ready() -> void:
 	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_responsive_layout()
 	_apply_localized_text()
 	if LevelState.custom_note_pattern.size() != BEAT_COUNT:
 		LevelState.custom_note_pattern.resize(BEAT_COUNT)
@@ -40,6 +41,27 @@ func _ready() -> void:
 	var first_beat: CheckButton = get_node_or_null("CenterContainer/VBox/BeatGrid/Beat01")
 	if first_beat != null:
 		first_beat.grab_focus()
+
+
+func _apply_responsive_layout() -> void:
+	var content: VBoxContainer = get_node_or_null("CenterContainer/VBox")
+	if content != null:
+		content.custom_minimum_size = Vector2(300.0, 0.0)
+		content.custom_maximum_size = Vector2(640.0, -1.0)
+		content.add_theme_constant_override("separation", 12)
+	if _beat_grid != null:
+		_beat_grid.columns = 4
+		_beat_grid.add_theme_constant_override("h_separation", 12)
+		_beat_grid.add_theme_constant_override("v_separation", 8)
+		for beat_button: Node in _beat_grid.get_children():
+			if beat_button is CheckButton:
+				(beat_button as CheckButton).custom_minimum_size = Vector2(0.0, 40.0)
+	for slider: HSlider in [_tempo_slider, _speed_slider]:
+		if slider != null:
+			slider.custom_minimum_size = Vector2(0.0, 34.0)
+	for button: Button in [_playtest_button, _reset_button, _back_button]:
+		if button != null:
+			button.custom_minimum_size = Vector2(0.0, 48.0)
 
 
 func _apply_localized_text() -> void:

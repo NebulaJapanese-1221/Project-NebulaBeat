@@ -1,11 +1,13 @@
 [gd_scene format=3 uid="uid://diuoq3ydog3uf"]
 
-[ext_resource type="Script" path="res://scripts/about_menu.gd" id="1_mlqao"]
+[ext_resource type="Script" uid="uid://bviriow88dkkm" path="res://scripts/about_menu.gd" id="1_mlqao"]
 [ext_resource type="AudioStream" uid="uid://c6wgycuexbpnf" path="res://assets/audio/sfx/interface-sounds/Audio/back_001.ogg" id="2_6vqxg"]
 
 [node name="AboutMenu" type="Control" unique_id=1160291408]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_mlqao")
 
 [node name="Background" type="ColorRect" parent="." unique_id=41142473]
@@ -69,6 +71,11 @@ theme_override_font_sizes/font_size = 18
 text = "BACK"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="CreatedByLabel" type="Label" parent="CenterContainer/AboutPanel/AboutVBox" unique_id=1893909836]
+layout_mode = 2
+text = "Created By NebulaJapanese-1221"
+horizontal_alignment = 1
 
 [node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1754220018]
 stream = ExtResource("2_6vqxg")

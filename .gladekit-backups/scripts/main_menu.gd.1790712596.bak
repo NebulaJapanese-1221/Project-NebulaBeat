@@ -1,0 +1,73 @@
+extends Control
+
+# The title screen only routes to self-contained menu scenes. Keeping Settings
+# and About in their own scenes keeps this entry scene lightweight and easier to
+# extend with further menu pages later.
+
+const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
+const SETTINGS_MENU_PATH: String = "res://scenes/settings_menu.tscn"
+const ABOUT_MENU_PATH: String = "res://scenes/about_menu.tscn"
+
+@onready var _play_button: Button = get_node_or_null("CenterContainer/VBox/PlayButton")
+@onready var _settings_button: Button = get_node_or_null("CenterContainer/VBox/SettingsButton")
+@onready var _about_button: Button = get_node_or_null("CenterContainer/VBox/AboutButton")
+@onready var _quit_button: Button = get_node_or_null("CenterContainer/VBox/QuitButton")
+@onready var _menu_confirm: AudioStreamPlayer = get_node_or_null("MenuConfirm")
+
+
+func _ready() -> void:
+	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_responsive_layout()
+	_apply_localized_text()
+	if _play_button != null:
+		_play_button.pressed.connect(_on_play_pressed)
+		_play_button.grab_focus()
+	if _settings_button != null:
+		_settings_button.pressed.connect(_open_settings)
+	if _about_button != null:
+		_about_button.pressed.connect(_open_about)
+	if _quit_button != null:
+		_quit_button.pressed.connect(_on_quit_pressed)
+
+
+func _apply_localized_text() -> void:
+	_set_button_text("CenterContainer/VBox/PlayButton", "play")
+	_set_button_text("CenterContainer/VBox/SettingsButton", "settings")
+	_set_button_text("CenterContainer/VBox/AboutButton", "about")
+	_set_button_text("CenterContainer/VBox/QuitButton", "quit")
+	_set_label_text("CenterContainer/VBox/VersionLabel", "version")
+
+
+func _set_label_text(path: String, key: String) -> void:
+	var label: Label = get_node_or_null(path)
+	if label != null:
+		label.text = Localization.text(key)
+
+
+func _set_button_text(path: String, key: String) -> void:
+	var button: Button = get_node_or_null(path)
+	if button != null:
+		button.text = Localization.text(key)
+
+
+func _on_play_pressed() -> void:
+	_change_scene(LEVELS_MENU_PATH)
+
+
+func _open_settings() -> void:
+	_change_scene(SETTINGS_MENU_PATH)
+
+
+func _open_about() -> void:
+	_change_scene(ABOUT_MENU_PATH)
+
+
+func _change_scene(scene_path: String) -> void:
+	if _menu_confirm != null:
+		_menu_confirm.play()
+	get_tree().change_scene_to_file(scene_path)
+
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()

@@ -32,6 +32,33 @@ func _ready() -> void:
 	var first_button: Button = get_node_or_null("CenterContainer/VBox/Level1Button")
 	if first_button != null:
 		first_button.grab_focus()
+	_make_level_list_scrollable()
+
+
+func _make_level_list_scrollable() -> void:
+	if _button_list == null or _button_list.get_parent() == null:
+		return
+	var host: CenterContainer = _button_list.get_parent() as CenterContainer
+	if host == null:
+		return
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "ScrollContainer"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	var viewport_height: float = get_viewport_rect().size.y
+	scroll.custom_minimum_size = Vector2(280.0, clampf(viewport_height - 72.0, 220.0, 520.0))
+	scroll.custom_maximum_size = Vector2(640.0, 520.0)
+	_button_list.custom_minimum_size = Vector2(280.0, 0.0)
+	_button_list.custom_maximum_size = Vector2(620.0, -1.0)
+	_button_list.add_theme_constant_override("separation", 10)
+	for child: Node in _button_list.get_children():
+		if child is Button:
+			(child as Button).custom_minimum_size = Vector2(0.0, 48.0)
+	host.remove_child(_button_list)
+	host.add_child(scroll)
+	scroll.add_child(_button_list)
 
 
 func _apply_localized_text() -> void:

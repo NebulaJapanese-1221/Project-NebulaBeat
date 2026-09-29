@@ -4,7 +4,9 @@
 
 [node name="LevelEditor" type="Control" unique_id=436013595]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_ci1mn")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1620024721]
