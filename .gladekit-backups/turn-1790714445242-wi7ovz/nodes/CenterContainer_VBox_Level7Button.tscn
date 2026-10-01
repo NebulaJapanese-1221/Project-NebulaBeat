@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://5ficlqafwb8v"]
+
+[node name="Level7Button" type="Button" unique_id=1074748443]
+layout_mode = 2
+text = "07  NEBULA BREAKER"

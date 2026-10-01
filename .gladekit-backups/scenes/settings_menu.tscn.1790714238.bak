@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://bbqxl3lf8unxx"]
+
+[ext_resource type="Script" uid="uid://dxg8gi8e7m21" path="res://scripts/settings_menu.gd" id="1_cr101"]
+[ext_resource type="AudioStream" uid="uid://c6wgycuexbpnf" path="res://assets/audio/sfx/interface-sounds/Audio/back_001.ogg" id="2_wswnh"]
+
+[node name="SettingsMenu" type="Control" unique_id=1034317824]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_cr101")
+
+[node name="Background" type="ColorRect" parent="." unique_id=495667963]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.03529412, 0.07058824, 0.14509805, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1568426076]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="SettingsPanel" type="PanelContainer" parent="CenterContainer" unique_id=66218902]
+custom_minimum_size = Vector2(460, 330)
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/SettingsPanel" unique_id=1820911887]
+layout_mode = 2
+
+[node name="SettingsContent" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer" unique_id=1346002595]
+custom_minimum_size = Vector2(420, 900)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SettingsTitle" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1642065464]
+layout_mode = 2
+text = "SETTINGS"
+
+[node name="AudioSection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=255592712]
+layout_mode = 2
+text = "AUDIO"
+
+[node name="AudioGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=527485479]
+layout_mode = 2
+
+[node name="DisplaySection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1791303473]
+layout_mode = 2
+text = "DISPLAY"
+
+[node name="DisplayGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1672995794]
+layout_mode = 2
+
+[node name="AccessibilitySection" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1150272431]
+layout_mode = 2
+text = "ACCESSIBILITY"
+
+[node name="AccessibilityGroup" type="VBoxContainer" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=960314612]
+layout_mode = 2
+
+[node name="LanguageLabel" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1448620066]
+layout_mode = 2
+text = "LANGUAGE"
+
+[node name="LanguageOption" type="OptionButton" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1616472077]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1804041918]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+tooltip_text = "Return to the main menu"
+
+[node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1488491782]
+stream = ExtResource("2_wswnh")
+volume_db = -8.0

@@ -1,0 +1,88 @@
+extends Control
+
+const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
+const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
+const CHART_STEP_COUNT: int = LevelState.CHART_STEP_COUNT
+const PACKAGE_DIRECTORY: String = "user://nebula_levels"
+
+@onready var _content: VBoxContainer = get_node_or_null("CenterContainer/VBox")
+@onready var _beat_grid: GridContainer = get_node_or_null("CenterContainer/VBox/BeatGrid")
+@onready var _tempo_slider: HSlider = get_node_or_null("CenterContainer/VBox/TempoSlider")
+@onready var _speed_slider: HSlider = get_node_or_null("CenterContainer/VBox/SpeedSlider")
+@onready var _level_name_input: LineEdit = get_node_or_null("CenterContainer/VBox/LevelNameInput")
+@onready var _difficulty_option: OptionButton = get_node_or_null("CenterContainer/VBox/DifficultyOption")
+@onready var _bpm_slider: HSlider = get_node_or_null("CenterContainer/VBox/BpmSlider")
+@onready var _long_note_mode_toggle: CheckButton = get_node_or_null("CenterContainer/VBox/LongNoteModeToggle")
+@onready var _select_mp3_button: Button = get_node_or_null("CenterContainer/VBox/SelectMp3Button")
+@onready var _auto_build_button: Button = get_node_or_null("CenterContainer/VBox/AutoBuildButton")
+@onready var _import_package_button: Button = get_node_or_null("CenterContainer/VBox/ImportPackageButton")
+@onready var _export_package_button: Button = get_node_or_null("CenterContainer/VBox/ExportPackageButton")
+@onready var _playtest_button: Button = get_node_or_null("CenterContainer/VBox/PlaytestButton")
+@onready var _reset_button: Button = get_node_or_null("CenterContainer/VBox/ResetButton")
+@onready var _back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
+@onready var _status_label: Label = get_node_or_null("CenterContainer/VBox/StatusLabel")
+@onready var _mp3_dialog: FileDialog = get_node_or_null("Mp3Dialog")
+@onready var _import_dialog: FileDialog = get_node_or_null("ImportPackageDialog")
+
+
+func _ready() -> void:
+	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_ensure_beat_cells()
+	_setup_controls()
+	_order_editor_content()
+	_apply_responsive_layout()
+	_apply_localized_text()
+	_refresh_editor_from_state()
+	_wrap_workspace_in_scroll_view()
+	var first_beat: CheckButton = _beat_button(0)
+	if first_beat != null:
+		first_beat.grab_focus()
+
+
+func _ensure_beat_cells() -> void:
+	if _beat_grid == null:
+		return
+	for index: int in range(CHART_STEP_COUNT):
+		var button: CheckButton = _beat_button(index)
+		if button == null:
+			button = CheckButton.new()
+			button.name = "Beat%02d" % (index + 1)
+			_beat_grid.add_child(button)
+		button.text = "%02d" % (index + 1)
+		if not button.toggled.is_connected(_on_beat_toggled.bind(index)):
+			button.toggled.connect(_on_beat_toggled.bind(index))
+
+
+func _setup_controls() -> void:
+	if _tempo_slider != null:
+		_tempo_slider.min_value = 0.20
+		_tempo_slider.max_value = 1.50
+		_tempo_slider.step = 0.01
+		if not _tempo_slider.value_changed.is_connected(_on_tempo_changed):
+			_tempo_slider.value_changed.connect(_on_tempo_changed)
+	if _speed_slider != null:
+		_speed_slider.min_value = 0.40
+		_speed_slider.max_value = 2.50
+		_speed_slider.step = 0.05
+		if not _speed_slider.value_changed.is_connected(_on_speed_changed):
+			_speed_slider.value_changed.connect(_on_speed_changed)
+	if _bpm_slider != null:
+		_bpm_slider.min_value = 40.0
+		_bpm_slider.max_value = 260.0
+		_bpm_slider.step = 1.0
+		if not _bpm_slider.value_changed.is_connected(_on_bpm_changed):
+			_bpm_slider.value_changed.connect(_on_bpm_changed)
+	if _level_name_input != null:
+		if not _level_name_input.text_changed.is_connected(_on_level_name_changed):
+			_level_name_input.text_changed.connect(_on_level_name_changed)
+	if _difficulty_option != null:
+		_difficulty_option.clear()
+		for difficulty: String in LevelState.DIFFICULTIES:
+			_difficulty_option.add_item(difficulty)
+		if not _difficulty_option.item_selected.is_connected(_on_difficulty_selected):
+			_difficulty_option.item_selected.connect(_on_difficulty_selected)
+	if _select_mp3_button != null and not _select_mp3_button.pressed.is_connected(_open_mp3_picker):
+		_select_mp3_button.pressed.connect(_open_mp3_picker)
+	if _auto_build_button != null and not _auto_build_button.pressed.is_connected(_auto_build_from_mp3):
+		_auto_build_button.presse

@@ -77,6 +77,8 @@ var _last_grade_life: float = 0.0
 var _reduced_motion: bool = false
 var _haptics: bool = true
 var _color_safe: bool = false
+var _timing_offset_seconds: float = 0.0
+var _beat_guides: bool = true
 @onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
 
 
@@ -88,6 +90,8 @@ func _ready() -> void:
 	_reduced_motion = bool(_profile_value("reduced_motion", false))
 	_haptics = bool(_profile_value("haptics", true))
 	_color_safe = bool(_profile_value("color_safe", false))
+	_timing_offset_seconds = float(_profile_value("timing_offset_ms", 0.0)) / 1000.0
+	_beat_guides = bool(_profile_value("beat_guides", true))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	queue_redraw()
@@ -118,11 +122,17 @@ func _process(delta: float) -> void:
 
 
 func _schedule_beats() -> void:
-	while _beat_clock + TELEGRAPH_LEAD >= float(_next_spawn_beat) * _beat_interval and _next_spawn_beat < _target_notes:
+	while _next_spawn_beat < _target_notes and _beat_clock + TELEGRAPH_LEAD >= _event_time(_next_spawn_beat):
 		_create_telegraph(_next_spawn_beat)
 		_next_spawn_beat += 1
-	while _spawn_index < _target_notes and _beat_clock >= float(_spawn_index) * _beat_interval:
+	while _spawn_index < _target_notes and _beat_clock >= _event_time(_spawn_index):
 		_spawn_note(_spawn_index)
+
+
+func _event_time(note_index: int) -> float:
+	if LevelState.selected_level_id == 0:
+		return LevelState.custom_event_time(note_index)
+	return float(note_index) * _beat_interval
 
 
 func _create_telegraph(beat_index: int) -> void:
@@ -306,7 +316,7 @@ func _slice_hits_note(note: Note, start: Vector2, finish: Vector2) -> bool:
 
 
 func _grade_current_slice() -> String:
-	var beat_phase: float = fmod(_beat_clock, _beat_interval)
+	var beat_phase: float = fmod(_beat_clock + _timing_offset_seconds, _beat_interval)
 	var timing_error: float = minf(beat_phase, _beat_interval - beat_phase)
 	if timing_error <= PERFECT_WINDOW:
 		_perfect_count += 1
@@ -392,14 +402,15 @@ func _draw() -> void:
 	var center: Vector2 = _core_position()
 	var arena_radius: float = minf(viewport_size.x, viewport_size.y) * 0.45
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), Color("091225"))
-	for ring_index: int in range(4, 0, -1):
-		var ring_radius: float = arena_radius * float(ring_index) / 4.0
-		var ring_color: Color = Color(0.13, 0.45, 0.72, 0.05 + float(ring_index) * 0.018)
-		draw_arc(center, ring_radius, 0.0, TAU, 96, ring_color, 1.5, true)
-	for spoke_index: int in range(8):
-		var rotation_speed: float = 0.0 if _reduced_motion else _elapsed * 0.05
-		var angle: float = TAU * float(spoke_index) / 8.0 + rotation_speed
-		draw_line(center, center + Vector2(cos(angle), sin(angle)) * arena_radius, Color(0.18, 0.5, 0.78, 0.10), 1.0, true)
+	if _beat_guides:
+		for ring_index: int in range(4, 0, -1):
+			var ring_radius: float = arena_radius * float(ring_index) / 4.0
+			var ring_color: Color = Color(0.13, 0.45, 0.72, 0.05 + float(ring_index) * 0.018)
+			draw_arc(center, ring_radius, 0.0, TAU, 96, ring_color, 1.5, true)
+		for spoke_index: int in range(8):
+			var rotation_speed: float = 0.0 if _reduced_motion else _elapsed * 0.05
+			var angle: float = TAU * float(spoke_index) / 8.0 + rotation_speed
+			draw_line(center, center + Vector2(cos(angle), sin(angle)) * arena_radius, Color(0.18, 0.5, 0.78, 0.10), 1.0, true)
 	_draw_telegraphs()
 	_draw_notes(center)
 	_draw_sparks()

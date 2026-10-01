@@ -1,0 +1,134 @@
+[gd_scene format=3 uid="uid://p26eo3nptor4"]
+
+[ext_resource type="Script" uid="uid://dyvl7bkoa110l" path="res://scripts/level_editor.gd" id="1_ci1mn"]
+
+[node name="LevelEditor" type="Control" unique_id=436013595]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_ci1mn")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1620024721]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02745098, 0.0627451, 0.15294118, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1627912306]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=1127675850]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/VBox" unique_id=1552071732]
+layout_mode = 2
+text = "CUSTOM CHART EDITOR"
+
+[node name="Help" type="Label" parent="CenterContainer/VBox" unique_id=388353855]
+layout_mode = 2
+text = "TOGGLE LONG NOTES ON THE 16-BEAT GRID"
+
+[node name="BeatGrid" type="GridContainer" parent="CenterContainer/VBox" unique_id=1646116064]
+layout_mode = 2
+columns = 4
+
+[node name="Beat01" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1982289392]
+layout_mode = 2
+text = "01  LONG"
+
+[node name="Beat02" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=2004818164]
+layout_mode = 2
+text = "02  LONG"
+
+[node name="Beat03" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=563348733]
+layout_mode = 2
+text = "03  LONG"
+
+[node name="Beat04" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1252958748]
+layout_mode = 2
+text = "04  LONG"
+
+[node name="Beat05" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=632878472]
+layout_mode = 2
+text = "05  LONG"
+
+[node name="Beat06" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=167940340]
+layout_mode = 2
+text = "06  LONG"
+
+[node name="Beat07" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=361696682]
+layout_mode = 2
+text = "07  LONG"
+
+[node name="Beat08" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=333930092]
+layout_mode = 2
+text = "08  LONG"
+
+[node name="Beat09" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1280039666]
+layout_mode = 2
+text = "09  LONG"
+
+[node name="Beat10" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1473466848]
+layout_mode = 2
+text = "10  LONG"
+
+[node name="Beat11" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1749592240]
+layout_mode = 2
+text = "11  LONG"
+
+[node name="Beat12" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=163641452]
+layout_mode = 2
+text = "12  LONG"
+
+[node name="Beat13" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=1313505512]
+layout_mode = 2
+text = "13  LONG"
+
+[node name="Beat14" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=280553710]
+layout_mode = 2
+text = "14  LONG"
+
+[node name="Beat15" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=962583752]
+layout_mode = 2
+text = "15  LONG"
+
+[node name="Beat16" type="CheckButton" parent="CenterContainer/VBox/BeatGrid" unique_id=617486719]
+layout_mode = 2
+text = "16  LONG"
+
+[node name="TempoLabel" type="Label" parent="CenterContainer/VBox" unique_id=344397843]
+layout_mode = 2
+text = "NOTE INTERVAL"
+
+[node name="TempoSlider" type="HSlider" parent="CenterContainer/VBox" unique_id=237622665]
+layout_mode = 2
+min_value = 0.35
+max_value = 1.0
+step = 0.01
+value = 0.35
+
+[node name="SpeedLabel" type="Label" parent="CenterContainer/VBox" unique_id=989512192]
+layout_mode = 2
+text = "NOTE SPEED"
+
+[node name="SpeedSlider" type="HSlider" parent="CenterContainer/VBox" unique_id=548253916]
+layout_mode = 2
+min_value = 0.6
+max_value = 1.8
+step = 0.05
+value = 0.6
+
+[node name="PlaytestButton" type="Button" parent="CenterContainer/VBox" unique_id=490210195]
+layout_mode = 2
+text = "PLAYTEST CUSTOM CHART"
+
+[node name="ResetButton" type="Button" parent="CenterContainer/VBox" unique_id=588269148]
+layout_mode = 2
+text = "RESET CHART"
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=819120909]
+layout_mode = 2
+text = "BACK TO LEVELS"

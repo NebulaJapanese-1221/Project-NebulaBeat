@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://d85e1sybb81p"]
+
+[node name="Level5Button" type="Button" unique_id=374722644]
+layout_mode = 2
+text = "05  ION RUSH"

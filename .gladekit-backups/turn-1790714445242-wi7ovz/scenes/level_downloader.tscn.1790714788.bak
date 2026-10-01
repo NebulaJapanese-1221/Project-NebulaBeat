@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://dlqdym1oe5i1k"]
+
+[node name="LevelDownloader" type="Control" unique_id=1588949607]
+layout_mode = 3
+anchors_preset = 0

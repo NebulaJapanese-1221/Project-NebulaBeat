@@ -3,6 +3,7 @@ extends Control
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
 const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
 const LEVEL_EDITOR_PATH: String = "res://scenes/level_editor.tscn"
+const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
 
 @onready var _button_list: VBoxContainer = get_node_or_null("CenterContainer/VBox")
 
@@ -30,6 +31,9 @@ func _ready() -> void:
 	var editor_button: Button = get_node_or_null("CenterContainer/VBox/EditorButton")
 	if editor_button != null:
 		editor_button.pressed.connect(_open_editor)
+	var downloader_button: Button = get_node_or_null("CenterContainer/VBox/DownloaderButton")
+	if downloader_button != null:
+		downloader_button.pressed.connect(_open_downloader)
 	var back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
 	if back_button != null:
 		back_button.pressed.connect(_return_to_main_menu)
@@ -69,6 +73,7 @@ func _apply_localized_text() -> void:
 	_set_label_text("CenterContainer/VBox/Title", "levels")
 	_set_label_text("CenterContainer/VBox/Subtitle", "levels_subtitle")
 	_set_button_text("CenterContainer/VBox/EditorButton", "editor")
+	_set_button_text("CenterContainer/VBox/DownloaderButton", "downloader")
 	_set_button_text("CenterContainer/VBox/BackButton", "back")
 
 
@@ -99,6 +104,10 @@ func _open_level(level_id: int) -> void:
 
 func _open_editor() -> void:
 	get_tree().change_scene_to_file(LEVEL_EDITOR_PATH)
+
+
+func _open_downloader() -> void:
+	get_tree().change_scene_to_file(LEVEL_DOWNLOADER_PATH)
 
 
 func _return_to_main_menu() -> void:

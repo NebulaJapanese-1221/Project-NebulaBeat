@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://erm3hx8x7w4i"]
+
+[ext_resource type="Script" uid="uid://dyx8optbpbpxr" path="res://scripts/levels_menu.gd" id="1_r3otx"]
+
+[node name="LevelsMenu" type="Control" unique_id=1527709531]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_r3otx")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1839480374]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02745098, 0.0627451, 0.15294118, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=890187718]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=861571500]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/VBox" unique_id=1129420415]
+layout_mode = 2
+text = "SELECT LEVEL"
+
+[node name="Subtitle" type="Label" parent="CenterContainer/VBox" unique_id=1222705379]
+layout_mode = 2
+text = "CHOOSE A NEBULA BEAT CHART"
+
+[node name="Level1Button" type="Button" parent="CenterContainer/VBox" unique_id=933977038]
+layout_mode = 2
+text = "01  TUTORIAL — FIRST SLICE"
+
+[node name="Level2Button" type="Button" parent="CenterContainer/VBox" unique_id=2129034182]
+layout_mode = 2
+text = "02  TUTORIAL — CORE GUARD"
+
+[node name="Level3Button" type="Button" parent="CenterContainer/VBox" unique_id=1435616888]
+layout_mode = 2
+text = "03  TUTORIAL — LONG NOTES"
+
+[node name="Level4Button" type="Button" parent="CenterContainer/VBox" unique_id=1088431099]
+layout_mode = 2
+text = "04  PHASE SHIFT"
+
+[node name="Level5Button" type="Button" parent="CenterContainer/VBox" unique_id=374722644]
+layout_mode = 2
+text = "05  ION RUSH"
+
+[node name="Level6Button" type="Button" parent="CenterContainer/VBox" unique_id=1207780898]
+layout_mode = 2
+text = "06  SUPERNOVA"
+
+[node name="Level7Button" type="Button" parent="CenterContainer/VBox" unique_id=1074748443]
+layout_mode = 2
+text = "07  NEBULA BREAKER"
+
+[node name="EditorButton" type="Button" parent="CenterContainer/VBox" unique_id=1615156343]
+layout_mode = 2
+text = "CREATE CUSTOM CHART"
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=1924982133]
+layout_mode = 2
+text = "BACK"

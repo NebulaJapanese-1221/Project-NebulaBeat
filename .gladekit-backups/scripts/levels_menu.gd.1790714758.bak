@@ -1,0 +1,109 @@
+extends Control
+
+const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
+const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
+const LEVEL_EDITOR_PATH: String = "res://scenes/level_editor.tscn"
+const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
+
+@onready var _button_list: VBoxContainer = get_node_or_null("CenterContainer/VBox")
+
+
+func _ready() -> void:
+	Localization.apply_saved_locale()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_localized_text()
+	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
+		var button: Button = get_node_or_null("CenterContainer/VBox/Level%dButton" % level_id)
+		if button == null:
+			continue
+		var unlocked: bool = LevelState.is_level_unlocked(level_id)
+		button.disabled = not unlocked
+		var level_data: Dictionary = LevelState.level_data_for(level_id)
+		var suffix: String = ""
+		if unlocked:
+			var stars: int = LevelState.best_stars(level_id)
+			var record: int = LevelState.best_score(level_id)
+			suffix = "  %s  %06d" % ["★".repeat(stars) + "☆".repeat(3 - stars), record] if record > 0 else ""
+			button.pressed.connect(_open_level.bind(level_id))
+		else:
+			suffix = "  •  " + Localization.text("locked")
+		button.text = "%02d  %s%s" % [level_id, String(level_data["title"]), suffix]
+	var editor_button: Button = get_node_or_null("CenterContainer/VBox/EditorButton")
+	if editor_button != null:
+		editor_button.pressed.connect(_open_editor)
+	var downloader_button: Button = get_node_or_null("CenterContainer/VBox/DownloaderButton")
+	if downloader_button != null:
+		downloader_button.pressed.connect(_open_downloader)
+	var back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
+	if back_button != null:
+		back_button.pressed.connect(_return_to_main_menu)
+	var first_button: Button = get_node_or_null("CenterContainer/VBox/Level1Button")
+	if first_button != null:
+		first_button.grab_focus()
+	_make_level_list_scrollable()
+
+
+func _make_level_list_scrollable() -> void:
+	if _button_list == null or _button_list.get_parent() == null:
+		return
+	var host: CenterContainer = _button_list.get_parent() as CenterContainer
+	if host == null:
+		return
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "ScrollContainer"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	var viewport_height: float = get_viewport_rect().size.y
+	scroll.custom_minimum_size = Vector2(280.0, clampf(viewport_height - 72.0, 220.0, 520.0))
+	scroll.custom_maximum_size = Vector2(640.0, 520.0)
+	_button_list.custom_minimum_size = Vector2(280.0, 0.0)
+	_button_list.custom_maximum_size = Vector2(620.0, -1.0)
+	_button_list.add_theme_constant_override("separation", 10)
+	for child: Node in _button_list.get_children():
+		if child is Button:
+			(child as Button).custom_minimum_size = Vector2(0.0, 48.0)
+	host.remove_child(_button_list)
+	host.add_child(scroll)
+	scroll.add_child(_button_list)
+
+
+func _apply_localized_text() -> void:
+	_set_label_text("CenterContainer/VBox/Title", "levels")
+	_set_label_text("CenterContainer/VBox/Subtitle", "levels_subtitle")
+	_set_button_text("CenterContainer/VBox/EditorButton", "editor")
+	_set_button_text("CenterContainer/VBox/BackButton", "back")
+
+
+func _set_label_text(path: String, key: String) -> void:
+	var label: Label = get_node_or_null(path)
+	if label != null:
+		label.text = Localization.text(key)
+
+
+func _set_button_text(path: String, key: String) -> void:
+	var button: Button = get_node_or_null(path)
+	if button != null:
+		button.text = Localization.text(key)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_cancel"):
+		_return_to_main_menu()
+		get_viewport().set_input_as_handled()
+
+
+func _open_level(level_id: int) -> void:
+	if not LevelState.is_level_unlocked(level_id):
+		return
+	LevelState.select_builtin(level_id)
+	get_tree().change_scene_to_file(GAMEPLAY_PATH)
+
+
+func _open_editor() -> void:
+	get_tree().change_scene_to_file(LEVEL_EDITOR_PATH)
+
+
+func _return_to_main_menu() -> void:
+	get_tree().change_scene_to_file(MAIN_MENU_PATH)

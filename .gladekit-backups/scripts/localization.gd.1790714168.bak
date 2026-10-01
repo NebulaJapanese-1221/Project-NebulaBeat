@@ -1,0 +1,262 @@
+extends RefCounted
+class_name Localization
+
+const DEFAULT_LOCALE: String = "en"
+const SUPPORTED_LOCALES: Array[String] = ["en", "fr", "ja"]
+
+const STRINGS: Dictionary = {
+	"en": {
+		"language": "Language",
+		"english": "English",
+		"version": "v0.0.1",
+		"audio": "AUDIO",
+		"display": "DISPLAY",
+		"accessibility": "ACCESSIBILITY",
+		"gameplay": "GAMEPLAY",
+		"timing_offset": "TIMING OFFSET",
+		"beat_guides": "Show Beat Guides",
+		"reset_settings": "RESET SETTINGS",
+		"french": "French",
+		"japanese": "Japanese",
+		"settings": "SETTINGS",
+		"master_volume": "MASTER VOLUME",
+		"music_volume": "MUSIC VOLUME",
+		"sfx_volume": "SFX VOLUME",
+		"tempo": "TEMPO",
+		"speed": "NOTE SPEED",
+		"fullscreen": "Fullscreen",
+		"reduced_motion": "Reduced Motion",
+		"haptics": "Haptics",
+		"color_safe": "Color-Safe Notes",
+		"back": "BACK",
+		"play": "PLAY",
+		"about": "ABOUT",
+		"about_body": "A rhythm-defense game about protecting a living star. Slice incoming notes on the beat before they reach the core.",
+		"about_credit": "PROJECT NEBULA BEAT",
+		"quit": "QUIT",
+		"levels": "SELECT LEVEL",
+		"editor": "LEVEL EDITOR",
+		"playtest": "PLAYTEST",
+		"reset": "RESET",
+		"paused": "PAUSED",
+		"resume": "RESUME",
+		"restart": "RESTART",
+		"quit_to_menu": "QUIT TO MENU",
+		"drag_prompt": "DRAG ON THE BEAT  •  LONG NOTES NEED %d SLICES",
+		"swipe_prompt": "SWIPE ON THE BEAT  •  LONG NOTES NEED %d SLICES",
+		"core_integrity": "CORE INTEGRITY",
+		"score": "SCORE",
+		"beat": "BEAT",
+		"combo": "COMBO",
+		"perfect": "PERFECT",
+		"good": "GOOD",
+		"miss": "MISS",
+		"core_lost": "CORE LOST",
+		"level_clear": "LEVEL CLEAR",
+		"tap_return": "TAP TO RETURN TO LEVELS",
+		"game_title": "NEBULA BEAT",
+		"levels_subtitle": "COMPLETE CHARTS TO UNLOCK THE NEXT SECTOR",
+		"locked": "LOCKED",
+		"custom_chart": "CUSTOM CHART",
+		"custom_chart_subtitle": "A player-authored rhythm pattern.",
+		"tutorial_1_title": "TUTORIAL 01 — FIRST SLICE",
+		"tutorial_1_subtitle": "Learn the clean drag-slice.",
+		"tutorial_1_hint": "SLICE EACH NOTE WITH ONE CLEAN DRAG.",
+		"tutorial_2_title": "TUTORIAL 02 — BEAT LOCK",
+		"tutorial_2_subtitle": "Sync each cut to the incoming beat.",
+		"tutorial_2_hint": "SLICE ON THE BEAT FOR PERFECT TIMING.",
+		"tutorial_3_title": "TUTORIAL 03 — LONG NOTES",
+		"tutorial_3_subtitle": "Clear extended notes with repeated cuts.",
+		"tutorial_3_hint": "LONG NOTES NEED THREE SEPARATE DRAGS.",
+		"level_4_title": "ORBIT BREAK",
+		"level_4_subtitle": "A steady barrage from every lane.",
+		"level_5_title": "PHASE SHIFT",
+		"level_5_subtitle": "Quicker entries and tighter timing.",
+		"level_6_title": "ION RUSH",
+		"level_6_subtitle": "Dense long-note pressure around the core.",
+		"level_7_title": "SUPERNOVA FINALE",
+		"level_7_subtitle": "The final high-speed endurance chart."
+	},
+	"fr": {
+		"language": "Langue",
+		"english": "Anglais",
+		"version": "v0.0.1",
+		"audio": "AUDIO",
+		"display": "AFFICHAGE",
+		"accessibility": "ACCESSIBILITÉ",
+		"gameplay": "JOUABILITÉ",
+		"timing_offset": "DÉCALAGE DE TIMING",
+		"beat_guides": "Afficher les guides de rythme",
+		"reset_settings": "RÉINITIALISER LES PARAMÈTRES",
+		"french": "Français",
+		"japanese": "Japonais",
+		"settings": "PARAMÈTRES",
+		"master_volume": "VOLUME GÉNÉRAL",
+		"music_volume": "VOLUME MUSIQUE",
+		"sfx_volume": "VOLUME EFFETS",
+		"tempo": "TEMPO",
+		"speed": "VITESSE DES NOTES",
+		"fullscreen": "Plein écran",
+		"reduced_motion": "Mouvements réduits",
+		"haptics": "Vibrations",
+		"color_safe": "Notes adaptées aux couleurs",
+		"back": "RETOUR",
+		"play": "JOUER",
+		"about": "À PROPOS",
+		"about_body": "Un jeu de défense rythmique où vous protégez une étoile vivante. Coupez les notes entrantes sur le temps avant qu'elles n'atteignent le cœur.",
+		"about_credit": "PROJET NEBULA BEAT",
+		"quit": "QUITTER",
+		"levels": "SÉLECTION DU NIVEAU",
+		"editor": "ÉDITEUR DE NIVEAU",
+		"playtest": "TESTER",
+		"reset": "RÉINITIALISER",
+		"paused": "PAUSE",
+		"resume": "REPRENDRE",
+		"restart": "RECOMMENCER",
+		"quit_to_menu": "MENU PRINCIPAL",
+		"drag_prompt": "GLISSEZ SUR LE TEMPS  •  NOTES LONGUES : %d COUPES",
+		"swipe_prompt": "GLISSEZ SUR LE TEMPS  •  NOTES LONGUES : %d COUPES",
+		"core_integrity": "INTÉGRITÉ DU CŒUR",
+		"score": "SCORE",
+		"beat": "TEMPS",
+		"combo": "COMBO",
+		"perfect": "PARFAIT",
+		"good": "BIEN",
+		"miss": "RATÉ",
+		"core_lost": "CŒUR PERDU",
+		"level_clear": "NIVEAU TERMINÉ",
+		"tap_return": "TOUCHEZ POUR REVENIR AUX NIVEAUX",
+		"game_title": "NEBULA BEAT",
+		"levels_subtitle": "TERMINEZ DES CHARTS POUR DÉVERROUILLER LE SECTEUR SUIVANT",
+		"locked": "VERROUILLÉ",
+		"custom_chart": "CHART PERSONNALISÉ",
+		"custom_chart_subtitle": "Un rythme créé par le joueur.",
+		"tutorial_1_title": "TUTORIEL 01 — PREMIÈRE COUPE",
+		"tutorial_1_subtitle": "Apprenez le glissement précis.",
+		"tutorial_1_hint": "COUPEZ CHAQUE NOTE AVEC UN GLISSEMENT NET.",
+		"tutorial_2_title": "TUTORIEL 02 — VERROUILLAGE DU TEMPS",
+		"tutorial_2_subtitle": "Synchronisez chaque coupe avec le rythme.",
+		"tutorial_2_hint": "COUPEZ SUR LE TEMPS POUR UN PARFAIT.",
+		"tutorial_3_title": "TUTORIEL 03 — NOTES LONGUES",
+		"tutorial_3_subtitle": "Effacez les notes longues avec plusieurs coupes.",
+		"tutorial_3_hint": "LES NOTES LONGUES DEMANDENT TROIS GLISSEMENTS.",
+		"level_4_title": "RUPTURE D'ORBITE",
+		"level_4_subtitle": "Un barrage constant depuis toutes les voies.",
+		"level_5_title": "DÉCALAGE DE PHASE",
+		"level_5_subtitle": "Des arrivées plus rapides et un timing serré.",
+		"level_6_title": "RUÉE IONIQUE",
+		"level_6_subtitle": "Une pression dense de notes longues autour du cœur.",
+		"level_7_title": "FINALE SUPERNOVA",
+		"level_7_subtitle": "Le chart final d'endurance à grande vitesse."
+	},
+	"ja": {
+		"language": "言語",
+		"english": "英語",
+		"version": "v0.0.1",
+		"audio": "オーディオ",
+		"display": "表示",
+		"accessibility": "アクセシビリティ",
+		"french": "フランス語",
+		"japanese": "日本語",
+		"settings": "設定",
+		"master_volume": "マスター音量",
+		"music_volume": "音楽の音量",
+		"sfx_volume": "効果音の音量",
+		"tempo": "テンポ",
+		"speed": "ノート速度",
+		"fullscreen": "フルスクリーン",
+		"reduced_motion": "モーションを減らす",
+		"haptics": "触覚フィードバック",
+		"color_safe": "色覚対応ノート",
+		"back": "戻る",
+		"play": "プレイ",
+		"about": "ゲームについて",
+		"about_body": "生きた星を守るリズムディフェンスゲーム。ノートがコアに届く前に、ビートに合わせてスライスします。",
+		"about_credit": "PROJECT NEBULA BEAT",
+		"quit": "終了",
+		"levels": "レベル選択",
+		"editor": "レベルエディター",
+		"playtest": "テストプレイ",
+		"reset": "リセット",
+		"paused": "一時停止",
+		"resume": "再開",
+		"restart": "やり直す",
+		"quit_to_menu": "メニューへ戻る",
+		"drag_prompt": "ビートに合わせてドラッグ  •  ロングノートは%d回スライス",
+		"swipe_prompt": "ビートに合わせてスワイプ  •  ロングノートは%d回スライス",
+		"core_integrity": "コア健全性",
+		"score": "スコア",
+		"beat": "ビート",
+		"combo": "コンボ",
+		"perfect": "PERFECT",
+		"good": "GOOD",
+		"miss": "MISS",
+		"core_lost": "コア消失",
+		"level_clear": "レベルクリア",
+		"tap_return": "タップしてレベル選択へ戻る",
+		"game_title": "NEBULA BEAT",
+		"levels_subtitle": "チャートをクリアして次のセクターを解放",
+		"locked": "ロック中",
+		"custom_chart": "カスタムチャート",
+		"custom_chart_subtitle": "プレイヤーが作成したリズムパターン。",
+		"tutorial_1_title": "チュートリアル 01 — 最初のスライス",
+		"tutorial_1_subtitle": "正確なドラッグスライスを学びます。",
+		"tutorial_1_hint": "各ノートを一回の正確なドラッグでスライス。",
+		"tutorial_2_title": "チュートリアル 02 — ビートロック",
+		"tutorial_2_subtitle": "ビートに合わせてスライスします。",
+		"tutorial_2_hint": "PERFECTを狙ってビートに合わせてスライス。",
+		"tutorial_3_title": "チュートリアル 03 — ロングノート",
+		"tutorial_3_subtitle": "複数回のスライスでロングノートを消します。",
+		"tutorial_3_hint": "ロングノートには3回の別々のドラッグが必要です。",
+		"level_4_title": "オービットブレイク",
+		"level_4_subtitle": "全レーンから一定の弾幕が迫ります。",
+		"level_5_title": "フェーズシフト",
+		"level_5_subtitle": "高速化した到達とシビアなタイミング。",
+		"level_6_title": "イオンラッシュ",
+		"level_6_subtitle": "コアを囲むロングノートの密集攻撃。",
+		"level_7_title": "スーパーノヴァ・フィナーレ",
+		"level_7_subtitle": "高速エンデュランスチャートの最終戦。"
+	}
+}
+
+static func current_locale() -> String:
+	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if scene_tree == null:
+		return DEFAULT_LOCALE
+	var profile: Node = scene_tree.root.get_node_or_null("SaveManager")
+	if profile == null:
+		return DEFAULT_LOCALE
+	var saved_locale: String = String(profile.call("get_value", "locale", DEFAULT_LOCALE))
+	return saved_locale if saved_locale in SUPPORTED_LOCALES else DEFAULT_LOCALE
+
+
+static func set_locale(locale: String) -> void:
+	var selected_locale: String = locale if locale in SUPPORTED_LOCALES else DEFAULT_LOCALE
+	TranslationServer.set_locale(selected_locale)
+	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if scene_tree == null:
+		return
+	var profile: Node = scene_tree.root.get_node_or_null("SaveManager")
+	if profile != null:
+		profile.call("set_value", "locale", selected_locale)
+		profile.call("save")
+
+
+static func apply_saved_locale() -> void:
+	TranslationServer.set_locale(current_locale())
+
+
+static func text(key: String) -> String:
+	var locale: String = current_locale()
+	var table: Dictionary = STRINGS.get(locale, STRINGS[DEFAULT_LOCALE])
+	return String(table.get(key, STRINGS[DEFAULT_LOCALE].get(key, key)))
+
+
+static func locale_index(locale: String) -> int:
+	return maxi(SUPPORTED_LOCALES.find(locale), 0)
+
+
+static func locale_from_index(index: int) -> String:
+	if index < 0 or index >= SUPPORTED_LOCALES.size():
+		return DEFAULT_LOCALE
+	return SUPPORTED_LOCALES[index]

@@ -12,6 +12,9 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 @onready var _reduced_motion_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/AccessibilityGroup/ReducedMotionToggle")
 @onready var _haptics_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/AccessibilityGroup/HapticsToggle")
 @onready var _color_safe_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/AccessibilityGroup/ColorSafeToggle")
+@onready var _timing_offset_slider: HSlider = get_node_or_null(CONTENT_PATH + "/GameplayGroup/TimingOffsetSlider")
+@onready var _beat_guide_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle")
+@onready var _reset_settings_button: Button = get_node_or_null(CONTENT_PATH + "/ResetSettingsButton")
 @onready var _language_label: Label = get_node_or_null(CONTENT_PATH + "/LanguageLabel")
 @onready var _language_option: OptionButton = get_node_or_null(CONTENT_PATH + "/LanguageOption")
 @onready var _back_button: Button = get_node_or_null(CONTENT_PATH + "/BackButton")
@@ -34,6 +37,11 @@ func _ready() -> void:
 	_setup_toggle(_reduced_motion_toggle, "reduced_motion", _on_reduced_motion_toggled, false)
 	_setup_toggle(_haptics_toggle, "haptics", _on_haptics_toggled, true)
 	_setup_toggle(_color_safe_toggle, "color_safe", _on_color_safe_toggled, false)
+	_setup_slider(_timing_offset_slider, "timing_offset_ms", _on_timing_offset_changed)
+	_update_timing_offset_label()
+	_setup_toggle(_beat_guide_toggle, "beat_guides", _on_beat_guides_toggled, true)
+	if _reset_settings_button != null:
+		_reset_settings_button.pressed.connect(_reset_settings)
 	if _back_button != null:
 		_back_button.pressed.connect(_return_to_main_menu)
 		_back_button.grab_focus()
@@ -45,7 +53,8 @@ func _order_content() -> void:
 		return
 	var order: Array[String] = [
 		"SettingsTitle", "AudioSection", "AudioGroup", "DisplaySection", "DisplayGroup",
-		"AccessibilitySection", "AccessibilityGroup", "LanguageLabel", "LanguageOption", "BackButton"
+		"GameplaySection", "GameplayGroup", "AccessibilitySection", "AccessibilityGroup",
+		"LanguageLabel", "LanguageOption", "ResetSettingsButton", "BackButton"
 	]
 	for child_name: String in order:
 		var child: Node = _content.get_node_or_null(child_name)
@@ -54,25 +63,33 @@ func _order_content() -> void:
 
 
 func _apply_mobile_presentation() -> void:
-	for heading_name: String in ["SettingsTitle", "AudioSection", "DisplaySection", "AccessibilitySection"]:
+	var panel: PanelContainer = get_node_or_null("CenterContainer/SettingsPanel")
+	if panel != null:
+		var viewport_size: Vector2 = get_viewport_rect().size
+		panel.custom_minimum_size = Vector2(minf(maxf(viewport_size.x - 48.0, 320.0), 760.0), minf(maxf(viewport_size.y - 44.0, 440.0), 760.0))
+		panel.custom_maximum_size = Vector2(760.0, 760.0)
+	for heading_name: String in ["SettingsTitle", "AudioSection", "DisplaySection", "GameplaySection", "AccessibilitySection"]:
 		var heading: Label = get_node_or_null(CONTENT_PATH + "/" + heading_name)
 		if heading != null:
 			heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			heading.add_theme_font_size_override("font_size", 28 if heading_name == "SettingsTitle" else 18)
+			heading.add_theme_font_size_override("font_size", 32 if heading_name == "SettingsTitle" else 20)
 			heading.add_theme_color_override("font_color", Color("8fdcff"))
-	for group_name: String in ["AudioGroup", "DisplayGroup", "AccessibilityGroup"]:
+	for group_name: String in ["AudioGroup", "DisplayGroup", "GameplayGroup", "AccessibilityGroup"]:
 		var group: VBoxContainer = get_node_or_null(CONTENT_PATH + "/" + group_name)
 		if group != null:
-			group.add_theme_constant_override("separation", 10)
-	for control: Control in [_master_volume_slider, _music_volume_slider, _sfx_volume_slider, _fullscreen_toggle, _reduced_motion_toggle, _haptics_toggle, _color_safe_toggle, _language_option, _back_button]:
+			group.add_theme_constant_override("separation", 12)
+	if _content != null:
+		_content.add_theme_constant_override("separation", 18)
+	for control: Control in [_master_volume_slider, _music_volume_slider, _sfx_volume_slider, _fullscreen_toggle, _reduced_motion_toggle, _haptics_toggle, _color_safe_toggle, _timing_offset_slider, _beat_guide_toggle, _language_option, _reset_settings_button, _back_button]:
 		if control != null:
-			control.custom_minimum_size = Vector2(0.0, 46.0)
+			control.custom_minimum_size = Vector2(0.0, 52.0)
 
 
 func _apply_localized_text() -> void:
 	_set_label_text(CONTENT_PATH + "/SettingsTitle", "settings")
 	_set_label_text(CONTENT_PATH + "/AudioSection", "audio")
 	_set_label_text(CONTENT_PATH + "/DisplaySection", "display")
+	_set_label_text(CONTENT_PATH + "/GameplaySection", "gameplay")
 	_set_label_text(CONTENT_PATH + "/AccessibilitySection", "accessibility")
 	_set_label_text(CONTENT_PATH + "/AudioGroup/VolumeLabel", "master_volume")
 	_set_label_text(CONTENT_PATH + "/AudioGroup/MusicVolumeLabel", "music_volume")
@@ -81,7 +98,10 @@ func _apply_localized_text() -> void:
 	_set_button_text(CONTENT_PATH + "/AccessibilityGroup/ReducedMotionToggle", "reduced_motion")
 	_set_button_text(CONTENT_PATH + "/AccessibilityGroup/HapticsToggle", "haptics")
 	_set_button_text(CONTENT_PATH + "/AccessibilityGroup/ColorSafeToggle", "color_safe")
+	_set_button_text(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle", "beat_guides")
+	_set_button_text(CONTENT_PATH + "/ResetSettingsButton", "reset_settings")
 	_set_button_text(CONTENT_PATH + "/BackButton", "back")
+	_update_timing_offset_label()
 	if _language_label != null:
 		_language_label.text = Localization.text("language")
 
@@ -191,6 +211,53 @@ func _on_haptics_toggled(enabled: bool) -> void:
 
 func _on_color_safe_toggled(enabled: bool) -> void:
 	_set_saved("color_safe", enabled)
+
+
+func _on_timing_offset_changed(value: float) -> void:
+	_set_saved("timing_offset_ms", value)
+	_update_timing_offset_label()
+
+
+func _on_beat_guides_toggled(enabled: bool) -> void:
+	_set_saved("beat_guides", enabled)
+
+
+func _reset_settings() -> void:
+	if _master_volume_slider != null:
+		_master_volume_slider.value = 100.0
+	if _music_volume_slider != null:
+		_music_volume_slider.value = 80.0
+	if _sfx_volume_slider != null:
+		_sfx_volume_slider.value = 90.0
+	if _fullscreen_toggle != null:
+		_fullscreen_toggle.button_pressed = false
+	if _reduced_motion_toggle != null:
+		_reduced_motion_toggle.button_pressed = false
+	if _haptics_toggle != null:
+		_haptics_toggle.button_pressed = true
+	if _color_safe_toggle != null:
+		_color_safe_toggle.button_pressed = false
+	if _timing_offset_slider != null:
+		_timing_offset_slider.value = 0.0
+	if _beat_guide_toggle != null:
+		_beat_guide_toggle.button_pressed = true
+	_on_master_volume_changed(100.0)
+	_on_music_volume_changed(80.0)
+	_on_sfx_volume_changed(90.0)
+	_on_fullscreen_toggled(false)
+	_on_reduced_motion_toggled(false)
+	_on_haptics_toggled(true)
+	_on_color_safe_toggled(false)
+	_on_timing_offset_changed(0.0)
+	_on_beat_guides_toggled(true)
+
+
+func _update_timing_offset_label() -> void:
+	var label: Label = get_node_or_null(CONTENT_PATH + "/GameplayGroup/TimingOffsetLabel")
+	if label == null:
+		return
+	var offset_ms: int = int(roundi(_timing_offset_slider.value)) if _timing_offset_slider != null else 0
+	label.text = "%s: %+d ms" % [Localization.text("timing_offset"), offset_ms]
 
 
 func _unhandled_input(event: InputEvent) -> void:
