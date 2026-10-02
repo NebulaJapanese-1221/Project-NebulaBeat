@@ -504,13 +504,45 @@ func _draw_sparks() -> void:
 
 func _draw_core(center: Vector2) -> void:
 	var damage_ratio: float = 1.0 - float(_core_health) / float(MAX_CORE_HEALTH)
-	var pulse: float = 0.0 if _reduced_motion else sin(_elapsed * 3.0) * 3.0
-	var glow_color: Color = Color(0.12 + damage_ratio * 0.75, 0.78 - damage_ratio * 0.42, 1.0, 0.14 + _hit_flash * 0.7)
-	draw_circle(center, CORE_RADIUS + 27.0 + pulse, glow_color)
-	draw_circle(center, CORE_RADIUS + 8.0, Color(0.06, 0.17, 0.34, 0.95))
-	draw_arc(center, CORE_RADIUS + 8.0, _elapsed * (0.0 if _reduced_motion else 1.9), _elapsed * (0.0 if _reduced_motion else 1.9) + TAU * 0.72, 48, Color(0.2, 0.92, 1.0), 4.0, true)
-	draw_circle(center, CORE_RADIUS, Color(0.1 + _hit_flash * 0.9, 0.67, 0.96, 0.96))
-	draw_circle(center, CORE_RADIUS * 0.52, Color(0.85, 0.98, 1.0, 0.95))
+	var beat_phase: float = fmod(_beat_clock, _beat_interval) / _beat_interval
+	var beat_pulse: float = pow(1.0 - beat_phase, 3.2)
+	var ambient_pulse: float = 0.0 if _reduced_motion else (sin(_elapsed * 3.0) + 1.0) * 0.5
+	var pulse_amount: float = beat_pulse * 7.0 + ambient_pulse * 2.5 + _hit_flash * 12.0
+	var core_color: Color = Color(0.12 + damage_ratio * 0.72, 0.82 - damage_ratio * 0.48, 1.0)
+	var hot_color: Color = Color(0.94 + damage_ratio * 0.06, 0.99 - damage_ratio * 0.38, 1.0 - damage_ratio * 0.42)
+	var rotation: float = 0.0 if _reduced_motion else _elapsed * 1.75
+
+	# Soft stacked halos create a mobile-friendly bloom impression without post-processing.
+	for glow_index: int in range(5, 0, -1):
+		var glow_progress: float = float(glow_index) / 5.0
+		var glow_radius: float = CORE_RADIUS + 18.0 + glow_progress * 48.0 + pulse_amount * glow_progress
+		var glow_alpha: float = (0.018 + beat_pulse * 0.026 + _hit_flash * 0.05) * (1.0 - glow_progress * 0.72)
+		draw_circle(center, glow_radius, Color(core_color, glow_alpha))
+
+	# Orbiting segmented rings make the core read as unstable contained energy.
+	for ring_index: int in range(3):
+		var ring_radius: float = CORE_RADIUS + 10.0 + float(ring_index) * 12.0 + pulse_amount * 0.24
+		var ring_rotation: float = rotation * (1.0 if ring_index % 2 == 0 else -0.72) + float(ring_index) * 1.35
+		var ring_span: float = TAU * (0.42 + beat_pulse * 0.12)
+		var ring_color: Color = Color(core_color, 0.42 - float(ring_index) * 0.08 + _hit_flash * 0.22)
+		draw_arc(center, ring_radius, ring_rotation, ring_rotation + ring_span, 48, ring_color, 3.5 - float(ring_index) * 0.55, true)
+		draw_arc(center, ring_radius, ring_rotation + PI, ring_rotation + PI + ring_span * 0.48, 32, Color(hot_color, 0.48), 2.0, true)
+
+	draw_circle(center, CORE_RADIUS + 7.0 + pulse_amount * 0.14, Color(0.025, 0.10, 0.24, 0.96))
+	draw_circle(center, CORE_RADIUS + 1.0 + pulse_amount * 0.12, Color(core_color, 0.94))
+
+	var shard_points: PackedVector2Array = PackedVector2Array()
+	for shard_index: int in range(12):
+		var shard_angle: float = TAU * float(shard_index) / 12.0 + rotation * 0.72
+		var shard_radius: float = CORE_RADIUS * (0.56 + 0.12 * sin(rotation * 1.6 + float(shard_index)))
+		shard_points.append(center + Vector2(cos(shard_angle), sin(shard_angle)) * shard_radius)
+	draw_colored_polygon(shard_points, Color(0.20 + damage_ratio * 0.45, 0.88 - damage_ratio * 0.28, 1.0, 0.92))
+
+	var inner_radius: float = CORE_RADIUS * (0.34 + beat_pulse * 0.055)
+	draw_circle(center, inner_radius, Color(hot_color, 0.98))
+	draw_circle(center - Vector2(8.0, 10.0), inner_radius * 0.34, Color.WHITE)
+	if _hit_flash > 0.0:
+		draw_circle(center, CORE_RADIUS + 10.0 + _hit_flash * 18.0, Color(1.0, 0.24, 0.38, _hit_flash * 0.22), false, 2.5, true)
 
 
 func _draw_slashes() -> void:
