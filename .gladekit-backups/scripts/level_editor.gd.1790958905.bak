@@ -187,11 +187,6 @@ func _apply_localized_text() -> void:
 		_level_name_input.placeholder_text = Localization.text("level_name")
 
 
-func refresh_localization() -> void:
-	_apply_localized_text()
-	_refresh_editor_from_state()
-
-
 func _refresh_editor_from_state() -> void:
 	if _level_name_input != null:
 		_level_name_input.text = LevelState.custom_level_name

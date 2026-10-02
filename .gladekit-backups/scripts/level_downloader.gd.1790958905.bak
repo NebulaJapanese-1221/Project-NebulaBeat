@@ -52,10 +52,6 @@ func _apply_text() -> void:
 		_back_button.text = Localization.text("back")
 
 
-func refresh_localization() -> void:
-	_apply_text()
-
-
 func _show_offline_status() -> void:
 	if _body != null:
 		_body.text = Localization.text("downloader_server_missing")

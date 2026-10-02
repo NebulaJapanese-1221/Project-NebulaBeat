@@ -11,7 +11,6 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 func _ready() -> void:
 	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
 	_apply_responsive_layout()
 	_apply_localized_text()
 	if _back_skin != null:
@@ -35,17 +34,10 @@ func _set_label_text(path: String, key: String) -> void:
 		label.text = Localization.text(key)
 
 
-func refresh_localization() -> void:
-	_apply_localized_text()
-	if _back_button != null:
-		_back_button.text = Localization.text("back")
-
-
 func _apply_responsive_layout() -> void:
 	var panel: PanelContainer = get_node_or_null("CenterContainer/AboutPanel")
 	if panel != null:
-		var viewport_size: Vector2 = get_viewport_rect().size
-		panel.custom_minimum_size = Vector2(minf(maxf(viewport_size.x - 40.0, 280.0), 560.0), 0.0)
+		panel.custom_minimum_size = Vector2(280.0, 0.0)
 		panel.custom_maximum_size = Vector2(560.0, -1.0)
 	var content: VBoxContainer = get_node_or_null("CenterContainer/AboutPanel/AboutVBox")
 	if content != null:
@@ -63,4 +55,4 @@ func _unhandled_input(event: InputEvent) -> void:
 func _return_to_main_menu() -> void:
 	if _menu_back != null:
 		_menu_back.play()
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(MAIN_MENU_PATH)
+	ScreenTransition.transition_to(MAIN_MENU_PATH)

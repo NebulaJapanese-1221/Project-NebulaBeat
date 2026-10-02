@@ -34,10 +34,8 @@ func _ready() -> void:
 func _apply_responsive_layout() -> void:
 	var content: VBoxContainer = get_node_or_null("Panel/CenterContainer/VBox")
 	if content != null:
-		var viewport_size: Vector2 = get_viewport().get_visible_rect().size
-		content.custom_minimum_size = Vector2(minf(maxf(viewport_size.x - 40.0, 280.0), 520.0), 0.0)
+		content.custom_minimum_size = Vector2(280.0, 0.0)
 		content.custom_maximum_size = Vector2(520.0, -1.0)
-		content.alignment = BoxContainer.ALIGNMENT_CENTER
 		content.add_theme_constant_override("separation", 12)
 	for button: Button in [_resume_button, _restart_button, _quit_button]:
 		if button != null:
@@ -61,10 +59,6 @@ func _set_button_text(path: String, key: String) -> void:
 	var button: Button = get_node_or_null(path)
 	if button != null:
 		button.text = Localization.text(key)
-
-
-func refresh_localization() -> void:
-	_apply_localized_text()
 
 
 func _unhandled_input(event: InputEvent) -> void:

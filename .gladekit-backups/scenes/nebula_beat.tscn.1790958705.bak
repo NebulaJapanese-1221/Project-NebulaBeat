@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://gjy6qjv3vxxr"]
+
+[ext_resource type="Script" uid="uid://df2ff58nhrxjg" path="res://scripts/nebula_beat.gd" id="1_fcpvn"]
+[ext_resource type="Script" uid="uid://bypx75y4q8swo" path="res://scripts/pause_menu.gd" id="2_8qua7"]
+
+[node name="NebulaBeat" type="Control" unique_id=926916036]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_fcpvn")
+
+[node name="PauseMenu" type="CanvasLayer" parent="." unique_id=1628380726 groups=["pause_menu"]]
+process_mode = 3
+layer = 10
+script = ExtResource("2_8qua7")
+menu_target = "res://scenes/main_menu.tscn"
+
+[node name="Panel" type="Control" parent="PauseMenu" unique_id=2040922788]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="PauseMenu/Panel" unique_id=868584109]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="PauseMenu/Panel" unique_id=459060445]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="PauseMenu/Panel/CenterContainer" unique_id=963010624]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PausedLabel" type="Label" parent="PauseMenu/Panel/CenterContainer/VBox" unique_id=28245110]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PauseMenu/Panel/CenterContainer/VBox" unique_id=2061962022]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+text = "Resume"
+
+[node name="RestartButton" type="Button" parent="PauseMenu/Panel/CenterContainer/VBox" unique_id=335429183]
+layout_mode = 2
+text = "RESTART RUN"
+
+[node name="QuitButton" type="Button" parent="PauseMenu/Panel/CenterContainer/VBox" unique_id=1014217829]
+layout_mode = 2
+text = "QUIT TO MENU"

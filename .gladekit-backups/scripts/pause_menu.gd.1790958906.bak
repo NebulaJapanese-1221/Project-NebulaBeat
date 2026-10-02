@@ -63,10 +63,6 @@ func _set_button_text(path: String, key: String) -> void:
 		button.text = Localization.text(key)
 
 
-func refresh_localization() -> void:
-	_apply_localized_text()
-
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		_set_paused(not get_tree().paused)

@@ -11,7 +11,6 @@ const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
 func _ready() -> void:
 	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
 	_apply_localized_text()
 	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
 		var button: Button = get_node_or_null("CenterContainer/VBox/Level%dButton" % level_id)
@@ -47,7 +46,6 @@ func _ready() -> void:
 func _make_level_list_scrollable() -> void:
 	if _button_list == null or _button_list.get_parent() == null:
 		return
-	_button_list.alignment = BoxContainer.ALIGNMENT_CENTER
 	var host: CenterContainer = _button_list.get_parent() as CenterContainer
 	if host == null:
 		return
@@ -91,17 +89,6 @@ func _set_button_text(path: String, key: String) -> void:
 		button.text = Localization.text(key)
 
 
-func refresh_localization() -> void:
-	_apply_localized_text()
-	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
-		var button: Button = get_node_or_null("CenterContainer/VBox/Level%dButton" % level_id)
-		if button != null:
-			var unlocked: bool = LevelState.is_level_unlocked(level_id)
-			var level_data: Dictionary = LevelState.level_data_for(level_id)
-			var suffix: String = "  •  " + Localization.text("locked") if not unlocked else ""
-			button.text = "%02d  %s%s" % [level_id, String(level_data["title"]), suffix]
-
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		_return_to_main_menu()
@@ -116,12 +103,12 @@ func _open_level(level_id: int) -> void:
 
 
 func _open_editor() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVEL_EDITOR_PATH)
+	get_tree().change_scene_to_file(LEVEL_EDITOR_PATH)
 
 
 func _open_downloader() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVEL_DOWNLOADER_PATH)
+	get_tree().change_scene_to_file(LEVEL_DOWNLOADER_PATH)
 
 
 func _return_to_main_menu() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(MAIN_MENU_PATH)
+	get_tree().change_scene_to_file(MAIN_MENU_PATH)

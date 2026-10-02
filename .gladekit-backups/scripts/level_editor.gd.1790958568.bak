@@ -28,7 +28,6 @@ const PACKAGE_DIRECTORY: String = "user://nebula_levels"
 func _ready() -> void:
 	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
 	_ensure_beat_cells()
 	_setup_controls()
 	_order_editor_content()
@@ -185,11 +184,6 @@ func _apply_localized_text() -> void:
 	_set_button_text("CenterContainer/VBox/BackButton", "back")
 	if _level_name_input != null:
 		_level_name_input.placeholder_text = Localization.text("level_name")
-
-
-func refresh_localization() -> void:
-	_apply_localized_text()
-	_refresh_editor_from_state()
 
 
 func _refresh_editor_from_state() -> void:
@@ -390,4 +384,4 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _return_to_levels() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+	get_tree().change_scene_to_file(LEVELS_MENU_PATH)

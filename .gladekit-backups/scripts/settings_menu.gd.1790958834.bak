@@ -24,7 +24,6 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 
 func _ready() -> void:
 	Localization.apply_saved_locale()
-	add_to_group("localizable_menu")
 	_order_content()
 	_apply_mobile_presentation()
 	_apply_localized_text()
@@ -132,9 +131,6 @@ func _setup_language_option() -> void:
 
 func _on_language_selected(index: int) -> void:
 	Localization.set_locale(Localization.locale_from_index(index))
-
-
-func refresh_localization() -> void:
 	_apply_localized_text()
 	_setup_language_option()
 

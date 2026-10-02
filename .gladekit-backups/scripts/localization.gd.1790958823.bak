@@ -334,9 +334,6 @@ static func set_locale(locale: String) -> void:
 	if profile != null:
 		profile.call("set_value", "locale", selected_locale)
 		profile.call("save")
-	for node: Node in scene_tree.get_nodes_in_group("localizable_menu"):
-		if node.has_method("refresh_localization"):
-			node.call("refresh_localization")
 
 
 static func apply_saved_locale() -> void:
@@ -347,11 +344,6 @@ static func text(key: String) -> String:
 	var locale: String = current_locale()
 	var table: Dictionary = STRINGS.get(locale, STRINGS[DEFAULT_LOCALE])
 	return String(table.get(key, STRINGS[DEFAULT_LOCALE].get(key, key)))
-
-
-static func locale_name(locale: String) -> String:
-	var names: Dictionary = {"en": "English", "fr": "Français", "ja": "日本語", "ko": "한국어", "zh": "中文"}
-	return String(names.get(locale, "English"))
 
 
 static func locale_index(locale: String) -> int:

@@ -334,9 +334,6 @@ static func set_locale(locale: String) -> void:
 	if profile != null:
 		profile.call("set_value", "locale", selected_locale)
 		profile.call("save")
-	for node: Node in scene_tree.get_nodes_in_group("localizable_menu"):
-		if node.has_method("refresh_localization"):
-			node.call("refresh_localization")
 
 
 static func apply_saved_locale() -> void:

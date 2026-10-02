@@ -24,10 +24,8 @@ func _ready() -> void:
 func _apply_layout() -> void:
 	var content: VBoxContainer = get_node_or_null("CenterContainer/VBox")
 	if content != null:
-		var viewport_size: Vector2 = get_viewport_rect().size
-		content.custom_minimum_size = Vector2(minf(maxf(viewport_size.x - 40.0, 280.0), 720.0), 0.0)
+		content.custom_minimum_size = Vector2(320.0, 0.0)
 		content.custom_maximum_size = Vector2(720.0, -1.0)
-		content.alignment = BoxContainer.ALIGNMENT_CENTER
 		content.add_theme_constant_override("separation", 16)
 	if _title != null:
 		_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -50,10 +48,6 @@ func _apply_text() -> void:
 		_refresh_button.text = Localization.text("refresh_catalog")
 	if _back_button != null:
 		_back_button.text = Localization.text("back")
-
-
-func refresh_localization() -> void:
-	_apply_text()
 
 
 func _show_offline_status() -> void:

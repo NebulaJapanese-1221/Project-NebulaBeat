@@ -35,12 +35,6 @@ func _set_label_text(path: String, key: String) -> void:
 		label.text = Localization.text(key)
 
 
-func refresh_localization() -> void:
-	_apply_localized_text()
-	if _back_button != null:
-		_back_button.text = Localization.text("back")
-
-
 func _apply_responsive_layout() -> void:
 	var panel: PanelContainer = get_node_or_null("CenterContainer/AboutPanel")
 	if panel != null:

@@ -24,7 +24,6 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 
 func _ready() -> void:
 	Localization.apply_saved_locale()
-	add_to_group("localizable_menu")
 	_order_content()
 	_apply_mobile_presentation()
 	_apply_localized_text()
@@ -123,8 +122,9 @@ func _setup_language_option() -> void:
 	if _language_option == null:
 		return
 	_language_option.clear()
-	for locale: String in Localization.SUPPORTED_LOCALES:
-		_language_option.add_item(Localization.locale_name(locale))
+	_language_option.add_item(Localization.text("english"))
+	_language_option.add_item(Localization.text("french"))
+	_language_option.add_item(Localization.text("japanese"))
 	_language_option.select(Localization.locale_index(Localization.current_locale()))
 	if not _language_option.item_selected.is_connected(_on_language_selected):
 		_language_option.item_selected.connect(_on_language_selected)
@@ -132,9 +132,6 @@ func _setup_language_option() -> void:
 
 func _on_language_selected(index: int) -> void:
 	Localization.set_locale(Localization.locale_from_index(index))
-
-
-func refresh_localization() -> void:
 	_apply_localized_text()
 	_setup_language_option()
 
