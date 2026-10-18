@@ -46,22 +46,18 @@ layout_mode = 2
 text = "03  TUTORIAL — LONG NOTES"
 
 [node name="Level4Button" type="Button" parent="CenterContainer/VBox" unique_id=1088431099]
-visible = false
 layout_mode = 2
 text = "04  PHASE SHIFT"
 
 [node name="Level5Button" type="Button" parent="CenterContainer/VBox" unique_id=374722644]
-visible = false
 layout_mode = 2
 text = "05  ION RUSH"
 
 [node name="Level6Button" type="Button" parent="CenterContainer/VBox" unique_id=1207780898]
-visible = false
 layout_mode = 2
 text = "06  SUPERNOVA"
 
 [node name="Level7Button" type="Button" parent="CenterContainer/VBox" unique_id=1074748443]
-visible = false
 layout_mode = 2
 text = "07  NEBULA BREAKER"
 

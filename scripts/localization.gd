@@ -75,6 +75,8 @@ const STRINGS: Dictionary = {
 		"perfect": "PERFECT",
 		"good": "GOOD",
 		"miss": "MISS",
+		"grade": "GRADE",
+		"accuracy": "ACCURACY",
 		"core_lost": "CORE LOST",
 		"level_clear": "LEVEL CLEAR",
 		"tap_return": "TAP TO RETURN TO LEVELS",
@@ -171,6 +173,8 @@ const STRINGS: Dictionary = {
 		"perfect": "PARFAIT",
 		"good": "BIEN",
 		"miss": "RATÉ",
+		"grade": "NOTE",
+		"accuracy": "PRÉCISION",
 		"core_lost": "CŒUR PERDU",
 		"level_clear": "NIVEAU TERMINÉ",
 		"tap_return": "TOUCHEZ POUR REVENIR AUX NIVEAUX",
@@ -267,6 +271,8 @@ const STRINGS: Dictionary = {
 		"perfect": "PERFECT",
 		"good": "GOOD",
 		"miss": "MISS",
+		"grade": "グレード",
+		"accuracy": "正確度",
 		"core_lost": "コア消失",
 		"level_clear": "レベルクリア",
 		"tap_return": "タップしてレベル選択へ戻る",
@@ -299,7 +305,8 @@ const STRINGS: Dictionary = {
 		"audio": "오디오", "display": "화면", "accessibility": "접근성", "gameplay": "게임플레이", "reset_settings": "설정 초기화",
 		"master_volume": "마스터 볼륨", "music_volume": "음악 볼륨", "sfx_volume": "효과음 볼륨", "fullscreen": "전체 화면", "reduced_motion": "모션 줄이기", "haptics": "햅틱", "color_safe": "색각 안전 노트", "timing_offset": "타이밍 오프셋", "beat_guides": "비트 가이드 표시",
 		"level_downloader": "레벨 다운로드", "downloader": "레벨 다운로드", "downloader_offline": "커뮤니티 레벨 카탈로그는 서버 연결을 기다리고 있습니다.", "downloader_server_missing": "카탈로그 서버가 아직 설정되지 않았습니다.", "refresh_catalog": "카탈로그 새로고침", "editor": "레벨 에디터", "editor_help": "리듬 차트를 만들고 플레이테스트하세요.", "level_name": "레벨 이름", "tempo": "템포", "speed": "노트 속도", "bpm": "BPM", "long_note_mode": "롱 노트 모드", "select_mp3": "MP3 선택", "autobuild": "MP3에서 자동 생성", "import_package": "ZIP 패키지 가져오기", "export_package": "ZIP 패키지 내보내기", "playtest": "플레이테스트", "reset": "초기화",
-		"paused": "일시 정지", "resume": "계속", "restart": "다시 시작", "quit_to_menu": "메뉴로 나가기", "score": "점수", "beat": "비트", "combo": "콤보", "perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "코어 안정성", "core_lost": "코어 소실", "level_clear": "레벨 클리어", "tap_return": "탭하여 레벨 선택으로 돌아가기", "game_title": "NEBULA BEAT", "levels_subtitle": "차트를 클리어하여 다음 구역을 해금하세요", "locked": "잠김", "version": "v0.0.1",
+		"paused": "일시 정지", "resume": "계속", "restart": "다시 시작", "quit_to_menu": "메뉴로 나가기", "score": "점수", "beat": "비트", "combo": "콤보", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "코어 안정성", "core_lost": "코어 소실", "level_clear": "레벨 클리어", "tap_return": "탭하여 레벨 선택으로 돌아가기", "game_title": "NEBULA BEAT", "levels_subtitle": "차트를 클리어하여 다음 구역을 해금하세요", "locked": "잠김", "version": "v0.0.1",
+		"grade": "등급", "accuracy": "정확도",
 		"about_body": "살아 있는 별을 지키는 리듬 디펜스 게임입니다. 코어에 닿기 전에 비트에 맞춰 노트를 슬라이스하세요.", "about_credit": "PROJECT NEBULA BEAT"
 	},
 	"zh": {
@@ -308,7 +315,8 @@ const STRINGS: Dictionary = {
 		"audio": "音频", "display": "显示", "accessibility": "辅助功能", "gameplay": "游戏玩法", "reset_settings": "重置设置",
 		"master_volume": "主音量", "music_volume": "音乐音量", "sfx_volume": "音效音量", "fullscreen": "全屏", "reduced_motion": "减少动态效果", "haptics": "触觉反馈", "color_safe": "色觉友好音符", "timing_offset": "时序偏移", "beat_guides": "显示节拍引导",
 		"level_downloader": "关卡下载器", "downloader": "关卡下载器", "downloader_offline": "社区关卡目录已准备好连接服务器。", "downloader_server_missing": "尚未配置目录服务器。", "refresh_catalog": "刷新目录", "editor": "关卡编辑器", "editor_help": "创建节奏谱面并进行试玩。", "level_name": "关卡名称", "tempo": "速度", "speed": "音符速度", "bpm": "BPM", "long_note_mode": "长音符模式", "select_mp3": "选择 MP3", "autobuild": "从 MP3 自动生成", "import_package": "导入 ZIP 包", "export_package": "导出 ZIP 包", "playtest": "试玩", "reset": "重置",
-		"paused": "暂停", "resume": "继续", "restart": "重新开始", "quit_to_menu": "返回菜单", "score": "分数", "beat": "节拍", "combo": "连击", "perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "核心完整度", "core_lost": "核心已失守", "level_clear": "关卡完成", "tap_return": "点击返回关卡选择", "game_title": "NEBULA BEAT", "levels_subtitle": "完成谱面以解锁下一个区域", "locked": "未解锁", "version": "v0.0.1",
+		"paused": "暂停", "resume": "继续", "restart": "重新开始", "quit_to_menu": "返回菜单", "score": "分数", "beat": "节拍", "combo": "连击", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "核心完整度", "core_lost": "核心已失守", "level_clear": "关卡完成", "tap_return": "点击返回关卡选择", "game_title": "NEBULA BEAT", "levels_subtitle": "完成谱面以解锁下一个区域", "locked": "未解锁", "version": "v0.0.1",
+		"grade": "等级", "accuracy": "准确度",
 		"about_body": "一款守护活体恒星的节奏防御游戏。在音符抵达核心前，按节拍将其切开。", "about_credit": "PROJECT NEBULA BEAT"
 	}
 }

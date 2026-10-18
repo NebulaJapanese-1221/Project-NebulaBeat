@@ -85,7 +85,13 @@ var _haptics: bool = true
 var _color_safe: bool = false
 var _timing_offset_seconds: float = 0.0
 var _beat_guides: bool = true
+var _gamepad_cursor: Vector2 = Vector2.ZERO
+var _gamepad_dragging: bool = false
+var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
+@onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
+@onready var _sfx_hit: AudioStreamPlayer = get_node_or_null("SfxHit")
+@onready var _sfx_miss: AudioStreamPlayer = get_node_or_null("SfxMiss")
 
 
 func _ready() -> void:
@@ -100,6 +106,7 @@ func _ready() -> void:
 	_beat_guides = bool(_profile_value("beat_guides", true))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_gamepad_cursor = _core_position()
 	queue_redraw()
 
 
@@ -258,6 +265,25 @@ func _input(event: InputEvent) -> void:
 		var screen_drag: InputEventScreenDrag = event
 		if screen_drag.index == _active_touch_index:
 			_handle_drag(screen_drag.position)
+	elif event is InputEventJoypadMotion and not _game_over and not _level_complete:
+		var joy_motion: InputEventJoypadMotion = event
+		if joy_motion.axis == 0:
+			_gamepad_cursor.x += joy_motion.axis_value * 12.0
+		elif joy_motion.axis == 1:
+			_gamepad_cursor.y += joy_motion.axis_value * 12.0
+		_gamepad_cursor = _gamepad_cursor.clamp(Vector2.ZERO, size)
+		if _gamepad_dragging:
+			_handle_drag(_gamepad_cursor)
+	elif event is InputEventJoypadButton and not _game_over and not _level_complete:
+		var joy_button: InputEventJoypadButton = event
+		if joy_button.button_index in [0, 7]:
+			if joy_button.pressed and not _gamepad_dragging:
+				_gamepad_dragging = true
+				_drag_stroke_id += 1
+				_gamepad_last_position = _gamepad_cursor
+				_handle_press(_gamepad_cursor)
+			elif not joy_button.pressed and _gamepad_dragging:
+				_gamepad_dragging = false
 
 
 func _handle_press(position: Vector2) -> void:
@@ -280,6 +306,8 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 	trail.start = start
 	trail.finish = finish
 	_slashes.append(trail)
+	if _sfx_slice != null:
+		_sfx_slice.play()
 	for index: int in range(_notes.size() - 1, -1, -1):
 		var note: Note = _notes[index]
 		if not _slice_hits_note(note, start, finish):
@@ -300,6 +328,8 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 			_combo_pulse = 1.0
 			_show_score_pop(total_score, note.position, Color(0.95, 0.98, 1.0), "")
 			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 12)
+			if _sfx_hit != null:
+				_sfx_hit.play()
 			_notes.remove_at(index)
 		else:
 			_score += 35
@@ -377,6 +407,8 @@ func _core_impact(origin: Vector2) -> void:
 	_hit_flash = 0.42
 	_slice_burst(origin, Color(1.0, 0.28, 0.40), 18)
 	_vibrate(60)
+	if _sfx_miss != null:
+		_sfx_miss.play()
 
 
 func _vibrate(duration_ms: int) -> void:
@@ -400,6 +432,24 @@ func _calculate_stars() -> int:
 	if health_ratio >= 0.45:
 		return 2
 	return 1
+
+
+func _calculate_grade() -> String:
+	var total_attempts: int = _perfect_count + _good_count + _miss_count
+	if total_attempts <= 0:
+		return "N/A"
+	var accuracy: float = float(_perfect_count + _good_count) / float(total_attempts) * 100.0
+	if accuracy >= 95.0 and _miss_count == 0:
+		return "S"
+	if accuracy >= 90.0:
+		return "A"
+	if accuracy >= 80.0:
+		return "B"
+	if accuracy >= 70.0:
+		return "C"
+	if accuracy >= 60.0:
+		return "D"
+	return "F"
 
 
 func _distance_to_segment(point: Vector2, start: Vector2, finish: Vector2) -> float:
@@ -443,6 +493,7 @@ func _draw() -> void:
 	_draw_sparks()
 	_draw_core(center + _shake_offset())
 	_draw_slashes()
+	_draw_gamepad_cursor()
 	_draw_hud(viewport_size)
 
 
@@ -551,6 +602,18 @@ func _draw_slashes() -> void:
 		draw_line(slash.start, slash.finish, Color(0.88, 0.98, 1.0, alpha), 7.0 * alpha + 1.0, true)
 
 
+func _draw_gamepad_cursor() -> void:
+	var joy_count: int = Input.get_connected_joypads()
+	if joy_count <= 0:
+		return
+	var alpha: float = 1.0 if _gamepad_dragging else 0.6
+	var cursor_color: Color = Color(0.88, 0.98, 1.0, alpha)
+	draw_circle(_gamepad_cursor, 14.0, cursor_color)
+	draw_circle(_gamepad_cursor, 10.0, Color(0.03, 0.08, 0.16, 0.9), false, 2.0, true)
+	draw_line(_gamepad_cursor + Vector2(-6.0, 0.0), _gamepad_cursor + Vector2(6.0, 0.0), cursor_color, 2.0, true)
+	draw_line(_gamepad_cursor + Vector2(0.0, -6.0), _gamepad_cursor + Vector2(0.0, 6.0), cursor_color, 2.0, true)
+
+
 func _draw_hud(viewport_size: Vector2) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
@@ -595,8 +658,11 @@ func _draw_hud(viewport_size: Vector2) -> void:
 		_draw_result_overlay(viewport_size, font, Localization.text("core_lost"), Color(1.0, 0.37, 0.63), Localization.text("tap_return"))
 	elif _level_complete:
 		var stars: int = _calculate_stars()
-		var result_detail: String = "%s %06d  •  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
-		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "★".repeat(stars) + "☆".repeat(3 - stars), Color(0.72, 1.0, 0.9), result_detail)
+		var grade: String = _calculate_grade()
+		var total_attempts: int = _perfect_count + _good_count + _miss_count
+		var accuracy: int = 0 if total_attempts <= 0 else int(float(_perfect_count + _good_count) / float(total_attempts) * 100.0)
+		var result_detail: String = "%s %06d  •  %s %s  •  %s %d%%  •  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("grade"), grade, Localization.text("accuracy"), accuracy, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
+		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "★".repeat(stars) + "☆".repeat(3 - stars) + "  " + "GRADE: " + grade, Color(0.72, 1.0, 0.9), result_detail)
 
 
 func _draw_result_overlay(viewport_size: Vector2, font: Font, title: String, title_color: Color, detail: String) -> void:

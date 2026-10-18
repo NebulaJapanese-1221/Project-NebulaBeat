@@ -6,7 +6,11 @@ class_name LevelState
 const BUILT_IN_LEVELS: Array[Dictionary] = [
 	{"id": 1, "title_key": "tutorial_1_title", "subtitle_key": "tutorial_1_subtitle", "tutorial_key": "tutorial_1_hint", "spawn_interval": 1.00, "speed_multiplier": 0.55, "long_every": 0, "target_notes": 8, "tutorial": true},
 	{"id": 2, "title_key": "tutorial_2_title", "subtitle_key": "tutorial_2_subtitle", "tutorial_key": "tutorial_2_hint", "spawn_interval": 0.92, "speed_multiplier": 0.66, "long_every": 0, "target_notes": 12, "tutorial": true},
-	{"id": 3, "title_key": "tutorial_3_title", "subtitle_key": "tutorial_3_subtitle", "tutorial_key": "tutorial_3_hint", "spawn_interval": 0.86, "speed_multiplier": 0.74, "long_every": 4, "target_notes": 14, "tutorial": true}
+	{"id": 3, "title_key": "tutorial_3_title", "subtitle_key": "tutorial_3_subtitle", "tutorial_key": "tutorial_3_hint", "spawn_interval": 0.86, "speed_multiplier": 0.74, "long_every": 4, "target_notes": 14, "tutorial": true},
+	{"id": 4, "title_key": "level_4_title", "subtitle_key": "level_4_subtitle", "spawn_interval": 0.78, "speed_multiplier": 0.85, "long_every": 3, "target_notes": 16},
+	{"id": 5, "title_key": "level_5_title", "subtitle_key": "level_5_subtitle", "spawn_interval": 0.70, "speed_multiplier": 0.95, "long_every": 2, "target_notes": 18},
+	{"id": 6, "title_key": "level_6_title", "subtitle_key": "level_6_subtitle", "spawn_interval": 0.62, "speed_multiplier": 1.10, "long_every": 2, "target_notes": 20},
+	{"id": 7, "title_key": "level_7_title", "subtitle_key": "level_7_subtitle", "spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24}
 ]
 const DIFFICULTIES: Array[String] = ["Easy", "Normal", "Hard"]
 const CHART_STEP_COUNT: int = 64
