@@ -603,7 +603,7 @@ func _draw_slashes() -> void:
 
 
 func _draw_gamepad_cursor() -> void:
-	var joy_count: int = Input.get_connected_joypads()
+	var joy_count: int = Input.get_connected_joypads().size()
 	if joy_count <= 0:
 		return
 	var alpha: float = 1.0 if _gamepad_dragging else 0.6
