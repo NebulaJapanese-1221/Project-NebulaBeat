@@ -63,7 +63,8 @@ func _order_content() -> void:
 		"SettingsTitle", "AudioSection", "AudioGroup", "DisplaySection", "DisplayGroup",
 		"GameplaySection", "GameplayGroup", "AccessibilitySection", "AccessibilityGroup",
 		"LanguageLabel", "LanguageOption", "CalibrationButton", "NoteSpeedSlider", "ResetSettingsButton", "BackButton"
-	]	for child_name: String in order:
+	]
+	for child_name: String in order:
 		var child: Node = _content.get_node_or_null(child_name)
 		if child != null:
 			_content.move_child(child, -1)

@@ -90,9 +90,8 @@ func _schedule_click() -> void:
 		_click_tween.kill()
 	var duration: float = METRONOME_INTERVAL
 	_click_tween = create_tween()
-	_click_tween.tween_callback(callable(_play_click))
 	_click_tween.tween_interval(duration)
-	_click_tween.tween_callback(callable(_on_click_due))
+	_click_tween.tween_callback(Callable._on_click_due)
 	_click_tween.start()
 
 
@@ -105,7 +104,7 @@ func _on_click_due() -> void:
 	if _state == "running":
 		_click_tween = create_tween()
 		_click_tween.tween_interval(METRONOME_INTERVAL)
-		_click_tween.tween_callback(callable(_on_click_due))
+		_click_tween.tween_callback(Callable._on_click_due)
 		_click_tween.start()
 
 
