@@ -65,6 +65,43 @@ func clear() -> void:
 	_data.clear()
 
 
+# ── Leaderboard ──────────────────────────────────────────────────────────────
+
+## Record a score for a level, keeping only the top MAX_LEADERBOARD_ENTRIES
+## sorted by score desc. Returns the 1-based rank (0 if not in top N).
+const MAX_LEADERBOARD_ENTRIES: int = 5
+
+func leaderboard_key(level_id: int) -> String:
+	return "nebula_leaderboard_%d" % level_id
+
+
+func add_leaderboard_score(level_id: int, score: int, stars: int) -> int:
+	var key: String = leaderboard_key(level_id)
+	var entries: Array[Dictionary] = get_leaderboard(level_id)
+	var entry: Dictionary = {"score": score, "stars": stars}
+	entries.append(entry)
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("score", 0)) > int(b.get("score", 0)))
+	if entries.size() > MAX_LEADERBOARD_ENTRIES:
+		entries.resize(MAX_LEADERBOARD_ENTRIES)
+	set_value(key, entries)
+	save()
+	var rank: int = 0
+	for index: int in range(entries.size()):
+		if entries[index].get("score", 0) == score:
+			rank = index + 1
+			break
+	return rank
+
+
+func get_leaderboard(level_id: int) -> Array[Dictionary]:
+	var key: String = leaderboard_key(level_id)
+	var raw: Variant = get_value(key, [])
+	if raw is Array:
+		return raw
+	return []
+
+
 # ── Persistence ──────────────────────────────────────────────────────────────
 
 func _path() -> String:

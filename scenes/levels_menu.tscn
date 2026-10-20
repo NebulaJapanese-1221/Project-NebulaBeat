@@ -17,7 +17,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.02745098, 0.0627451, 0.15294118, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=890187718]
+[node name="CenterContainer" type="Control" parent="." unique_id=890187718]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -71,3 +71,33 @@ text = "BACK"
 
 [node name="DownloaderButton" type="Button" parent="CenterContainer/VBox" unique_id=194309371]
 layout_mode = 2
+
+[node name="ScoresButton" type="Button" parent="CenterContainer/VBox" unique_id=2109876543]
+layout_mode = 2
+
+[node name="ScoresPanel" type="PanelContainer" parent="CenterContainer" unique_id=2109876544]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(460, 330)
+
+[node name="ScoresVBox" type="VBoxContainer" parent="CenterContainer/ScoresPanel" unique_id=2109876545]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScoresTitle" type="Label" parent="CenterContainer/ScoresPanel/ScoresVBox" unique_id=2109876546]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "LEADERBOARD"
+horizontal_alignment = 1
+
+[node name="ScoresList" type="VBoxContainer" parent="CenterContainer/ScoresPanel/ScoresVBox" unique_id=2109876547]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ScoresBackButton" type="Button" parent="CenterContainer/ScoresPanel/ScoresVBox" unique_id=2109876548]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+
+[node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1488491782]
+stream = ExtResource("2_wswnh")
+volume_db = -8.0

@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://calibration0000001"]
+
+[ext_resource type="Script" uid="uid://calibration_script" path="res://scripts/calibration_screen.gd" id="1_cal"]
+[ext_resource type="AudioStream" uid="uid://calibration_click" path="res://assets/audio/sfx/interface-sounds/Audio/click_001.ogg" id="2_click"]
+
+[node name="CalibrationScreen" type="Control" unique_id=3000000001]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_cal")
+
+[node name="Background" type="ColorRect" parent="." unique_id=3000000002]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02745098, 0.0627451, 0.15294118, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=3000000003]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=3000000004]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBox" unique_id=3000000005]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="InstructionLabel" type="Label" parent="CenterContainer/VBox" unique_id=3000000006]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/VBox" unique_id=3000000007]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="OffsetLabel" type="Label" parent="CenterContainer/VBox" unique_id=3000000008]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="CenterContainer/VBox" unique_id=3000000009]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=3000000010]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="MetronomeClick" type="AudioStreamPlayer" parent="." unique_id=3000000011]
+stream = ExtResource("2_click")
+volume_db = -6.0

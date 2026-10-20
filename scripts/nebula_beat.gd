@@ -86,8 +86,11 @@ var _color_safe: bool = false
 var _timing_offset_seconds: float = 0.0
 var _beat_guides: bool = true
 var _practice_mode: bool = false
+var _note_speed: float = 1.0
 var _gamepad_cursor: Vector2 = Vector2.ZERO
 var _gamepad_dragging: bool = false
+var _game_over_retry_rect: Rect2 = Rect2()
+var _game_over_quit_rect: Rect2 = Rect2()
 var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
 @onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
@@ -106,6 +109,7 @@ func _ready() -> void:
 	_timing_offset_seconds = float(_profile_value("timing_offset_ms", 0.0)) / 1000.0
 	_beat_guides = bool(_profile_value("beat_guides", true))
 	_practice_mode = bool(_profile_value("practice_mode", false))
+	_note_speed = clampf(float(_profile_value("note_speed", 1.0)), 0.5, 2.0)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_gamepad_cursor = _core_position()
@@ -167,7 +171,7 @@ func _spawn_note(beat_index: int) -> void:
 	var angle: float = fmod(float(beat_index) * 2.399963 + float(beat_index) * _beat_interval * 0.23, TAU)
 	note.position = _core_position() + Vector2(cos(angle), sin(angle)) * _spawn_radius()
 	var speed_multiplier: float = float(_level_data.get("speed_multiplier", 1.0))
-	note.speed = (98.0 + minf(_elapsed * 3.8, 100.0)) * speed_multiplier
+	note.speed = (98.0 + minf(_elapsed * 3.8, 100.0)) * speed_multiplier * _note_speed
 	note.is_long = _is_long_note(beat_index)
 	note.hits_remaining = LONG_NOTE_HITS if note.is_long else 1
 	note.hue = fmod(0.52 + float(beat_index % 4) * 0.095, 1.0)
@@ -250,6 +254,17 @@ func _input(event: InputEvent) -> void:
 		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 			return
 		if mouse_button.pressed:
+			if _game_over:
+				var click_pos: Vector2 = mouse_button.position
+				if _game_over_retry_rect.has_point(click_pos):
+					get_tree().paused = false
+					get_tree().reload_current_scene()
+					get_viewport().set_input_as_handled()
+					return
+				if _game_over_quit_rect.has_point(click_pos):
+					get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+					get_viewport().set_input_as_handled()
+					return
 			_handle_press(mouse_button.position)
 		else:
 			_dragging = false
@@ -590,6 +605,22 @@ func _draw_core(center: Vector2) -> void:
 	draw_circle(center, CORE_RADIUS + 7.0 + pulse_amount * 0.14, Color(0.025, 0.10, 0.24, 0.96))
 	draw_circle(center, CORE_RADIUS + 1.0 + pulse_amount * 0.12, Color(core_color, 0.94))
 
+	# Hit zone rings: narrowing visual cue for the perfect/good timing windows.
+	if _beat_guides:
+		var beat_phase: float = fmod(_beat_clock, _beat_interval) / _beat_interval
+		var timing_error: float = minf(beat_phase, 1.0 - beat_phase)
+		var perfect_ratio: float = PERFECT_WINDOW / _beat_interval
+		var good_ratio: float = GOOD_WINDOW / _beat_interval
+		var perfect_alpha: float = clampf(1.0 - timing_error / perfect_ratio, 0.0, 1.0)
+		var good_alpha: float = clampf(1.0 - timing_error / good_ratio, 0.0, 1.0)
+		var ring_pulse: float = 0.0 if _reduced_motion else sin(_elapsed * 8.0) * 0.5 + 0.5
+		var perfect_radius: float = CORE_RADIUS + 10.0 + ring_pulse * 2.0
+		var good_radius: float = CORE_RADIUS + 18.0 + ring_pulse * 3.0
+		if perfect_alpha > 0.0:
+			draw_arc(center, perfect_radius, 0.0, TAU, 64, Color(0.82, 1.0, 0.96, perfect_alpha * 0.7), 2.5, true)
+		if good_alpha > 0.0:
+			draw_arc(center, good_radius, 0.0, TAU, 64, Color(0.62, 0.82, 1.0, good_alpha * 0.5), 2.0, true)
+
 	var shard_points: PackedVector2Array = PackedVector2Array()
 	for shard_index: int in range(12):
 		var shard_angle: float = TAU * float(shard_index) / 12.0 + rotation * 0.72
@@ -665,7 +696,21 @@ func _draw_hud(viewport_size: Vector2) -> void:
 		var prompt_width: float = font.get_string_size(prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x
 		draw_string(font, Vector2((viewport_size.x - prompt_width) * 0.5, viewport_size.y - 32.0), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 	if _game_over:
-		_draw_result_overlay(viewport_size, font, Localization.text("core_lost"), Color(1.0, 0.37, 0.63), Localization.text("tap_return"))
+		var title: String = Localization.text("core_lost")
+		var title_width: float = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36).x
+		var detail: String = Localization.text("tap_return")
+		var detail_width: float = font.get_string_size(detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17).x
+		draw_rect(Rect2(Vector2.ZERO, viewport_size), Color(0.02, 0.03, 0.10, 0.78))
+		draw_string(font, Vector2((viewport_size.x - title_width) * 0.5, viewport_size.y * 0.42), title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 36, Color(1.0, 0.37, 0.63))
+		var retry_text: String = Localization.text("retry")
+		var retry_width: float = font.get_string_size(retry_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24).x
+		_game_over_retry_rect = Rect2((viewport_size.x - retry_width) * 0.5 - 20.0, viewport_size.y * 0.52, retry_width + 40.0, 36.0)
+		draw_string(font, Vector2((viewport_size.x - retry_width) * 0.5, viewport_size.y * 0.52), retry_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24, Color(1.0, 0.82, 0.30))
+		var quit_text: String = Localization.text("quit_to_menu")
+		var quit_width: float = font.get_string_size(quit_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24).x
+		_game_over_quit_rect = Rect2((viewport_size.x - quit_width) * 0.5 - 20.0, viewport_size.y * 0.59, quit_width + 40.0, 36.0)
+		draw_string(font, Vector2((viewport_size.x - quit_width) * 0.5, viewport_size.y * 0.59), quit_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24, Color(0.8, 0.8, 0.8))
+		draw_string(font, Vector2((viewport_size.x - detail_width) * 0.5, viewport_size.y * 0.68), detail, HORIZONTAL_ALIGNMENT_CENTER, viewport_size.x - 64.0, 17, Color(0.68, 0.84, 1.0, 0.88))
 	elif _level_complete:
 		var stars: int = _calculate_stars()
 		var grade: String = _calculate_grade()

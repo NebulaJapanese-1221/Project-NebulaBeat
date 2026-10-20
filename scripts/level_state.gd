@@ -212,6 +212,11 @@ static func record_completion(level_id: int, score: int, stars: int) -> void:
 	var stars_key: String = "nebula_best_stars_%d" % level_id
 	_set_profile_value(score_key, maxi(best_score(level_id), score))
 	_set_profile_value(stars_key, maxi(best_stars(level_id), stars))
+	SaveManager.add_leaderboard_score(level_id, score, stars)
 	var profile: Node = _profile()
 	if profile != null:
 		profile.call("save")
+
+
+static func leaderboard(level_id: int) -> Array[Dictionary]:
+	return SaveManager.get_leaderboard(level_id)

@@ -19,10 +19,13 @@ const PACKAGE_DIRECTORY: String = "user://nebula_levels"
 @onready var _export_package_button: Button = get_node_or_null("CenterContainer/VBox/ExportPackageButton")
 @onready var _playtest_button: Button = get_node_or_null("CenterContainer/VBox/PlaytestButton")
 @onready var _reset_button: Button = get_node_or_null("CenterContainer/VBox/ResetButton")
+@onready var _export_chart_button: Button = get_node_or_null("CenterContainer/VBox/ExportChartButton")
+@onready var _import_chart_button: Button = get_node_or_null("CenterContainer/VBox/ImportChartButton")
 @onready var _back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
 @onready var _status_label: Label = get_node_or_null("CenterContainer/VBox/StatusLabel")
 @onready var _mp3_dialog: FileDialog = get_node_or_null("Mp3Dialog")
 @onready var _import_dialog: FileDialog = get_node_or_null("ImportPackageDialog")
+@onready var _chart_file_dialog: FileDialog = get_node_or_null("ChartFileDialog")
 
 
 func _ready() -> void:
@@ -95,6 +98,10 @@ func _setup_controls() -> void:
 		_playtest_button.pressed.connect(_playtest_chart)
 	if _reset_button != null and not _reset_button.pressed.is_connected(_reset_chart):
 		_reset_button.pressed.connect(_reset_chart)
+	if _export_chart_button != null and not _export_chart_button.pressed.is_connected(_export_chart):
+		_export_chart_button.pressed.connect(_export_chart)
+	if _import_chart_button != null and not _import_chart_button.pressed.is_connected(_import_chart):
+		_import_chart_button.pressed.connect(_import_chart)
 	if _back_button != null and not _back_button.pressed.is_connected(_return_to_levels):
 		_back_button.pressed.connect(_return_to_levels)
 	_setup_file_dialogs()
@@ -113,13 +120,20 @@ func _setup_file_dialogs() -> void:
 		_import_dialog.filters = PackedStringArray(["*.zip ; Nebula Beat package"])
 		if not _import_dialog.file_selected.is_connected(_on_package_selected):
 			_import_dialog.file_selected.connect(_on_package_selected)
+	if _chart_file_dialog != null:
+		_chart_file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+		_chart_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+		_chart_file_dialog.current_dir = ProjectSettings.globalize_path("user://")
+		_chart_file_dialog.filters = PackedStringArray(["*.nbeat ; Nebula Beat chart"])
+		if not _chart_file_dialog.file_selected.is_connected(_on_chart_file_selected):
+			_chart_file_dialog.file_selected.connect(_on_chart_file_selected)
 
 
 func _order_editor_content() -> void:
 	if _content == null:
 		return
 	var order: Array[String] = [
-		"Title", "Help", "LevelNameInput", "DifficultyOption", "BpmLabel", "BpmSlider", "TempoLabel", "TempoSlider", "SpeedLabel", "SpeedSlider", "LongNoteModeToggle", "SelectMp3Button", "AutoBuildButton", "BeatGrid", "StatusLabel", "ImportPackageButton", "ExportPackageButton", "PlaytestButton", "ResetButton", "BackButton"
+		"Title", "Help", "LevelNameInput", "DifficultyOption", "BpmLabel", "BpmSlider", "TempoLabel", "TempoSlider", "SpeedLabel", "SpeedSlider", "LongNoteModeToggle", "SelectMp3Button", "AutoBuildButton", "BeatGrid", "StatusLabel", "ImportPackageButton", "ExportPackageButton", "ExportChartButton", "ImportChartButton", "PlaytestButton", "ResetButton", "BackButton"
 	]
 	for node_name: String in order:
 		var child: Node = _content.get_node_or_null(node_name)
@@ -336,6 +350,46 @@ func _on_package_selected(path: String) -> void:
 		LevelState.custom_difficulty = "Normal" if not LevelState.get_chart_events("Normal").is_empty() else "Easy"
 		_refresh_editor_from_state()
 		_set_status(Localization.text("package_imported") % loaded_count)
+	else:
+		_set_status(Localization.text("package_import_failed"))
+
+
+func _export_chart() -> void:
+	var difficulty: String = LevelState.custom_difficulty
+	var payload: Dictionary = LevelState.make_nbeat_payload(difficulty)
+	var file_name: String = "%s_%s.nbeat" % [LevelState.custom_level_name.strip_edges().replace(" ", "_"), difficulty.to_lower()]
+	var save_dir: String = ProjectSettings.globalize_path("user://nebula_exports")
+	var dir_err: Error = DirAccess.make_dir_recursive_absolute(save_dir)
+	if dir_err != OK and dir_err != ERR_ALREADY_EXISTS:
+		_set_status(Localization.text("package_export_failed"))
+		return
+	var file_path: String = save_dir.path_join(file_name)
+	var f := FileAccess.open(file_path, FileAccess.WRITE)
+	if f == null:
+		_set_status(Localization.text("package_export_failed"))
+		return
+	f.store_string(JSON.stringify(payload, "\t"))
+	f.close()
+	_set_status("%s: %s" % [Localization.text("chart_exported"), file_path])
+
+
+func _import_chart() -> void:
+	if _chart_file_dialog != null:
+		_chart_file_dialog.current_dir = ProjectSettings.globalize_path("user://nebula_exports")
+		_chart_file_dialog.popup_centered_ratio(0.8)
+
+
+func _on_chart_file_selected(path: String) -> void:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		_set_status(Localization.text("package_import_failed"))
+		return
+	var text: String = f.get_as_text()
+	f.close()
+	var parsed: Variant = JSON.parse_string(text)
+	if parsed is Dictionary and LevelState.load_nbeat_payload(parsed):
+		_refresh_editor_from_state()
+		_set_status(Localization.text("chart_imported"))
 	else:
 		_set_status(Localization.text("package_import_failed"))
 

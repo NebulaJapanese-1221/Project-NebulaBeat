@@ -6,6 +6,10 @@ const LEVEL_EDITOR_PATH: String = "res://scenes/level_editor.tscn"
 const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
 
 @onready var _button_list: VBoxContainer = get_node_or_null("CenterContainer/VBox")
+@onready var _scores_button: Button = get_node_or_null("CenterContainer/VBox/ScoresButton")
+@onready var _scores_panel: PanelContainer = get_node_or_null("CenterContainer/ScoresPanel")
+@onready var _scores_list: VBoxContainer = get_node_or_null("CenterContainer/ScoresPanel/ScoresVBox/ScoresList")
+@onready var _scores_back_button: Button = get_node_or_null("CenterContainer/ScoresPanel/ScoresVBox/ScoresBackButton")
 
 
 func _ready() -> void:
@@ -35,6 +39,10 @@ func _ready() -> void:
 	var downloader_button: Button = get_node_or_null("CenterContainer/VBox/DownloaderButton")
 	if downloader_button != null:
 		downloader_button.pressed.connect(_open_downloader)
+	if _scores_button != null:
+		_scores_button.pressed.connect(_toggle_scores_panel)
+	if _scores_back_button != null:
+		_scores_back_button.pressed.connect(_hide_scores_panel)
 	var back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
 	if back_button != null:
 		back_button.pressed.connect(_return_to_main_menu)
@@ -77,6 +85,10 @@ func _apply_localized_text() -> void:
 	_set_button_text("CenterContainer/VBox/EditorButton", "editor")
 	_set_button_text("CenterContainer/VBox/DownloaderButton", "downloader")
 	_set_button_text("CenterContainer/VBox/BackButton", "back")
+	if _scores_button != null:
+		_scores_button.text = Localization.text("scores")
+	if _scores_back_button != null:
+		_scores_back_button.text = Localization.text("back")
 
 
 func _set_label_text(path: String, key: String) -> void:
@@ -100,10 +112,82 @@ func refresh_localization() -> void:
 			var level_data: Dictionary = LevelState.level_data_for(level_id)
 			var suffix: String = "  •  " + Localization.text("locked") if not unlocked else ""
 			button.text = "%02d  %s%s" % [level_id, String(level_data["title"]), suffix]
+	if _scores_panel != null and _scores_panel.visible:
+		_populate_scores()
+
+
+func _toggle_scores_panel() -> void:
+	if _scores_panel == null:
+		return
+	if _scores_panel.visible:
+		_hide_scores_panel()
+	else:
+		_show_scores_panel()
+
+
+func _show_scores_panel() -> void:
+	if _scores_panel == null:
+		return
+	_scores_panel.visible = true
+	_populate_scores()
+	if _scores_back_button != null:
+		_scores_back_button.grab_focus()
+
+
+func _hide_scores_panel() -> void:
+	if _scores_panel == null:
+		return
+	_scores_panel.visible = false
+	_clear_scores_list()
+	if _scores_button != null:
+		_scores_button.grab_focus()
+
+
+func _clear_scores_list() -> void:
+	if _scores_list == null:
+		return
+	for child: Node in _scores_list.get_children():
+		child.queue_free()
+
+
+func _populate_scores() -> void:
+	if _scores_list == null:
+		return
+	_clear_scores_list()
+	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
+		var level_data: Dictionary = LevelState.level_data_for(level_id)
+		var title: String = String(level_data.get("title", "Level %d" % level_id))
+		var entries: Array[Dictionary] = LevelState.leaderboard(level_id)
+		var header: Label = Label.new()
+		header.text = "%02d  %s" % [level_id, title]
+		header.add_theme_font_size_override("font_size", 18)
+		header.add_theme_color_override("font_color", Color(0.63, 0.9, 1.0))
+		_scores_list.add_child(header)
+		if entries.is_empty():
+			var empty: Label = Label.new()
+			empty.text = "  -- no scores yet --"
+			empty.add_theme_font_size_override("font_size", 14)
+			empty.add_theme_color_override("font_color", Color(0.5, 0.6, 0.7))
+			_scores_list.add_child(empty)
+		else:
+			for index: int in range(entries.size()):
+				var entry: Dictionary = entries[index]
+				var score: int = int(entry.get("score", 0))
+				var stars: int = int(entry.get("stars", 0))
+				var star_str: String = "★".repeat(stars) + "☆".repeat(3 - stars)
+				var row: Label = Label.new()
+				row.text = "  #%d  %06d  %s" % [index + 1, score, star_str]
+				row.add_theme_font_size_override("font_size", 14)
+				row.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+				_scores_list.add_child(row)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
+		if _scores_panel != null and _scores_panel.visible:
+			_hide_scores_panel()
+			get_viewport().set_input_as_handled()
+			return
 		_return_to_main_menu()
 		get_viewport().set_input_as_handled()
 
