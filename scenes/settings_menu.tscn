@@ -121,6 +121,9 @@ step = 5.0
 [node name="BeatGuideToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=803378949]
 layout_mode = 2
 
+[node name="PracticeModeToggle" type="CheckButton" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=9123456789]
+layout_mode = 2
+
 [node name="ResetSettingsButton" type="Button" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1054480517]
 layout_mode = 2
 

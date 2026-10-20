@@ -85,6 +85,7 @@ var _haptics: bool = true
 var _color_safe: bool = false
 var _timing_offset_seconds: float = 0.0
 var _beat_guides: bool = true
+var _practice_mode: bool = false
 var _gamepad_cursor: Vector2 = Vector2.ZERO
 var _gamepad_dragging: bool = false
 var _gamepad_last_position: Vector2 = Vector2.ZERO
@@ -104,6 +105,7 @@ func _ready() -> void:
 	_color_safe = bool(_profile_value("color_safe", false))
 	_timing_offset_seconds = float(_profile_value("timing_offset_ms", 0.0)) / 1000.0
 	_beat_guides = bool(_profile_value("beat_guides", true))
+	_practice_mode = bool(_profile_value("practice_mode", false))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_gamepad_cursor = _core_position()
@@ -199,7 +201,8 @@ func _update_notes(delta: float) -> void:
 		note.position = note.position.move_toward(core_position, travel_speed * delta)
 		note.phase += delta * (2.0 + proximity * 5.0)
 		if note.position.distance_to(core_position) <= CORE_RADIUS + 8.0:
-			_core_health = maxi(_core_health - (12 if note.is_long else 7), 0)
+			if not _practice_mode:
+				_core_health = maxi(_core_health - (12 if note.is_long else 7), 0)
 			_combo = 0
 			_combo_pulse = 0.0
 			_miss_count += 1
@@ -207,7 +210,7 @@ func _update_notes(delta: float) -> void:
 			_show_grade(Localization.text("miss"), Color(1.0, 0.32, 0.48))
 			_core_impact(note.position)
 			_notes.remove_at(index)
-			if _core_health <= 0:
+			if not _practice_mode and _core_health <= 0:
 				_game_over = true
 
 
@@ -620,6 +623,8 @@ func _draw_hud(viewport_size: Vector2) -> void:
 	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
 	draw_string(font, Vector2(32.0, 44.0), Localization.text("game_title"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
 	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
+	if _practice_mode:
+		draw_string(font, Vector2(32.0, 82.0), Localization.text("practice_mode"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(1.0, 0.82, 0.30))
 	draw_string(font, Vector2(32.0, 94.0), "%s  %06d" % [Localization.text("score"), _score], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
 	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
 	if _combo > 1:

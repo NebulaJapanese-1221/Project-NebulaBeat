@@ -14,6 +14,7 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 @onready var _color_safe_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/AccessibilityGroup/ColorSafeToggle")
 @onready var _timing_offset_slider: HSlider = get_node_or_null(CONTENT_PATH + "/GameplayGroup/TimingOffsetSlider")
 @onready var _beat_guide_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle")
+@onready var _practice_mode_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/GameplayGroup/PracticeModeToggle")
 @onready var _reset_settings_button: Button = get_node_or_null(CONTENT_PATH + "/ResetSettingsButton")
 @onready var _language_label: Label = get_node_or_null(CONTENT_PATH + "/LanguageLabel")
 @onready var _language_option: OptionButton = get_node_or_null(CONTENT_PATH + "/LanguageOption")
@@ -41,6 +42,7 @@ func _ready() -> void:
 	_setup_slider(_timing_offset_slider, "timing_offset_ms", _on_timing_offset_changed)
 	_update_timing_offset_label()
 	_setup_toggle(_beat_guide_toggle, "beat_guides", _on_beat_guides_toggled, true)
+	_setup_toggle(_practice_mode_toggle, "practice_mode", _on_practice_mode_toggled, false)
 	if _reset_settings_button != null:
 		_reset_settings_button.pressed.connect(_reset_settings)
 	if _back_button != null:
@@ -56,8 +58,7 @@ func _order_content() -> void:
 		"SettingsTitle", "AudioSection", "AudioGroup", "DisplaySection", "DisplayGroup",
 		"GameplaySection", "GameplayGroup", "AccessibilitySection", "AccessibilityGroup",
 		"LanguageLabel", "LanguageOption", "ResetSettingsButton", "BackButton"
-	]
-	for child_name: String in order:
+	]	for child_name: String in order:
 		var child: Node = _content.get_node_or_null(child_name)
 		if child != null:
 			_content.move_child(child, -1)
@@ -100,6 +101,7 @@ func _apply_localized_text() -> void:
 	_set_button_text(CONTENT_PATH + "/AccessibilityGroup/HapticsToggle", "haptics")
 	_set_button_text(CONTENT_PATH + "/AccessibilityGroup/ColorSafeToggle", "color_safe")
 	_set_button_text(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle", "beat_guides")
+	_set_button_text(CONTENT_PATH + "/GameplayGroup/PracticeModeToggle", "practice_mode")
 	_set_button_text(CONTENT_PATH + "/ResetSettingsButton", "reset_settings")
 	_set_button_text(CONTENT_PATH + "/BackButton", "back")
 	_update_timing_offset_label()
@@ -225,6 +227,10 @@ func _on_beat_guides_toggled(enabled: bool) -> void:
 	_set_saved("beat_guides", enabled)
 
 
+func _on_practice_mode_toggled(enabled: bool) -> void:
+	_set_saved("practice_mode", enabled)
+
+
 func _reset_settings() -> void:
 	if _master_volume_slider != null:
 		_master_volume_slider.value = 100.0
@@ -244,6 +250,8 @@ func _reset_settings() -> void:
 		_timing_offset_slider.value = 0.0
 	if _beat_guide_toggle != null:
 		_beat_guide_toggle.button_pressed = true
+	if _practice_mode_toggle != null:
+		_practice_mode_toggle.button_pressed = false
 	_on_master_volume_changed(100.0)
 	_on_music_volume_changed(80.0)
 	_on_sfx_volume_changed(90.0)
@@ -253,6 +261,7 @@ func _reset_settings() -> void:
 	_on_color_safe_toggled(false)
 	_on_timing_offset_changed(0.0)
 	_on_beat_guides_toggled(true)
+	_on_practice_mode_toggled(false)
 
 
 func _update_timing_offset_label() -> void:
