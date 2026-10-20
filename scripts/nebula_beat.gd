@@ -109,6 +109,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_gamepad_cursor = _core_position()
+	add_to_group("localizable_menu")
 	queue_redraw()
 
 
@@ -468,6 +469,10 @@ func _is_mobile_platform() -> bool:
 	return OS.has_feature("mobile")
 
 
+func refresh_localization() -> void:
+	queue_redraw()
+
+
 func _core_position() -> Vector2:
 	return size * 0.5
 
@@ -636,7 +641,7 @@ func _draw_hud(viewport_size: Vector2) -> void:
 		elif multiplier == 2:
 			combo_color = Color(0.54, 0.88, 1.0)
 		draw_string(font, Vector2(32.0, 148.0), "%d %s" % [_combo, Localization.text("combo")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(19.0 * combo_scale), combo_color)
-		draw_string(font, Vector2(32.0, 171.0), "x%d MULTIPLIER" % multiplier, HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(14.0 + _combo_pulse * 3.0), Color(combo_color, 0.92))
+		draw_string(font, Vector2(32.0, 171.0), "x%d %s" % [multiplier, Localization.text("multiplier")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(14.0 + _combo_pulse * 3.0), Color(combo_color, 0.92))
 	if _score_pop_life > 0.0:
 		var pop_ratio: float = _score_pop_life / _score_pop_max_life
 		var pop_text: String = "+%d" % _score_pop_value if _score_pop_value > 0 else "COMBO BREAK"
