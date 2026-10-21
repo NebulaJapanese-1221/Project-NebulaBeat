@@ -318,7 +318,7 @@ func _export_level_package() -> void:
 	for difficulty: String in LevelState.DIFFICULTIES:
 		var json_text: String = JSON.stringify(LevelState.make_nbeat_payload(difficulty), "\t")
 		if package.start_file(difficulty.to_lower() + ".nbeat") == OK:
-			package.write_file(json_text.to_utf8())
+			package.write_file(json_text.to_utf8_buffer())
 			package.close_file()
 	if not LevelState.custom_audio_path.is_empty():
 		var audio_bytes: PackedByteArray = FileAccess.get_file_as_bytes(LevelState.custom_audio_path)
@@ -414,7 +414,7 @@ func _upload_chart_to_catalog() -> void:
 		return
 	var payload: Dictionary = LevelState.make_nbeat_payload(LevelState.custom_difficulty)
 	payload["level_name"] = LevelState.custom_level_name
-	var json_bytes: PackedByteArray = JSON.stringify(payload, "\t").to_utf8()
+	var json_bytes: PackedByteArray = JSON.stringify(payload, "\t").to_utf8_buffer()
 
 	# Build multipart/form-data body manually.
 	var boundary: String = "----NebulaBeatBoundary" + str(Time.get_ticks_msec())
@@ -423,23 +423,23 @@ func _upload_chart_to_catalog() -> void:
 		"Content-Type: multipart/form-data; boundary=%s" % boundary,
 	]
 
-	body.append_array(("--%s\r\n" % boundary).to_utf8())
-	body.append_array('Content-Disposition: form-data; name="chart"\r\n\r\n'.to_utf8())
+	body.append_array(("--%s\r\n" % boundary).to_utf8_buffer())
+	body.append_array('Content-Disposition: form-data; name="chart"\r\n\r\n'.to_utf8_buffer())
 	body.append_array(json_bytes)
-	body.append_array(("\r\n--%s--\r\n" % boundary).to_utf8())
+	body.append_array(("\r\n--%s--\r\n" % boundary).to_utf8_buffer())
 
 	var audio_path: String = LevelState.custom_audio_path
 	if not audio_path.is_empty() and FileAccess.file_exists(audio_path):
 		var audio_file := FileAccess.open(audio_path, FileAccess.READ)
 		var audio_data: PackedByteArray = audio_file.get_buffer(audio_file.get_length())
 		audio_file.close()
-		body.append_array(("--%s\r\n" % boundary).to_utf8())
-		body.append_array(('Content-Disposition: form-data; name="audio"; filename="%s"\r\n' % audio_path.get_file()).to_utf8())
-		body.append_array("Content-Type: audio/mpeg\r\n\r\n".to_utf8())
+		body.append_array(("--%s\r\n" % boundary).to_utf8_buffer())
+		body.append_array(('Content-Disposition: form-data; name="audio"; filename="%s"\r\n' % audio_path.get_file()).to_utf8_buffer())
+		body.append_array("Content-Type: audio/mpeg\r\n\r\n".to_utf8_buffer())
 		body.append_array(audio_data)
-		body.append_array(("\r\n--%s--\r\n" % boundary).to_utf8())
+		body.append_array(("\r\n--%s--\r\n" % boundary).to_utf8_buffer())
 
-	var result: Error = _catalog_upload_request.request(CATALOG_SERVER_URL + "/api/charts", headers, HTTPClient.METHOD_POST, body)
+	var result: Error = _catalog_upload_request.request(CATALOG_SERVER_URL + "/api/charts", headers, HTTPClient.METHOD_POST, body.get_string_from_utf8())
 	if result != OK:
 		_set_status(Localization.text("package_export_failed"))
 
