@@ -146,6 +146,23 @@ text = "PLAYTEST CUSTOM CHART"
 layout_mode = 2
 text = "RESET CHART"
 
+[node name="ExportChartButton" type="Button" parent="CenterContainer/VBox" unique_id=4109876543]
+layout_mode = 2
+text = "EXPORT .NBEAT CHART"
+
+[node name="ImportChartButton" type="Button" parent="CenterContainer/VBox" unique_id=4109876544]
+layout_mode = 2
+text = "IMPORT .NBEAT CHART"
+
 [node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=819120909]
 layout_mode = 2
 text = "BACK TO LEVELS"
+
+[node name="ChartFileDialog" type="FileDialog" parent="." unique_id=4109876545]
+file_mode = 2
+access = 2
+filters = ["*.nbeat ; Nebula Beat chart"]
+
+[node name="CatalogUploadRequest" type="HTTPRequest" parent="." unique_id=4109876546]
+[node name="CatalogDownloadRequest" type="HTTPRequest" parent="." unique_id=4109876547]
+[node name="CatalogListRequest" type="HTTPRequest" parent="." unique_id=4109876548]
