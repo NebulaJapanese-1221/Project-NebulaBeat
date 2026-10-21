@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://calibration0000001"]
 
 [ext_resource type="Script" uid="uid://calibration_script" path="res://scripts/calibration_screen.gd" id="1_cal"]
-[ext_resource type="AudioStream" uid="uid://calibration_click" path="res://assets/audio/sfx/interface-sounds/Audio/click_001.ogg" id="2_click"]
+[ext_resource type="AudioStream" uid="uid://calibration_click" path="res://assets/audio/sfx/interface-sounds/Audio/tick_001.ogg" id="2_click"]
 
 [node name="CalibrationScreen" type="Control" unique_id=3000000001]
 layout_mode = 3

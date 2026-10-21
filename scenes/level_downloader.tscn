@@ -13,6 +13,7 @@ script = ExtResource("1_iuxww")
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
+color = Color(0.02745098, 0.0627451, 0.15294118, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=37517776]
 layout_mode = 0
@@ -33,3 +34,6 @@ layout_mode = 2
 
 [node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=187672497]
 layout_mode = 2
+
+[node name="CatalogListRequest" type="HTTPRequest" parent="." unique_id=4109876546]
+[node name="CatalogDownloadRequest" type="HTTPRequest" parent="." unique_id=4109876547]

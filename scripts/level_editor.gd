@@ -4,6 +4,7 @@ const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
 const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
 const CHART_STEP_COUNT: int = LevelState.CHART_STEP_COUNT
 const PACKAGE_DIRECTORY: String = "user://nebula_levels"
+const CATALOG_SERVER_URL: String = "http://localhost:8765"
 
 @onready var _content: VBoxContainer = get_node_or_null("CenterContainer/VBox")
 @onready var _beat_grid: GridContainer = get_node_or_null("CenterContainer/VBox/BeatGrid")
@@ -26,6 +27,9 @@ const PACKAGE_DIRECTORY: String = "user://nebula_levels"
 @onready var _mp3_dialog: FileDialog = get_node_or_null("Mp3Dialog")
 @onready var _import_dialog: FileDialog = get_node_or_null("ImportPackageDialog")
 @onready var _chart_file_dialog: FileDialog = get_node_or_null("ChartFileDialog")
+@onready var _catalog_upload_request: HTTPRequest = get_node_or_null("CatalogUploadRequest")
+@onready var _catalog_download_request: HTTPRequest = get_node_or_null("CatalogDownloadRequest")
+@onready var _catalog_list_request: HTTPRequest = get_node_or_null("CatalogListRequest")
 
 
 func _ready() -> void:
@@ -127,6 +131,12 @@ func _setup_file_dialogs() -> void:
 		_chart_file_dialog.filters = PackedStringArray(["*.nbeat ; Nebula Beat chart"])
 		if not _chart_file_dialog.file_selected.is_connected(_on_chart_file_selected):
 			_chart_file_dialog.file_selected.connect(_on_chart_file_selected)
+	if _catalog_upload_request != null and not _catalog_upload_request.request_completed.is_connected(_on_catalog_upload_completed):
+		_catalog_upload_request.request_completed.connect(_on_catalog_upload_completed)
+	if _catalog_download_request != null and not _catalog_download_request.request_completed.is_connected(_on_catalog_download_completed):
+		_catalog_download_request.request_completed.connect(_on_catalog_download_completed)
+	if _catalog_list_request != null and not _catalog_list_request.request_completed.is_connected(_on_catalog_list_completed):
+		_catalog_list_request.request_completed.connect(_on_catalog_list_completed)
 
 
 func _order_editor_content() -> void:
@@ -371,6 +381,8 @@ func _export_chart() -> void:
 	f.store_string(JSON.stringify(payload, "\t"))
 	f.close()
 	_set_status("%s: %s" % [Localization.text("chart_exported"), file_path])
+	if _catalog_upload_request != null:
+		_upload_chart_to_catalog()
 
 
 func _import_chart() -> void:
@@ -392,6 +404,104 @@ func _on_chart_file_selected(path: String) -> void:
 		_set_status(Localization.text("chart_imported"))
 	else:
 		_set_status(Localization.text("package_import_failed"))
+
+
+# ── Online chart sharing ──────────────────────────────────────────────────
+
+func _upload_chart_to_catalog() -> void:
+	if _catalog_upload_request == null:
+		_set_status("Catalog server not configured")
+		return
+	var payload: Dictionary = LevelState.make_nbeat_payload(LevelState.custom_difficulty)
+	payload["level_name"] = LevelState.custom_level_name
+	var json_bytes: PackedByteArray = JSON.stringify(payload, "\t").to_utf8_buffer()
+
+	# Build multipart/form-data body manually.
+	var boundary: String = "----NebulaBeatBoundary" + str(Time.get_ticks_msec())
+	var body: PackedByteArray = PackedByteArray()
+	var headers: PackedStringArray = [
+		"Content-Type: multipart/form-data; boundary=%s" % boundary,
+	]
+
+	body.append_array("--%s\r\n" % boundary).to_utf8_buffer()
+	body.append_array('Content-Disposition: form-data; name="chart"\r\n\r\n').to_utf8_buffer()
+	body.append_array(json_bytes)
+	body.append_array("\r\n--%s--\r\n" % boundary).to_utf8_buffer()
+
+	var audio_path: String = LevelState.custom_audio_path
+	if not audio_path.is_empty() and FileAccess.file_exists(audio_path):
+		var audio_file := FileAccess.open(audio_path, FileAccess.READ)
+		var audio_data: PackedByteArray = audio_file.get_buffer(audio_file.get_length())
+		audio_file.close()
+		body.append_array("--%s\r\n" % boundary).to_utf8_buffer()
+		body.append_array('Content-Disposition: form-data; name="audio"; filename="%s"\r\n' % audio_path.get_file()).to_utf8_buffer()
+		body.append_array("Content-Type: audio/mpeg\r\n\r\n").to_utf8_buffer()
+		body.append_array(audio_data)
+		body.append_array("\r\n--%s--\r\n" % boundary).to_utf8_buffer()
+
+	var result: Error = _catalog_upload_request.request(CATALOG_SERVER_URL + "/api/charts", headers, HTTPClient.METHOD_POST, body)
+	if result != OK:
+		_set_status(Localization.text("package_export_failed"))
+
+
+func _download_chart_from_catalog(chart_id: String) -> void:
+	if _catalog_download_request == null:
+		_set_status("Catalog server not configured")
+		return
+	var result: Error = _catalog_download_request.request(CATALOG_SERVER_URL + "/api/charts/%s" % chart_id, [], HTTPClient.METHOD_GET)
+	if result != OK:
+		_set_status(Localization.text("package_import_failed"))
+
+
+func _list_catalog_charts() -> void:
+	if _catalog_list_request == null:
+		_set_status("Catalog server not configured")
+		return
+	var result: Error = _catalog_list_request.request(CATALOG_SERVER_URL + "/api/charts", [], HTTPClient.METHOD_GET)
+	if result != OK:
+		_set_status(Localization.text("package_import_failed"))
+
+
+func _on_catalog_upload_completed(result: long, response_code: long, headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result != OK:
+		_set_status(Localization.text("package_export_failed"))
+		return
+	var response: String = body.get_string_from_utf8()
+	var parsed: Variant = JSON.parse_string(response)
+	if parsed is Dictionary and parsed.has("id"):
+		_set_status("%s: %s" % [Localization.text("chart_uploaded"), String(parsed.get("id"))])
+	else:
+		_set_status(Localization.text("package_export_failed"))
+
+
+func _on_catalog_download_completed(result: long, response_code: long, headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result != OK or response_code != 200:
+		_set_status(Localization.text("package_import_failed"))
+		return
+	var text: String = body.get_string_from_utf8()
+	var parsed: Variant = JSON.parse_string(text)
+	if parsed is Dictionary and LevelState.load_nbeat_payload(parsed):
+		_refresh_editor_from_state()
+		_set_status(Localization.text("chart_imported"))
+	else:
+		_set_status(Localization.text("package_import_failed"))
+
+
+func _on_catalog_list_completed(result: long, response_code: long, headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result != OK or response_code != 200:
+		_set_status(Localization.text("package_import_failed"))
+		return
+	var text: String = body.get_string_from_utf8()
+	var parsed: Variant = JSON.parse_string(text)
+	if parsed is Array:
+		_set_status("%s: %d charts available" % [Localization.text("catalog_charts"), parsed.size()])
+		# Store for UI display
+		_catalog_charts = parsed
+	else:
+		_set_status(Localization.text("package_import_failed"))
+
+
+var _catalog_charts: Array[Dictionary] = []
 
 
 func _playtest_chart() -> void:

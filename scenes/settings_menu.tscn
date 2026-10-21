@@ -137,6 +137,26 @@ max_value = 2.0
 step = 0.1
 value = 1.0
 
+[node name="ScreenShakeLabel" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=9123456793]
+layout_mode = 2
+
+[node name="ScreenShakeSlider" type="HSlider" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=9123456794]
+layout_mode = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.1
+value = 1.0
+
+[node name="HitFlashLabel" type="Label" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=9123456795]
+layout_mode = 2
+
+[node name="HitFlashSlider" type="HSlider" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent/GameplayGroup" unique_id=9123456796]
+layout_mode = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.1
+value = 1.0
+
 [node name="ResetSettingsButton" type="Button" parent="CenterContainer/SettingsPanel/ScrollContainer/SettingsContent" unique_id=1054480517]
 layout_mode = 2
 

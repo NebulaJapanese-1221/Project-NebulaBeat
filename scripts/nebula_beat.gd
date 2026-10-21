@@ -36,6 +36,12 @@ class Spark extends RefCounted:
 	var maximum_life: float = 0.24
 
 
+class ReplayFrame extends RefCounted:
+	var time: float = 0.0
+	var slashes: Array[Dictionary] = []
+	var hits: Array[Dictionary] = []
+
+
 const CORE_RADIUS: float = 58.0
 const NOTE_RADIUS: float = 30.0
 const OUTER_MARGIN: float = 95.0
@@ -75,6 +81,8 @@ var _miss_count: int = 0
 var _last_grade: String = ""
 var _last_grade_life: float = 0.0
 var _combo_pulse: float = 0.0
+var _combo_pop_life: float = 0.0
+var _combo_pop_value: int = 0
 var _score_pop_value: int = 0
 var _score_pop_position: Vector2 = Vector2.ZERO
 var _score_pop_life: float = 0.0
@@ -87,6 +95,8 @@ var _timing_offset_seconds: float = 0.0
 var _beat_guides: bool = true
 var _practice_mode: bool = false
 var _note_speed: float = 1.0
+var _screen_shake_intensity: float = 1.0
+var _hit_flash_intensity: float = 1.0
 var _gamepad_cursor: Vector2 = Vector2.ZERO
 var _gamepad_dragging: bool = false
 var _game_over_retry_rect: Rect2 = Rect2()
@@ -96,6 +106,16 @@ var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
 @onready var _sfx_hit: AudioStreamPlayer = get_node_or_null("SfxHit")
 @onready var _sfx_miss: AudioStreamPlayer = get_node_or_null("SfxMiss")
+
+
+# ── Replay / ghost system ──────────────────────────────────────────────────
+
+var _is_replaying: bool = false
+var _replay_frames: Array[ReplayFrame] = []
+var _replay_frame_index: int = 0
+var _replay_start_time: float = 0.0
+var _replay_recording: bool = false
+var _replay_record_frames: Array[ReplayFrame] = []
 
 
 func _ready() -> void:
@@ -110,6 +130,8 @@ func _ready() -> void:
 	_beat_guides = bool(_profile_value("beat_guides", true))
 	_practice_mode = bool(_profile_value("practice_mode", false))
 	_note_speed = clampf(float(_profile_value("note_speed", 1.0)), 0.5, 2.0)
+	_screen_shake_intensity = clampf(float(_profile_value("screen_shake", 1.0)), 0.0, 1.0)
+	_hit_flash_intensity = clampf(float(_profile_value("hit_flash", 1.0)), 0.0, 1.0)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_gamepad_cursor = _core_position()
@@ -125,6 +147,11 @@ func _profile_value(key: String, fallback: Variant) -> Variant:
 
 
 func _process(delta: float) -> void:
+	if _is_replaying:
+		_update_replay_playback(delta)
+		_update_feedback(delta)
+		queue_redraw()
+		return
 	if _game_over or _level_complete:
 		_update_feedback(delta)
 		queue_redraw()
@@ -136,6 +163,8 @@ func _process(delta: float) -> void:
 	_schedule_beats()
 	_update_notes(delta)
 	_update_feedback(delta)
+	if _replay_recording:
+		_record_replay_frame()
 	if _spawn_index >= _target_notes and _notes.is_empty() and _telegraphs.is_empty():
 		_finish_level()
 	queue_redraw()
@@ -236,6 +265,7 @@ func _update_feedback(delta: float) -> void:
 	_screen_shake = maxf(_screen_shake - delta, 0.0)
 	_last_grade_life = maxf(_last_grade_life - delta, 0.0)
 	_combo_pulse = maxf(_combo_pulse - delta * 2.6, 0.0)
+	_combo_pop_life = maxf(_combo_pop_life - delta, 0.0)
 	_score_pop_life = maxf(_score_pop_life - delta, 0.0)
 
 
@@ -338,6 +368,9 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 		note.hits_remaining -= 1
 		var grade: String = _grade_current_slice()
 		var hit_score: int = 175 if grade == Localization.text("perfect") else 100
+		# Grade-based screen shake: Perfect subtle, Good medium
+		var shake_amount: float = 0.08 if grade == Localization.text("perfect") else 0.14
+		_screen_shake = maxf(_screen_shake, shake_amount * _screen_shake_intensity)
 		if note.hits_remaining <= 0:
 			var combo_bonus: int = _combo * 10
 			var total_score: int = hit_score + combo_bonus
@@ -346,18 +379,23 @@ func _slice_between(start: Vector2, finish: Vector2) -> void:
 			_max_combo = maxi(_max_combo, _combo)
 			_combo_pulse = 1.0
 			_show_score_pop(total_score, note.position, Color(0.95, 0.98, 1.0), "")
-			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 12)
+			# Grade-colored burst: Perfect = cyan/white, Good = blue
+			var burst_color: Color = Color(0.95, 1.0, 1.0) if grade == Localization.text("perfect") else Color(0.62, 0.82, 1.0)
+			_slice_burst(note.position, burst_color, 16)
 			if _sfx_hit != null:
+				_pan_sfx(note.position)
 				_sfx_hit.play()
 			_notes.remove_at(index)
+			_check_combo_pop()
 		else:
 			_score += 35
 			_combo += 1
 			_max_combo = maxi(_max_combo, _combo)
 			_combo_pulse = 1.0
 			_show_score_pop(35, note.position, Color(0.78, 0.9, 1.0), "CHAIN")
-			_slice_burst(note.position, Color.from_hsv(note.hue, 0.72, 1.0), 5)
-		_hit_flash = 0.10
+			_slice_burst(note.position, Color(0.62, 0.82, 1.0), 8)
+			_check_combo_pop()
+		_hit_flash = 0.10 * _hit_flash_intensity
 		_vibrate(18)
 
 
@@ -409,6 +447,17 @@ func _show_score_pop(value: int, position: Vector2, color: Color, caption: Strin
 		_last_grade_life = 0.52
 
 
+func _check_combo_pop() -> void:
+	var thresholds: Array[int] = [10, 25, 50, 100]
+	for threshold: int in thresholds:
+		if _combo == threshold:
+			_combo_pop_value = threshold
+			_combo_pop_life = 0.8
+			_screen_shake = maxf(_screen_shake, 0.3 * _screen_shake_intensity)
+			_hit_flash = maxf(_hit_flash, 0.15 * _hit_flash_intensity)
+			break
+
+
 func _slice_burst(origin: Vector2, color: Color, amount: int) -> void:
 	for spark_index: int in range(amount):
 		var spark: Spark = Spark.new()
@@ -422,17 +471,123 @@ func _slice_burst(origin: Vector2, color: Color, amount: int) -> void:
 
 
 func _core_impact(origin: Vector2) -> void:
-	_screen_shake = 0.22 if not _reduced_motion else 0.06
-	_hit_flash = 0.42
+	_screen_shake = 0.22 * _screen_shake_intensity if not _reduced_motion else 0.06
+	_hit_flash = 0.42 * _hit_flash_intensity
 	_slice_burst(origin, Color(1.0, 0.28, 0.40), 18)
 	_vibrate(60)
 	if _sfx_miss != null:
+		_pan_sfx(origin)
 		_sfx_miss.play()
 
 
 func _vibrate(duration_ms: int) -> void:
 	if _haptics and _is_mobile_platform():
 		Input.vibrate_handheld(duration_ms)
+
+
+func _pan_sfx(position: Vector2) -> void:
+	var center: Vector2 = _core_position()
+	var dx: float = position.x - center.x
+	var half_width: float = size.x * 0.5
+	var pan: float = clampf(dx / half_width, -1.0, 1.0)
+	var left: float = clampf(1.0 - pan, 0.0, 1.0)
+	var right: float = clampf(1.0 + pan, 0.0, 1.0)
+	if _sfx_hit != null:
+		_sfx_hit.left_volume = left
+		_sfx_hit.right_volume = right
+	if _sfx_miss != null:
+		_sfx_miss.left_volume = left
+		_sfx_miss.right_volume = right
+
+
+# ── Replay / ghost system ──────────────────────────────────────────────────
+
+func _record_replay_frame() -> void:
+	var frame: ReplayFrame = ReplayFrame.new()
+	frame.time = _elapsed
+	for slash: SlashTrail in _slashes:
+		frame.slashes.append({"start": slash.start, "finish": slash.finish, "life": slash.life})
+	_replay_record_frames.append(frame)
+
+
+func _start_replay_recording() -> void:
+	_replay_recording = true
+	_replay_record_frames = []
+
+
+func _stop_replay_recording() -> void:
+	_replay_recording = false
+
+
+func _save_replay() -> void:
+	if _replay_record_frames.is_empty():
+		return
+	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+	if profile == null:
+		return
+	var key: String = "nebula_replay_level_%d" % LevelState.selected_level_id
+	var data: Array[Dictionary] = []
+	for frame: ReplayFrame in _replay_record_frames:
+		data.append({"time": frame.time, "slashes": frame.slashes})
+	profile.call("set_value", key, data)
+	profile.call("save")
+
+
+func _load_replay() -> Array[ReplayFrame]:
+	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+	if profile == null:
+		return []
+	var key: String = "nebula_replay_level_%d" % LevelState.selected_level_id
+	var raw: Variant = profile.call("get_value", key, [])
+	var frames: Array[ReplayFrame] = []
+	if raw is Array:
+		for entry: Dictionary in raw:
+			var frame: ReplayFrame = ReplayFrame.new()
+			frame.time = float(entry.get("time", 0.0))
+			frame.slashes = entry.get("slashes", [])
+			frames.append(frame)
+	return frames
+
+
+func _start_replay_playback() -> void:
+	_replay_frames = _load_replay()
+	if _replay_frames.is_empty():
+		return
+	_is_replaying = true
+	_replay_frame_index = 0
+	_replay_start_time = _elapsed
+	_notes.clear()
+	_telegraphs.clear()
+	_slashes.clear()
+	_sparks.clear()
+	_combo = 0
+	_score = 0
+
+
+func _stop_replay_playback() -> void:
+	_is_replaying = false
+	_replay_frames = []
+	_replay_frame_index = 0
+
+
+func _update_replay_playback(delta: float) -> void:
+	if _replay_frame_index >= _replay_frames.size():
+		_stop_replay_playback()
+		return
+	var target_time: float = _elapsed - _replay_start_time
+	while _replay_frame_index < _replay_frames.size() and _replay_frames[_replay_frame_index].time <= target_time:
+		var frame: ReplayFrame = _replay_frames[_replay_frame_index]
+		for slash_data: Dictionary in frame.slashes:
+			var ghost: SlashTrail = SlashTrail.new()
+			ghost.start = slash_data.get("start", Vector2.ZERO)
+			ghost.finish = slash_data.get("finish", Vector2.ZERO)
+			ghost.life = 1.0
+			_slashes.append(ghost)
+		_replay_frame_index += 1
+	for index: int in range(_slashes.size() - 1, -1, -1):
+		_slashes[index].life -= delta * 0.5
+		if _slashes[index].life <= 0.0:
+			_slashes.remove_at(index)
 
 
 func _finish_level() -> void:
@@ -442,6 +597,34 @@ func _finish_level() -> void:
 	var stars: int = _calculate_stars()
 	LevelState.record_completion(LevelState.selected_level_id, _score, stars)
 	_vibrate(42)
+
+
+func _soft_restart() -> void:
+	# Reset all gameplay state without reloading the scene.
+	_game_over = false
+	_level_complete = false
+	_core_health = MAX_CORE_HEALTH
+	_score = 0
+	_combo = 0
+	_max_combo = 0
+	_elapsed = 0.0
+	_beat_clock = 0.0
+	_next_spawn_beat = 0
+	_spawn_index = 0
+	_perfect_count = 0
+	_good_count = 0
+	_miss_count = 0
+	_last_grade = ""
+	_last_grade_life = 0.0
+	_combo_pulse = 0.0
+	_hit_flash = 0.0
+	_screen_shake = 0.0
+	_combo_pop_life = 0.0
+	_notes.clear()
+	_slashes.clear()
+	_telegraphs.clear()
+	_sparks.clear()
+	queue_redraw()
 
 
 func _calculate_stars() -> int:
@@ -514,6 +697,7 @@ func _draw() -> void:
 	_draw_telegraphs()
 	_draw_notes(center)
 	_draw_sparks()
+	_draw_waveform(center)
 	_draw_core(center + _shake_offset())
 	_draw_slashes()
 	_draw_gamepad_cursor()
@@ -574,6 +758,23 @@ func _draw_sparks() -> void:
 	for spark: Spark in _sparks:
 		var alpha: float = clampf(spark.life / spark.maximum_life, 0.0, 1.0)
 		draw_circle(spark.position, 2.5 + alpha * 2.5, Color(spark.color, alpha))
+
+
+func _draw_waveform(center: Vector2) -> void:
+	if _music_track == null or not _music_track.playing:
+		return
+	var beat_phase: float = fmod(_beat_clock, _beat_interval) / _beat_interval
+	var waveform_radius: float = CORE_RADIUS + 40.0 + sin(_elapsed * 6.0) * 4.0
+	var waveform_color: Color = Color(0.3, 0.6, 1.0, 0.35)
+	var segment_count: int = 64
+	var points: PackedVector2Array = PackedVector2Array()
+	for i: int in range(segment_count + 1):
+		var angle: float = TAU * float(i) / float(segment_count)
+		var sample: float = sin(angle * 8.0 + _elapsed * 10.0) * 0.5 + 0.5
+		var beat_boost: float = pow(1.0 - abs(beat_phase - 0.5) * 2.0, 2.0) * 6.0
+		var r: float = waveform_radius + sample * 12.0 + beat_boost
+		points.append(center + Vector2(cos(angle), sin(angle)) * r)
+	draw_polyline(points, waveform_color, 2.0, true)
 
 
 func _draw_core(center: Vector2) -> void:
@@ -673,6 +874,12 @@ func _draw_hud(viewport_size: Vector2) -> void:
 			combo_color = Color(0.54, 0.88, 1.0)
 		draw_string(font, Vector2(32.0, 148.0), "%d %s" % [_combo, Localization.text("combo")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(19.0 * combo_scale), combo_color)
 		draw_string(font, Vector2(32.0, 171.0), "x%d %s" % [multiplier, Localization.text("multiplier")], HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(14.0 + _combo_pulse * 3.0), Color(combo_color, 0.92))
+	if _combo_pop_life > 0.0:
+		var pop_ratio: float = _combo_pop_life / 0.8
+		var pop_size: int = int(40.0 + (1.0 - pop_ratio) * 20.0)
+		var pop_text: String = "COMBO x%d!" % _combo_pop_value
+		var pop_width: float = font.get_string_size(pop_text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, pop_size).x
+		draw_string(font, Vector2((viewport_size.x - pop_width) * 0.5, viewport_size.y * 0.30), pop_text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, pop_size, Color(1.0, 0.82, 0.30, pop_ratio))
 	if _score_pop_life > 0.0:
 		var pop_ratio: float = _score_pop_life / _score_pop_max_life
 		var pop_text: String = "+%d" % _score_pop_value if _score_pop_value > 0 else "COMBO BREAK"

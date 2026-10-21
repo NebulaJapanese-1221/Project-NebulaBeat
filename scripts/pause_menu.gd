@@ -86,9 +86,11 @@ func _on_resume_pressed() -> void:
 
 
 func _on_restart_pressed() -> void:
-	# A freshly loaded gameplay scene must not inherit the paused state.
+	# Soft restart: reset gameplay state without reloading the scene.
 	get_tree().paused = false
-	get_tree().reload_current_scene()
+	var gameplay: Node = get_tree().get_first_node_in_group("localizable_menu")
+	if gameplay != null and gameplay.has_method("_soft_restart"):
+		gameplay.call("_soft_restart")
 
 
 func _on_quit_pressed() -> void:

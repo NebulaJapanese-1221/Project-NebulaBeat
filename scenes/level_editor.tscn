@@ -147,3 +147,7 @@ text = "BACK TO LEVELS"
 file_mode = 2
 access = 2
 filters = ["*.nbeat ; Nebula Beat chart"]
+
+[node name="CatalogUploadRequest" type="HTTPRequest" parent="." unique_id=4109876546]
+[node name="CatalogDownloadRequest" type="HTTPRequest" parent="." unique_id=4109876547]
+[node name="CatalogListRequest" type="HTTPRequest" parent="." unique_id=4109876548]
