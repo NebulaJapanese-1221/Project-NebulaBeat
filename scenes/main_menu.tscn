@@ -113,7 +113,7 @@ vertical_alignment = 1
 
 [node name="VersionLabel" type="Label" parent="CenterContainer/VBox" unique_id=1992076669]
 layout_mode = 2
-text = "v0.0.1 Development Build 1"
+text = "v0.0.1 Development Build 2"
 horizontal_alignment = 1
 
 [node name="MenuConfirm" type="AudioStreamPlayer" parent="." unique_id=349910590]

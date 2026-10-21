@@ -86,7 +86,7 @@ func _refresh_catalog() -> void:
 		_body.text = Localization.text("downloader_server_missing")
 
 
-func _on_catalog_list_completed(result: long, response_code: long, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_catalog_list_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != OK or response_code != 200:
 		_body.text = Localization.text("downloader_server_missing")
 		return
@@ -137,7 +137,7 @@ func _download_chart(chart_id: String) -> void:
 		_body.text = Localization.text("package_import_failed")
 
 
-func _on_catalog_download_completed(result: long, response_code: long, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_catalog_download_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != OK or response_code != 200:
 		_body.text = Localization.text("package_import_failed")
 		return

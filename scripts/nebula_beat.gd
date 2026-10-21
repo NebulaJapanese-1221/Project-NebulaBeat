@@ -808,7 +808,6 @@ func _draw_core(center: Vector2) -> void:
 
 	# Hit zone rings: narrowing visual cue for the perfect/good timing windows.
 	if _beat_guides:
-		var beat_phase: float = fmod(_beat_clock, _beat_interval) / _beat_interval
 		var timing_error: float = minf(beat_phase, 1.0 - beat_phase)
 		var perfect_ratio: float = PERFECT_WINDOW / _beat_interval
 		var good_ratio: float = GOOD_WINDOW / _beat_interval
