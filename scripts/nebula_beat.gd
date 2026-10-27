@@ -154,6 +154,15 @@ func _ready() -> void:
 	add_to_group("localizable_menu")
 	queue_redraw()
 
+	# Auto-start a queued replay from the replay gallery.
+	var replay_level: int = int(_profile_value("nebula_play_replay_level", -1))
+	if replay_level >= 0:
+		var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+		if profile != null:
+			profile.call("erase_key", "nebula_play_replay_level")
+			profile.call("save")
+		_start_replay_playback()
+
 
 func _profile_value(key: String, fallback: Variant) -> Variant:
 	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
@@ -545,7 +554,17 @@ func _save_replay() -> void:
 	var data: Array[Dictionary] = []
 	for frame: ReplayFrame in _replay_record_frames:
 		data.append({"time": frame.time, "slashes": frame.slashes})
+	var meta: Dictionary = {
+		"score": _score,
+		"stars": _calculate_stars(),
+		"perfect": _perfect_count,
+		"good": _good_count,
+		"miss": _miss_count,
+		"combo": _max_combo,
+		"level_id": LevelState.selected_level_id
+	}
 	profile.call("set_value", key, data)
+	profile.call("set_value", key + "_meta", meta)
 	profile.call("save")
 
 
@@ -612,6 +631,7 @@ func _finish_level() -> void:
 	_level_complete = true
 	var stars: int = _calculate_stars()
 	LevelState.record_completion(LevelState.selected_level_id, _score, stars)
+	_save_replay()
 	_vibrate(42)
 
 

@@ -75,3 +75,6 @@ text = "RESTART RUN"
 [node name="QuitButton" type="Button" parent="PauseMenu/Panel/CenterContainer/VBox" unique_id=1014217829]
 layout_mode = 2
 text = "QUIT TO MENU"
+
+[node name="MusicTrack" type="AudioStreamPlayer" parent="." unique_id=926916037]
+bus = "Music"

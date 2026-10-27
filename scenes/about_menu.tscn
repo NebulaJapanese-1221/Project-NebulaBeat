@@ -94,6 +94,13 @@ layout_mode = 2
 text = "Created By NebulaJapanese-1221"
 horizontal_alignment = 1
 
+[node name="LicenseLabel" type="Label" parent="CenterContainer/AboutPanel/AboutVBox" unique_id=1893909837]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Licensed under GNU GPL v3.0 — see LICENCE for details. No warranty."
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1754220018]
 stream = ExtResource("2_6vqxg")
 volume_db = -8.0

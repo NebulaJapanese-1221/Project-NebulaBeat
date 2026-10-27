@@ -23,6 +23,7 @@ const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
 
 @onready var _button_list: VBoxContainer = get_node_or_null("CenterContainer/VBox")
 @onready var _scores_button: Button = get_node_or_null("CenterContainer/VBox/ScoresButton")
+@onready var _replays_button: Button = get_node_or_null("CenterContainer/VBox/ReplaysButton")
 @onready var _scores_panel: PanelContainer = get_node_or_null("CenterContainer/ScoresPanel")
 @onready var _scores_list: VBoxContainer = get_node_or_null("CenterContainer/ScoresPanel/ScoresVBox/ScoresList")
 @onready var _scores_back_button: Button = get_node_or_null("CenterContainer/ScoresPanel/ScoresVBox/ScoresBackButton")
@@ -59,6 +60,8 @@ func _ready() -> void:
 		_scores_button.pressed.connect(_toggle_scores_panel)
 	if _scores_back_button != null:
 		_scores_back_button.pressed.connect(_hide_scores_panel)
+	if _replays_button != null:
+		_replays_button.pressed.connect(_open_replays)
 	var back_button: Button = get_node_or_null("CenterContainer/VBox/BackButton")
 	if back_button != null:
 		back_button.pressed.connect(_return_to_main_menu)
@@ -105,6 +108,8 @@ func _apply_localized_text() -> void:
 		_scores_button.text = Localization.text("scores")
 	if _scores_back_button != null:
 		_scores_back_button.text = Localization.text("back")
+	if _replays_button != null:
+		_replays_button.text = Localization.text("replays")
 
 
 func _set_label_text(path: String, key: String) -> void:
@@ -225,3 +230,7 @@ func _open_downloader() -> void:
 
 func _return_to_main_menu() -> void:
 	get_tree().root.get_node_or_null("ScreenTransition").transition_to(MAIN_MENU_PATH)
+
+
+func _open_replays() -> void:
+	get_tree().root.get_node_or_null("ScreenTransition").transition_to("res://scenes/replay_gallery.tscn")

@@ -18,13 +18,13 @@ extends RefCounted
 class_name Localization
 
 const DEFAULT_LOCALE: String = "en"
-const SUPPORTED_LOCALES: Array[String] = ["en", "fr", "ja", "ko", "zh"]
+const SUPPORTED_LOCALES: Array[String] = ["en", "fr", "ja", "ko", "zh", "es", "de", "it", "pt"]
 
 const STRINGS: Dictionary = {
 	"en": {
 		"language": "Language",
 		"english": "English",
-		"version": "v0.0.1 Development Build 1",
+		"version": "v0.0.1 Development Build 2",
 		"audio": "AUDIO",
 		"display": "DISPLAY",
 		"accessibility": "ACCESSIBILITY",
@@ -63,6 +63,7 @@ const STRINGS: Dictionary = {
 		"about": "ABOUT",
 		"about_body": "A rhythm-defense game about protecting a living star. Slice incoming notes on the beat before they reach the core.",
 		"about_credit": "PROJECT NEBULA BEAT",
+		"gpl_license": "Licensed under GNU GPL v3.0 — see LICENCE for details. No warranty.",
 		"quit": "QUIT",
 		"levels": "SELECT LEVEL",
 		"level_downloader": "LEVEL DOWNLOADER",
@@ -138,12 +139,21 @@ const STRINGS: Dictionary = {
 		"level_6_title": "ION RUSH",
 		"level_6_subtitle": "Dense long-note pressure around the core.",
 		"level_7_title": "SUPERNOVA FINALE",
-		"level_7_subtitle": "The final high-speed endurance chart."
+		"level_7_subtitle": "The final high-speed endurance chart.",
+		"level_8_title": "QUASAR BURST",
+		"level_8_subtitle": "Relentless fire from every direction.",
+		"level_9_title": "BLACK HOLE",
+		"level_9_subtitle": "No escape — notes close from all sides.",
+		"level_10_title": "HEAT DEATH",
+		"level_10_subtitle": "The ultimate rhythm endurance test.",
+		"replay_gallery": "REPLAY GALLERY",
+		"replay_gallery_subtitle": "Watch your saved ghost runs",
+		"replays": "REPLAYS"
 	},
 	"fr": {
 		"language": "Langue",
 		"english": "Anglais",
-		"version": "v0.0.1 Development Build 1",
+		"version": "v0.0.1 Development Build 2",
 		"audio": "AUDIO",
 		"display": "AFFICHAGE",
 		"accessibility": "ACCESSIBILITÉ",
@@ -182,6 +192,7 @@ const STRINGS: Dictionary = {
 		"about": "À PROPOS",
 		"about_body": "Un jeu de défense rythmique où vous protégez une étoile vivante. Coupez les notes entrantes sur le temps avant qu'elles n'atteignent le cœur.",
 		"about_credit": "PROJET NEBULA BEAT",
+		"gpl_license": "Sous licence GNU GPL v3.0 — voir LICENCE pour les détails. Aucune garantie.",
 		"quit": "QUITTER",
 		"levels": "SÉLECTION DU NIVEAU",
 		"level_downloader": "TÉLÉCHARGER DES NIVEAUX",
@@ -257,12 +268,21 @@ const STRINGS: Dictionary = {
 		"level_6_title": "RUÉE IONIQUE",
 		"level_6_subtitle": "Une pression dense de notes longues autour du cœur.",
 		"level_7_title": "FINALE SUPERNOVA",
-		"level_7_subtitle": "Le chart final d'endurance à grande vitesse."
+		"level_7_subtitle": "Le chart final d'endurance à grande vitesse.",
+		"level_8_title": "RAFALE DE QUASAR",
+		"level_8_subtitle": "Un feu incessant venu de toutes parts.",
+		"level_9_title": "TROU NOIR",
+		"level_9_subtitle": "Aucune échappatoire — les notes se referment de tous les côtés.",
+		"level_10_title": "MORT THERMIQUE",
+		"level_10_subtitle": "L'épreuve ultime d'endurance rythmique.",
+		"replay_gallery": "GALERIE DE REPRISES",
+		"replay_gallery_subtitle": "Regardez vos runs fantômes enregistrés",
+		"replays": "REPRISES"
 	},
 	"ja": {
 		"language": "言語",
 		"english": "英語",
-		"version": "v0.0.1 Development Build 1",
+		"version": "v0.0.1 Development Build 2",
 		"audio": "オーディオ",
 		"display": "表示",
 		"accessibility": "アクセシビリティ",
@@ -301,6 +321,7 @@ const STRINGS: Dictionary = {
 		"about": "ゲームについて",
 		"about_body": "生きた星を守るリズムディフェンスゲーム。ノートがコアに届く前に、ビートに合わせてスライスします。",
 		"about_credit": "PROJECT NEBULA BEAT",
+		"gpl_license": "GNU GPL v3.0 でライセンス — 詳細は LICENCE を参照。無保証。",
 		"quit": "終了",
 		"levels": "レベル選択",
 		"level_downloader": "レベルダウンローダー",
@@ -376,7 +397,16 @@ const STRINGS: Dictionary = {
 		"level_6_title": "イオンラッシュ",
 		"level_6_subtitle": "コアを囲むロングノートの密集攻撃。",
 		"level_7_title": "スーパーノヴァ・フィナーレ",
-		"level_7_subtitle": "高速エンデュランスチャートの最終戦。"
+		"level_7_subtitle": "高速エンデュランスチャートの最終戦。",
+		"level_8_title": "クェーサー・バースト",
+		"level_8_subtitle": "あらゆる方向からの絶え間ない攻撃。",
+		"level_9_title": "ブラックホール",
+		"level_9_subtitle": "逃げ道なし — すべての方向からノートが迫る。",
+		"level_10_title": "熱的死",
+		"level_10_subtitle": "究極のリズム耐久テスト。",
+		"replay_gallery": "リプレイギャラリー",
+		"replay_gallery_subtitle": "保存されたゴーストランを再生",
+		"replays": "リプレイ"
 	},
 	"ko": {
 		"language": "언어", "english": "영어", "french": "프랑스어", "japanese": "일본어", "korean": "한국어", "chinese": "중국어",
@@ -384,9 +414,9 @@ const STRINGS: Dictionary = {
 		"audio": "오디오", "display": "화면", "accessibility": "접근성", "gameplay": "게임플레이", "reset_settings": "설정 초기화",
 		"master_volume": "마스터 볼륨", "music_volume": "음악 볼륨", "sfx_volume": "효과음 볼륨", "fullscreen": "전체 화면", "reduced_motion": "모션 줄이기", "haptics": "햅틱", 		"color_safe": "색각 안전 노트", "multiplier": "배수", "note_speed": "노트 속도", "screen_shake": "화면 흔들림", "hit_flash": "임펙트 플래시", "practice_mode": "연습 모드 (실패 없음)", "scores": "점수", "leaderboard": "리더보드", "calibration": "보정", "calibration_hint": "클릭에 맞춰 탭", "calibration_idle": "준비", "calibration_taps": "탭", "calibration_start": "보정 시작", "calibration_done": "완료", "calibration_offset": "측정된 오프셋", "timing_offset": "타이밍 오프셋", "beat_guides": "비트 가이드 표시",
 		"level_downloader": "레벨 다운로드", "downloader": "레벨 다운로드", "downloader_offline": "커뮤니티 레벨 카탈로그는 서버 연결을 기다리고 있습니다.", "downloader_server_missing": "카탈로그 서버가 아직 설정되지 않았습니다.", "downloader_refreshing": "카탈로그 새로고침 중...", "downloader_downloading": "차트 다운로드 중...", "refresh_catalog": "카탈로그 새로고침", "editor": "레벨 에디터", "editor_help": "리듬 차트를 만들고 플레이테스트하세요.", "level_name": "레벨 이름", "tempo": "템포", "speed": "노트 속도", "bpm": "BPM", "long_note_mode": "롱 노트 모드", "select_mp3": "MP3 선택", "autobuild": "MP3에서 자동 생성", "import_package": "ZIP 패키지 가져오기", "export_package": "ZIP 패키지 내보내기", "playtest": "플레이테스트", "reset": "초기화",
-		"paused": "일시 정지", "resume": "계속", "restart": "다시 시작", "retry": "다시 하기", "chart_reset": "차트 초기화", "chart_exported": "차트 내보내기", "chart_imported": "차트 가져오기", "chart_uploaded": "차트 업로드", "catalog_charts": "카탈로그 차트", "quit_to_menu": "메뉴로 나가기", "score": "점수", "beat": "비트", "combo": "콤보", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "코어 안정성", "core_lost": "코어 소실", "level_clear": "레벨 클리어", "tap_return": "탭하여 레벨 선택으로 돌아가기", "game_title": "NEBULA BEAT", "levels_subtitle": "차트를 클리어하여 다음 구역을 해금하세요", "locked": "잠김", "version": "v0.0.1 Development Build 1",
+		"paused": "일시 정지", "resume": "계속", "restart": "다시 시작", "retry": "다시 하기", "chart_reset": "차트 초기화", "chart_exported": "차트 내보내기", "chart_imported": "차트 가져오기", "chart_uploaded": "차트 업로드", "catalog_charts": "카탈로그 차트", "quit_to_menu": "메뉴로 나가기", "score": "점수", "beat": "비트", "combo": "콤보", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "코어 안정성", "core_lost": "코어 소실", "level_clear": "레벨 클리어", "tap_return": "탭하여 레벨 선택으로 돌아가기", "game_title": "NEBULA BEAT", "levels_subtitle": "차트를 클리어하여 다음 구역을 해금하세요", 		"locked": "잠김", "version": "v0.0.1 Development Build 2", 		"replay_gallery": "재생 갤러리", "replay_gallery_subtitle": "저장된 고스트 실행 보기", "replays": "재생",
 		"grade": "등급", "accuracy": "정확도",
-		"about_body": "살아 있는 별을 지키는 리듬 디펜스 게임입니다. 코어에 닿기 전에 비트에 맞춰 노트를 슬라이스하세요.", "about_credit": "PROJECT NEBULA BEAT"
+		"about_body": "살아 있는 별을 지키는 리듬 디펜스 게임입니다. 코어에 닿기 전에 비트에 맞춰 노트를 슬라이스하세요.", "about_credit": "PROJECT NEBULA BEAT", "gpl_license": "GNU GPL v3.0 라이선스 — 자세한 내용은 LICENCE 참조. 무보증."
 	},
 	"zh": {
 		"language": "语言", "english": "英语", "french": "法语", "japanese": "日语", "korean": "韩语", "chinese": "中文",
@@ -394,9 +424,49 @@ const STRINGS: Dictionary = {
 		"audio": "音频", "display": "显示", "accessibility": "辅助功能", "gameplay": "游戏玩法", "reset_settings": "重置设置",
 		"master_volume": "主音量", "music_volume": "音乐音量", "sfx_volume": "音效音量", "fullscreen": "全屏", "reduced_motion": "减少动态效果", "haptics": "触觉反馈", 		"color_safe": "色觉友好音符", "multiplier": "倍数", "note_speed": "音符速度", "screen_shake": "屏幕震动", "hit_flash": "击中闪光", "practice_mode": "练习模式（无失败）", "scores": "分数", "leaderboard": "排行榜", "calibration": "校准", "calibration_hint": "按节拍点击", "calibration_idle": "准备就绪", "calibration_taps": "点击次数", "calibration_start": "开始校准", "calibration_done": "完成", "calibration_offset": "测得偏移", "timing_offset": "时序偏移", "beat_guides": "显示节拍引导",
 		"level_downloader": "关卡下载器", "downloader": "关卡下载器", "downloader_offline": "社区关卡目录已准备好连接服务器。", "downloader_server_missing": "尚未配置目录服务器。", "downloader_refreshing": "正在刷新目录...", "downloader_downloading": "正在下载谱面...", "refresh_catalog": "刷新目录", "editor": "关卡编辑器", "editor_help": "创建节奏谱面并进行试玩。", "level_name": "关卡名称", "tempo": "速度", "speed": "音符速度", "bpm": "BPM", "long_note_mode": "长音符模式", "select_mp3": "选择 MP3", "autobuild": "从 MP3 自动生成", "import_package": "导入 ZIP 包", "export_package": "导出 ZIP 包", "playtest": "试玩", "reset": "重置",
-		"paused": "暂停", "resume": "继续", "restart": "重新开始", "retry": "重试", "chart_reset": "重置谱面", "chart_exported": "导出谱面", "chart_imported": "导入谱面", "chart_uploaded": "上传谱面", "catalog_charts": "目录谱面", "quit_to_menu": "返回菜单", "score": "分数", "beat": "节拍", "combo": "连击", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "核心完整度", "core_lost": "核心已失守", "level_clear": "关卡完成", "tap_return": "点击返回关卡选择", "game_title": "NEBULA BEAT", "levels_subtitle": "完成谱面以解锁下一个区域", "locked": "未解锁", "version": "v0.0.1 Development Build 1",
+		"paused": "暂停", "resume": "继续", "restart": "重新开始", "retry": "重试", "chart_reset": "重置谱面", "chart_exported": "导出谱面", "chart_imported": "导入谱面", "chart_uploaded": "上传谱面", "catalog_charts": "目录谱面", "quit_to_menu": "返回菜单", "score": "分数", "beat": "节拍", "combo": "连击", 		"perfect": "PERFECT", "good": "GOOD", "miss": "MISS", "core_integrity": "核心完整度", "core_lost": "核心已失守", "level_clear": "关卡完成", "tap_return": "点击返回关卡选择", "game_title": "NEBULA BEAT", "levels_subtitle": "完成谱面以解锁下一个区域", 		"locked": "未解锁", "version": "v0.0.1 Development Build 2", 		"replay_gallery": "回放画廊", "replay_gallery_subtitle": "观看保存的幽灵运行", "replays": "回放",
 		"grade": "等级", "accuracy": "准确度",
-		"about_body": "一款守护活体恒星的节奏防御游戏。在音符抵达核心前，按节拍将其切开。", "about_credit": "PROJECT NEBULA BEAT"
+		"about_body": "一款守护活体恒星的节奏防御游戏。在音符抵达核心前，按节拍将其切开。", "about_credit": "PROJECT NEBULA BEAT", "gpl_license": "根据 GNU GPL v3.0 许可 — 详情见 LICENCE。无担保。"
+	},
+	"es": {
+		"language": "Idioma", "english": "Inglés", "french": "Francés", "japanese": "Japonés", "korean": "Coreano", "chinese": "Chino",
+		"settings": "Ajustes", "play": "Jugar", "about": "Acerca de", "back": "Atrás", "quit": "Salir", "levels": "Seleccionar nivel",
+		"audio": "Audio", "display": "Pantalla", "accessibility": "Accesibilidad", "gameplay": "Jugabilidad", "reset_settings": "Restablecer ajustes",
+		"master_volume": "Volumen principal", "music_volume": "Volumen música", "sfx_volume": "Volumen efectos", "fullscreen": "Pantalla completa", "reduced_motion": "Reducir movimiento", "haptics": "Vibración", "color_safe": "Notas seguras para daltonismo", "multiplier": "Multiplicador", "note_speed": "Velocidad notas", "screen_shake": "Sacudida pantalla", "hit_flash": "Destello impacto", "practice_mode": "Modo práctica (sin fallo)", "scores": "Puntuaciones", "leaderboard": "Clasificación", "calibration": "Calibración", "calibration_hint": "TAPA AL RITMO DEL CLIC", "calibration_idle": "LISTO", "calibration_taps": "TAPAS", "calibration_start": "INICIAR CALIBRACIÓN", "calibration_done": "HECHO", "calibration_offset": "DESVÍO MEDIDO", "timing_offset": "DESVÍO DE TIMING", "beat_guides": "MOSTRAR GUIAS DE RITMO",
+		"level_downloader": "DESCARGADOR DE NIVELES", "downloader": "DESCARGADOR DE NIVELES", "downloader_offline": "El catálogo de niveles comunitarios está listo para una conexión de servidor.", "downloader_server_missing": "No hay servidor de catálogo configurado todavía.", "downloader_refreshing": "Actualizando catálogo...", "downloader_downloading": "Descargando chart...", "refresh_catalog": "ACTUALIZAR CATÁLOGO", "editor": "EDITOR DE NIVELES", "editor_help": "Crea pasos de ritmo en cuartos de compás. Activa el modo nota larga antes de colocar notas extendidas.", "level_name": "Nombre nivel", "tempo": "TEMPO", "speed": "VELOCIDAD NOTAS", "bpm": "BPM", "long_note_mode": "MODO NOTA LARGA", "select_mp3": "SELECCIONAR MP3", "autobuild": "AUTOCONSTRUIR DESDE MP3", "import_package": "IMPORTAR PAQUETE .ZIP", "export_package": "EXPORTAR PAQUETE .ZIP", "playtest": "PRUEBAS", "reset": "REINICIAR",
+		"paused": "PAUSA", "resume": "REANUDAR", "restart": "REINICIAR", "retry": "REINTENTAR", "chart_reset": "Chart reiniciado", "chart_exported": "Chart exportado", "chart_imported": "Chart importado", "chart_uploaded": "Chart subido", "catalog_charts": "Charts del catálogo", "quit_to_menu": "VOLVER AL MENÚ", "score": "PUNTUACIÓN", "beat": "COMPÁS", "combo": "COMBO", "perfect": "PERFECTO", "good": "BIEN", "miss": "FALLO", "core_integrity": "INTEGRIDAD NÚCLEO", "core_lost": "NÚCLEO PERDIDO", "level_clear": "NIVEL COMPLETADO", "tap_return": "TAPA PARA VOLVER A NIVELES", "game_title": "NEBULA BEAT", "levels_subtitle": "COMPLETA CHARTS PARA DESBLOQUEAR EL SIGUIENTE SECTOR", "locked": "BLOQUEADO", "version": "v0.0.1 Development Build 2", "replay_gallery": "GALERÍA DE REPLAY", "replay_gallery_subtitle": "Mira tus runs fantasma guardados", "replays": "REPLAYS",
+		"grade": "NOTA", "accuracy": "PRECISIÓN",
+		"about_body": "Un juego de defensa rítmico sobre proteger una estrella viva. Corta las notas entrantes al compás antes de que lleguen al núcleo.", "about_credit": "PROJECT NEBULA BEAT", "gpl_license": "Bajo licencia GNU GPL v3.0 — consulte LICENCE para detalles. Sin garantía."
+	},
+	"de": {
+		"language": "Sprache", "english": "Englisch", "french": "Französisch", "japanese": "Japanisch", "korean": "Koreanisch", "chinese": "Chinesisch",
+		"settings": "Einstellungen", "play": "Spielen", "about": "Über", "back": "Zurück", "quit": "Beenden", "levels": "Level auswählen",
+		"audio": "Audio", "display": "Anzeige", "accessibility": "Barrierefreiheit", "gameplay": "Spielbarkeit", "reset_settings": "Einstellungen zurücksetzen",
+		"master_volume": "Hauptlautstärke", "music_volume": "Musiklautstärke", "sfx_volume": "Soundeffekt-Lautstärke", "fullscreen": "Vollbild", "reduced_motion": "Bewegung reduzieren", "haptics": "Vibration", "color_safe": "Farbenfeste Notizen", "multiplier": "Multiplikator", "note_speed": "Notengeschwindigkeit", "screen_shake": "Bildschirmwackeln", "hit_flash": "Trefferblitz", "practice_mode": "Übungsmodus (kein Versagen)", "scores": "Punktzahlen", "leaderboard": "Rangliste", "calibration": "Kalibrierung", "calibration_hint": "TIPPE IM TAKT DES KLICKS", "calibration_idle": "BEREIT", "calibration_taps": "TIPPS", "calibration_start": "KALIBRIERUNG STARTEN", "calibration_done": "FERTIG", "calibration_offset": "GEMESSENER VERSATZ", "timing_offset": "TIMING-VERSATZ", "beat_guides": "SCHLAGANZEIGE ZEIGEN",
+		"level_downloader": "LEVEL-DOWNLOADER", "downloader": "LEVEL-DOWNLOADER", "downloader_offline": "Der Community-Level-Katalog ist bereit für eine Serververbindung.", "downloader_server_missing": "Kein Katalogserver konfiguriert.", "downloader_refreshing": "Katalog aktualisieren...", "downloader_downloading": "Chart herunterladen...", "refresh_catalog": "KATALOG AKTUALISIEREN", "editor": "LEVELEDITOR", "editor_help": "Erstelle Viertel-Schlag-Schritte. Aktiviere den langen Notiz-Modus bevor du lange Notizen platzierst.", "level_name": "Levelname", "tempo": "TEMPO", "speed": "NOTENGESCHWINDIGKEIT", "bpm": "BPM", "long_note_mode": "LANGER NOTIZ-MODUS", "select_mp3": "MP3 AUSWÄHLEN", "autobuild": "AUTOBAU VON MP3", "import_package": ".ZIP-PAKET IMPORTIEREN", "export_package": ".ZIP-PAKET EXPORTIEREN", "playtest": "SPIELTEST", "reset": "ZURÜCKSETZEN",
+		"paused": "PAUSE", "resume": "FORTSETZEN", "restart": "NEU STARTEN", "retry": "WIEDERHOLEN", "chart_reset": "Chart zurückgesetzt", "chart_exported": "Chart exportiert", "chart_imported": "Chart importiert", "chart_uploaded": "Chart hochgeladen", "catalog_charts": "Charts im Katalog", "quit_to_menu": "ZURÜCK ZUM MENÜ", "score": "PUNKTZAHL", "beat": "SCHLAG", "combo": "COMBO", "perfect": "PERFEKT", "good": "GUT", "miss": "VERFEHLT", "core_integrity": "KERNELINTEGRITÄT", "core_lost": "KERNEL VERLOREN", "level_clear": "LEVEL GEMESSEN", "tap_return": "TIPPE ZURÜCK ZU LEVELS", "game_title": "NEBULA BEAT", "levels_subtitle": "CHARTS ABSCHLIESSEN UM DEN NÄCHSTEN SEKTOR ZU ENTSPERRN", "locked": "GESPERRT", "version": "v0.0.1 Development Build 2", "replay_gallery": "WIEDERHOLGALERIE", "replay_gallery_subtitle": "Schau dir deine gespeicherten Geist-Läufe an", "replays": "WIEDERHOLUNGEN",
+		"grade": "NOTE", "accuracy": "GENAUIGKEIT",
+		"about_body": "Ein Rhythmus-Verteidigungsspiel über den Schutz eines lebenden Sterns. Schneide eingehende Notizen im Takt bevor sie den Kern erreichen.", "about_credit": "PROJECT NEBULA BEAT"
+	},
+	"it": {
+		"language": "Lingua", "english": "Inglese", "french": "Francese", "japanese": "Giapponese", "korean": "Coreano", "chinese": "Cinese",
+		"settings": "Impostazioni", "play": "Gioca", "about": "Informazioni", "back": "Indietro", "quit": "Esci", "levels": "Seleziona livello",
+		"audio": "Audio", "display": "Schermo", "accessibility": "Accessibilità", "gameplay": "Giocabilità", "reset_settings": "Reimposta impostazioni",
+		"master_volume": "Volume principale", "music_volume": "Volume musica", "sfx_volume": "Volume effetti", "fullscreen": "Schermo intero", "reduced_motion": "Riduci movimento", "haptics": "Vibrazione", "color_safe": "Note sicure per daltonismo", "multiplier": "Moltiplicatore", "note_speed": "Velocità note", "screen_shake": "Scuotimento schermo", "hit_flash": "Lampo impatto", "practice_mode": "Modalità pratica (nessun fallimento)", "scores": "Punteggi", "leaderboard": "Classifica", "calibration": "Calibrazione", "calibration_hint": "TAPPA A TEMPO CON IL CLICK", "calibration_idle": "PRONTO", "calibration_taps": "TAP", "calibration_start": "AVVIA CALIBRAZIONE", "calibration_done": "FATTO", "calibration_offset": "OFFSET MISURATO", "timing_offset": "OFFSET TEMPO", "beat_guides": "MOSTRA GUIDE RITMICHE",
+		"level_downloader": "DOWNLOADER LIVELLI", "downloader": "DOWNLOADER LIVELLI", "downloader_offline": "Il catalogo livelli comunitari è pronto per una connessione server.", "downloader_server_missing": "Nessun server catalogo configurato.", "downloader_refreshing": "Aggiornamento catalogo...", "downloader_downloading": "Download chart...", "refresh_catalog": "AGGIORNA CATALOGO", "editor": "EDITOR LIVELLI", "editor_help": "Crea passi ritmici su quarti di battuta. Attiva modalità nota lunga prima di posizionare note estese.", "level_name": "Nome livello", "tempo": "TEMPO", "speed": "VELOCITÀ NOTE", "bpm": "BPM", "long_note_mode": "MODALITÀ NOTA LUNGA", "select_mp3": "SELEZIONA MP3", "autobuild": "COSTRUISCI DA MP3", "import_package": "IMPORTA PACCHETTO .ZIP", "export_package": "ESPORTA PACCHETTO .ZIP", "playtest": "PROVA", "reset": "RESET",
+		"paused": "PAUSA", "resume": "RIPRENDI", "restart": "REINIZIA", "retry": "RITENTA", "chart_reset": "Chart resettato", "chart_exported": "Chart esportato", "chart_imported": "Chart importato", "chart_uploaded": "Chart caricato", "catalog_charts": "Chart del catalogo", "quit_to_menu": "TORNA AL MENU", "score": "PUNTEGGIO", "beat": "BATTUTA", "combo": "COMBO", "perfect": "PERFETTO", "good": "BUONO", "miss": "ERRORE", "core_integrity": "INTEGRITÀ NUCLEO", "core_lost": "NUCLEO PERDUTO", "level_clear": "LIVELLO COMPLETATO", "tap_return": "TAPPA PER TORNARE AI LIVELLI", "game_title": "NEBULA BEAT", "levels_subtitle": "COMPLETA CHARTS PER SBLOCCARE IL SEGUENTE SETTORE", "locked": "BLOCCATO", "version": "v0.0.1 Development Build 2", "replay_gallery": "GALLERIA REPLAY", "replay_gallery_subtitle": "Guarda le tue run fantasma salvate", "replays": "REPLAY",
+		"grade": "VOTO", "accuracy": "PRECISIONE",
+		"about_body": "Un gioco di difesa ritmico per proteggere una stella viva. Taglia le note entranti a tempo prima che raggiungano il nucleo.", "about_credit": "PROJECT NEBULA BEAT"
+	},
+	"pt": {
+		"language": "Idioma", "english": "Inglês", "french": "Francês", "japanese": "Japonês", "korean": "Coreano", "chinese": "Chinês",
+		"settings": "Configurações", "play": "Jogar", "about": "Sobre", "back": "Voltar", "quit": "Sair", "levels": "Selecionar nível",
+		"audio": "Áudio", "display": "Tela", "accessibility": "Acessibilidade", "gameplay": "Jogabilidade", "reset_settings": "Redefinir configurações",
+		"master_volume": "Volume principal", "music_volume": "Volume música", "sfx_volume": "Volume efeitos", "fullscreen": "Tela cheia", "reduced_motion": "Reduzir movimento", "haptics": "Vibração", "color_safe": "Notas seguras para daltônicos", "multiplier": "Multiplicador", "note_speed": "Velocidade notas", "screen_shake": "Tremulação tela", "hit_flash": "Flash impacto", "practice_mode": "Modo prática (sem falha)", "scores": "Pontuações", "leaderboard": "Classificação", "calibration": "Calibração", "calibration_hint": "TOQUE NO RITMO DO CLIQUE", "calibration_idle": "PRONTO", "calibration_taps": "TOQUES", "calibration_start": "INICIAR CALIBRAÇÃO", "calibration_done": "FEITO", "calibration_offset": "DESVIO MEDIDO", "timing_offset": "DESVIO DE TEMPO", "beat_guides": "MOSTRAR GUIAS DE BATIMENTO",
+		"level_downloader": "DOWNLOADER DE NÍVEIS", "downloader": "DOWNLOADER DE NÍVEIS", "downloader_offline": "O catálogo de níveis comunitário está pronto para uma conexão de servidor.", "downloader_server_missing": "Nenhum servidor de catálogo configurado.", "downloader_refreshing": "Atualizando catálogo...", "downloader_downloading": "Baixando chart...", "refresh_catalog": "ATUALIZAR CATÁLOGO", "editor": "EDITOR DE NÍVEIS", "editor_help": "Crie passos de ritmo em quartos de compasso. Ative o modo nota longa antes de colocar notas estendidas.", "level_name": "Nome nível", "tempo": "TEMPO", "speed": "VELOCIDADE NOTAS", "bpm": "BPM", "long_note_mode": "MODO NOTA LONGA", "select_mp3": "SELECIONAR MP3", "autobuild": "AUTOCONSTRUIR DE MP3", "import_package": "IMPORTAR PACOTE .ZIP", "export_package": "EXPORTAR PACOTE .ZIP", "playtest": "TESTAR", "reset": "REDEFINIR",
+		"paused": "PAUSA", "resume": "RESUMIR", "restart": "REINICIAR", "retry": "TENTAR NOVAMENTE", "chart_reset": "Chart redefinido", "chart_exported": "Chart exportado", "chart_imported": "Chart importado", "chart_uploaded": "Chart enviado", "catalog_charts": "Charts do catálogo", "quit_to_menu": "VOLTAR AO MENU", "score": "PONTUAÇÃO", "beat": "COMPASSO", "combo": "COMBO", "perfect": "PERFEITO", "good": "BOM", "miss": "FALHA", "core_integrity": "INTEGRIDADE NÚCLEO", "core_lost": "NÚCLEO PERDIDO", "level_clear": "NÍVEL COMPLETO", "tap_return": "TOQUE PARA VOLTAR AOS NÍVEIS", "game_title": "NEBULA BEAT", "levels_subtitle": "COMPLETE CHARTS PARA DESBLOQUEAR O PRÓXIMO SETOR", "locked": "BLOQUEADO", "version": "v0.0.1 Development Build 2", "replay_gallery": "GALERIA DE REPLAY", "replay_gallery_subtitle": "Assista suas runs fantasma salvas", "replays": "REPLAYS",
+		"grade": "NOTA", "accuracy": "PRECISÃO",
+		"about_body": "Um jogo de defesa rítmico sobre proteger uma estrela viva. Corte as notas entrantes no ritmo antes que elas cheguem ao núcleo.", "about_credit": "PROJECT NEBULA BEAT"
 	}
 }
 
@@ -437,7 +507,7 @@ static func text(key: String) -> String:
 
 
 static func locale_name(locale: String) -> String:
-	var names: Dictionary = {"en": "English", "fr": "Français", "ja": "日本語", "ko": "한국어", "zh": "中文"}
+	var names: Dictionary = {"en": "English", "fr": "Français", "ja": "日本語", "ko": "한국어", "zh": "中文", "es": "Español", "de": "Deutsch", "it": "Italiano", "pt": "Português"}
 	return String(names.get(locale, "English"))
 
 

@@ -114,6 +114,10 @@ theme_override_constants/separation = 6
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 
+[node name="ReplaysButton" type="Button" parent="CenterContainer/VBox" unique_id=2109876549]
+layout_mode = 2
+text = "REPLAYS"
+
 [node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=1488491782]
 stream = ExtResource("2_wswnh")
 volume_db = -8.0

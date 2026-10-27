@@ -26,7 +26,10 @@ const BUILT_IN_LEVELS: Array[Dictionary] = [
 	{"id": 4, "title_key": "level_4_title", "subtitle_key": "level_4_subtitle", "spawn_interval": 0.78, "speed_multiplier": 0.85, "long_every": 3, "target_notes": 16},
 	{"id": 5, "title_key": "level_5_title", "subtitle_key": "level_5_subtitle", "spawn_interval": 0.70, "speed_multiplier": 0.95, "long_every": 2, "target_notes": 18},
 	{"id": 6, "title_key": "level_6_title", "subtitle_key": "level_6_subtitle", "spawn_interval": 0.62, "speed_multiplier": 1.10, "long_every": 2, "target_notes": 20},
-	{"id": 7, "title_key": "level_7_title", "subtitle_key": "level_7_subtitle", "spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24}
+	{"id": 7, "title_key": "level_7_title", "subtitle_key": "level_7_subtitle", "spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24},
+	{"id": 8, "title_key": "level_8_title", "subtitle_key": "level_8_subtitle", "spawn_interval": 0.50, "speed_multiplier": 1.40, "long_every": 1, "target_notes": 28},
+	{"id": 9, "title_key": "level_9_title", "subtitle_key": "level_9_subtitle", "spawn_interval": 0.44, "speed_multiplier": 1.55, "long_every": 1, "target_notes": 32},
+	{"id": 10, "title_key": "level_10_title", "subtitle_key": "level_10_subtitle", "spawn_interval": 0.40, "speed_multiplier": 1.70, "long_every": 1, "target_notes": 36}
 ]
 const DIFFICULTIES: Array[String] = ["Easy", "Normal", "Hard"]
 const CHART_STEP_COUNT: int = 64
@@ -210,7 +213,12 @@ static func _set_profile_value(key: String, value: Variant) -> void:
 
 
 static func is_level_unlocked(level_id: int) -> bool:
-	return level_id >= 1 and level_id <= BUILT_IN_LEVELS.size()
+	if level_id < 1 or level_id > BUILT_IN_LEVELS.size():
+		return false
+	if level_id == 1:
+		return true
+	var previous_stars: int = best_stars(level_id - 1)
+	return previous_stars >= 1
 
 
 static func best_score(level_id: int) -> int:
