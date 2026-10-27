@@ -4,4 +4,4 @@ Project NebulaBeat is a fast-paced rhythm-action game where players defend a spi
 
 ## Credits
 
-UI assets by [Kenney](https://kenney.nl/), licensed under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+UI assets by [Kenney](https://kenney.nl/), licensed under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Also licenced under GPL 3.0
