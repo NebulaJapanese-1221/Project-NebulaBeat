@@ -22,6 +22,7 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 @onready var _back_button: Button = get_node_or_null("CenterContainer/AboutPanel/AboutVBox/BackButton")
 @onready var _back_skin: TextureRect = get_node_or_null("CenterContainer/AboutPanel/AboutVBox/BackButton/KenneySkin")
 @onready var _menu_back: AudioStreamPlayer = get_node_or_null("MenuBack")
+@onready var _license_label: Label = get_node_or_null("CenterContainer/AboutPanel/AboutVBox/LicenseLabel")
 
 
 func _ready() -> void:
@@ -43,6 +44,8 @@ func _apply_localized_text() -> void:
 	_set_label_text("CenterContainer/AboutPanel/AboutVBox/AboutTitle", "about")
 	_set_label_text("CenterContainer/AboutPanel/AboutVBox/AboutBody", "about_body")
 	_set_label_text("CenterContainer/AboutPanel/AboutVBox/CreatedByLabel", "about_credit")
+	if _license_label != null:
+		_license_label.text = Localization.text("gpl_license")
 
 
 func _set_label_text(path: String, key: String) -> void:
