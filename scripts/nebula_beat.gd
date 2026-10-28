@@ -28,6 +28,14 @@ class Note extends RefCounted:
 	var hue: float = 0.55
 	var phase: float = 0.0
 	var spawn_beat: int = 0
+	var trail: Array[Vector2] = []
+
+
+class NoteTrail extends RefCounted:
+	var positions: PackedVector2Array = PackedVector2Array()
+	var color: Color = Color.WHITE
+	var life: float = 0.12
+	var maximum_life: float = 0.12
 
 
 class SlashTrail extends RefCounted:
@@ -68,10 +76,22 @@ const GOOD_WINDOW: float = 0.18
 const TELEGRAPH_LEAD: float = 0.45
 const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
 
+const ACHIEVEMENTS: Dictionary = {
+	"first_slice": {"key": "first_slice", "name": "First Slice", "desc": "Clear your first level.", "type": "level_complete", "threshold": 1},
+	"perfect_run": {"key": "perfect_run", "name": "Perfect Run", "desc": "Complete a level with no misses.", "type": "perfect_level", "threshold": 1},
+	"combo_master": {"key": "combo_master", "name": "Combo Master", "desc": "Reach a 100x combo.", "type": "max_combo", "threshold": 100},
+	"three_star_all": {"key": "three_star_all", "name": "Three-Star All", "desc": "Earn 3 stars on every built-in level.", "type": "three_star_all", "threshold": 1},
+	"centurion": {"key": "centurion", "name": "Centurion", "desc": "Score 100,000 points in a single level.", "type": "score", "threshold": 100000}
+}
+
 var _notes: Array[Note] = []
 var _slashes: Array[SlashTrail] = []
 var _telegraphs: Array[Telegraph] = []
 var _sparks: Array[Spark] = []
+var _note_trails: Array[NoteTrail] = []
+
+var _achievements: Dictionary = {}
+var _achievement_notifications: Array[Dictionary] = []
 var _elapsed: float = 0.0
 var _beat_clock: float = 0.0
 var _next_spawn_beat: int = 0
@@ -119,11 +139,10 @@ var _game_over_retry_rect: Rect2 = Rect2()
 var _game_over_quit_rect: Rect2 = Rect2()
 var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
+@export var music_stream: AudioStream
 @onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
 @onready var _sfx_hit: AudioStreamPlayer = get_node_or_null("SfxHit")
 @onready var _sfx_miss: AudioStreamPlayer = get_node_or_null("SfxMiss")
-
-
 # ── Replay / ghost system ──────────────────────────────────────────────────
 
 var _is_replaying: bool = false
@@ -153,6 +172,24 @@ func _ready() -> void:
 	_gamepad_cursor = _core_position()
 	add_to_group("localizable_menu")
 	queue_redraw()
+
+	if music_stream != null and _music_track != null:
+		_music_track.stream = music_stream
+		_music_track.autoplay = true
+
+	# Load saved achievement state.
+	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+	if profile != null:
+		var saved: Variant = profile.call("get_value", "nebula_achievements", {})
+		if saved is Dictionary:
+			_achievements = saved
+
+
+func _save_achievements() -> void:
+	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
+	if profile != null:
+		profile.call("set_value", "nebula_achievements", _achievements)
+		profile.call("save")
 
 	# Auto-start a queued replay from the replay gallery.
 	var replay_level: int = int(_profile_value("nebula_play_replay_level", -1))
@@ -259,6 +296,16 @@ func _update_notes(delta: float) -> void:
 		var travel_speed: float = note.speed * (1.0 + proximity * 1.9)
 		note.position = note.position.move_toward(core_position, travel_speed * delta)
 		note.phase += delta * (2.0 + proximity * 5.0)
+		if proximity > 0.5:
+			note.trail.append_back(note.position)
+			if note.trail.size() > 6:
+				note.trail.remove_at(0)
+			var trail: NoteTrail = NoteTrail.new()
+			trail.positions = note.trail.duplicate()
+			trail.color = Color.from_hsv(note.hue, 0.72, 1.0)
+			trail.life = 0.12
+			trail.maximum_life = 0.12
+			_note_trails.append(trail)
 		if note.position.distance_to(core_position) <= CORE_RADIUS + 8.0:
 			if not _practice_mode:
 				_core_health = maxi(_core_health - (12 if note.is_long else 7), 0)
@@ -292,6 +339,12 @@ func _update_feedback(delta: float) -> void:
 	_combo_pulse = maxf(_combo_pulse - delta * 2.6, 0.0)
 	_combo_pop_life = maxf(_combo_pop_life - delta, 0.0)
 	_score_pop_life = maxf(_score_pop_life - delta, 0.0)
+	for index: int in range(_note_trails.size() - 1, -1, -1):
+		var trail: NoteTrail = _note_trails[index]
+		trail.life -= delta
+		if trail.life <= 0.0:
+			_note_trails.remove_at(index)
+	_update_achievements(delta)
 
 
 func _input(event: InputEvent) -> void:
@@ -632,7 +685,44 @@ func _finish_level() -> void:
 	var stars: int = _calculate_stars()
 	LevelState.record_completion(LevelState.selected_level_id, _score, stars)
 	_save_replay()
+	_check_achievements()
 	_vibrate(42)
+
+
+func _unlock_achievement(key: String) -> void:
+	if _achievements.has(key) and bool(_achievements[key].get("unlocked", false)):
+		return
+	var def: Dictionary = ACHIEVEMENTS.get(key, {})
+	var entry: Dictionary = {"unlocked": true, "name": String(def.get("name", key)), "desc": String(def.get("desc", ""))}
+	_achievements[key] = entry
+	_achievement_notifications.append(entry)
+	_save_achievements()
+
+
+func _check_achievements() -> void:
+	# First slice: complete any level.
+	_unlock_achievement("first_slice")
+
+	# Perfect run: no misses on this level.
+	if _miss_count == 0:
+		_unlock_achievement("perfect_run")
+
+	# Combo master: max combo reached threshold.
+	if _max_combo >= 100:
+		_unlock_achievement("combo_master")
+
+	# Centurion: score threshold.
+	if _score >= 100000:
+		_unlock_achievement("centurion")
+
+	# Three-star all: all built-in levels have 3 stars.
+	var all_three_star: bool = true
+	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
+		if LevelState.best_stars(level_id) < 3:
+			all_three_star = false
+			break
+	if all_three_star:
+		_unlock_achievement("three_star_all")
 
 
 func _soft_restart() -> void:
@@ -733,17 +823,47 @@ func _draw() -> void:
 	_draw_telegraphs()
 	_draw_notes(center)
 	_draw_sparks()
+	_draw_note_trails()
 	_draw_waveform(center)
 	_draw_core(center + _shake_offset())
 	_draw_slashes()
 	_draw_gamepad_cursor()
 	_draw_hud(viewport_size)
+	_draw_achievements(viewport_size)
 
 
 func _shake_offset() -> Vector2:
 	if _screen_shake <= 0.0 or _reduced_motion:
 		return Vector2.ZERO
 	return Vector2(sin(_elapsed * 83.0), cos(_elapsed * 109.0)) * _screen_shake * 18.0
+
+
+func _update_achievements(delta: float) -> void:
+	for index: int in range(_achievement_notifications.size() - 1, -1, -1):
+		var notif: Dictionary = _achievement_notifications[index]
+		notif["life"] = float(notif.get("life", 2.0)) - delta
+		if float(notif.get("life", 0.0)) <= 0.0:
+			_achievement_notifications.remove_at(index)
+
+
+func _draw_achievements(viewport_size: Vector2) -> void:
+	var font: Font = ThemeDB.fallback_font
+	var y_offset: float = viewport_size.y * 0.15
+	for notif: Dictionary in _achievement_notifications:
+		var life: float = float(notif.get("life", 0.0))
+		var alpha: float = clampf(life / 2.0, 0.0, 1.0)
+		var name: String = String(notif.get("name", "Achievement"))
+		var desc: String = String(notif.get("desc", ""))
+		var title_text: String = "ACHIEVEMENT UNLOCKED: " + name
+		var title_width: float = font.get_string_size(title_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 24).x
+		var desc_width: float = font.get_string_size(desc, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16).x
+		var box_width: float = max(title_width, desc_width) + 40.0
+		var box_rect: Rect2 = Rect2((viewport_size.x - box_width) * 0.5, y_offset, box_width, 60.0)
+		draw_rect(box_rect, Color(0.05, 0.08, 0.16, 0.9 * alpha))
+		draw_rect(box_rect, Color(1.0, 0.82, 0.30, 0.8 * alpha), false, 2.0)
+		draw_string(font, Vector2(box_rect.position.x + 20.0, box_rect.position.y + 18.0), title_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color(1.0, 0.82, 0.30, alpha))
+		draw_string(font, Vector2(box_rect.position.x + 20.0, box_rect.position.y + 40.0), desc, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.9, 0.95, 1.0, alpha))
+		y_offset += 70.0
 
 
 func _draw_telegraphs() -> void:
@@ -794,6 +914,14 @@ func _draw_sparks() -> void:
 	for spark: Spark in _sparks:
 		var alpha: float = clampf(spark.life / spark.maximum_life, 0.0, 1.0)
 		draw_circle(spark.position, 2.5 + alpha * 2.5, Color(spark.color, alpha))
+
+
+func _draw_note_trails() -> void:
+	for trail: NoteTrail in _note_trails:
+		var alpha: float = clampf(trail.life / trail.maximum_life, 0.0, 1.0)
+		var color: Color = Color(trail.color, alpha * 0.6)
+		if trail.positions.size() >= 2:
+			draw_polyline(trail.positions, color, 2.0 * alpha + 1.0, false)
 
 
 func _draw_waveform(center: Vector2) -> void:

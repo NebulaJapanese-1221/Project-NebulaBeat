@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extends Control
+extends MenuBase
 
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
 const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
@@ -30,9 +30,7 @@ const LEVEL_DOWNLOADER_PATH: String = "res://scenes/level_downloader.tscn"
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
 	_apply_localized_text()
 	for level_id: int in range(1, LevelState.BUILT_IN_LEVELS.size() + 1):
 		var button: Button = get_node_or_null("CenterContainer/VBox/Level%dButton" % level_id)
@@ -110,18 +108,6 @@ func _apply_localized_text() -> void:
 		_scores_back_button.text = Localization.text("back")
 	if _replays_button != null:
 		_replays_button.text = Localization.text("replays")
-
-
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
 
 
 func refresh_localization() -> void:

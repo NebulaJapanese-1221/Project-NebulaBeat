@@ -23,13 +23,41 @@ const BUILT_IN_LEVELS: Array[Dictionary] = [
 	{"id": 1, "title_key": "tutorial_1_title", "subtitle_key": "tutorial_1_subtitle", "tutorial_key": "tutorial_1_hint", "spawn_interval": 1.00, "speed_multiplier": 0.55, "long_every": 0, "target_notes": 8, "tutorial": true},
 	{"id": 2, "title_key": "tutorial_2_title", "subtitle_key": "tutorial_2_subtitle", "tutorial_key": "tutorial_2_hint", "spawn_interval": 0.92, "speed_multiplier": 0.66, "long_every": 0, "target_notes": 12, "tutorial": true},
 	{"id": 3, "title_key": "tutorial_3_title", "subtitle_key": "tutorial_3_subtitle", "tutorial_key": "tutorial_3_hint", "spawn_interval": 0.86, "speed_multiplier": 0.74, "long_every": 4, "target_notes": 14, "tutorial": true},
-	{"id": 4, "title_key": "level_4_title", "subtitle_key": "level_4_subtitle", "spawn_interval": 0.78, "speed_multiplier": 0.85, "long_every": 3, "target_notes": 16},
-	{"id": 5, "title_key": "level_5_title", "subtitle_key": "level_5_subtitle", "spawn_interval": 0.70, "speed_multiplier": 0.95, "long_every": 2, "target_notes": 18},
-	{"id": 6, "title_key": "level_6_title", "subtitle_key": "level_6_subtitle", "spawn_interval": 0.62, "speed_multiplier": 1.10, "long_every": 2, "target_notes": 20},
-	{"id": 7, "title_key": "level_7_title", "subtitle_key": "level_7_subtitle", "spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24},
-	{"id": 8, "title_key": "level_8_title", "subtitle_key": "level_8_subtitle", "spawn_interval": 0.50, "speed_multiplier": 1.40, "long_every": 1, "target_notes": 28},
-	{"id": 9, "title_key": "level_9_title", "subtitle_key": "level_9_subtitle", "spawn_interval": 0.44, "speed_multiplier": 1.55, "long_every": 1, "target_notes": 32},
-	{"id": 10, "title_key": "level_10_title", "subtitle_key": "level_10_subtitle", "spawn_interval": 0.40, "speed_multiplier": 1.70, "long_every": 1, "target_notes": 36}
+	{"id": 4, "title_key": "level_4_title", "subtitle_key": "level_4_subtitle", "spawn_interval": 0.78, "speed_multiplier": 0.85, "long_every": 3, "target_notes": 16, "variants": {
+		"Easy": {"spawn_interval": 0.90, "speed_multiplier": 0.70, "long_every": 4, "target_notes": 14},
+		"Normal": {"spawn_interval": 0.78, "speed_multiplier": 0.85, "long_every": 3, "target_notes": 16},
+		"Hard": {"spawn_interval": 0.66, "speed_multiplier": 1.00, "long_every": 2, "target_notes": 18}
+	}},
+	{"id": 5, "title_key": "level_5_title", "subtitle_key": "level_5_subtitle", "spawn_interval": 0.70, "speed_multiplier": 0.95, "long_every": 2, "target_notes": 18, "variants": {
+		"Easy": {"spawn_interval": 0.80, "speed_multiplier": 0.80, "long_every": 3, "target_notes": 16},
+		"Normal": {"spawn_interval": 0.70, "speed_multiplier": 0.95, "long_every": 2, "target_notes": 18},
+		"Hard": {"spawn_interval": 0.60, "speed_multiplier": 1.10, "long_every": 1, "target_notes": 20}
+	}},
+	{"id": 6, "title_key": "level_6_title", "subtitle_key": "level_6_subtitle", "spawn_interval": 0.62, "speed_multiplier": 1.10, "long_every": 2, "target_notes": 20, "variants": {
+		"Easy": {"spawn_interval": 0.72, "speed_multiplier": 0.95, "long_every": 3, "target_notes": 18},
+		"Normal": {"spawn_interval": 0.62, "speed_multiplier": 1.10, "long_every": 2, "target_notes": 20},
+		"Hard": {"spawn_interval": 0.52, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 22}
+	}},
+	{"id": 7, "title_key": "level_7_title", "subtitle_key": "level_7_subtitle", "spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24, "variants": {
+		"Easy": {"spawn_interval": 0.65, "speed_multiplier": 1.05, "long_every": 2, "target_notes": 22},
+		"Normal": {"spawn_interval": 0.55, "speed_multiplier": 1.25, "long_every": 1, "target_notes": 24},
+		"Hard": {"spawn_interval": 0.45, "speed_multiplier": 1.45, "long_every": 1, "target_notes": 26}
+	}},
+	{"id": 8, "title_key": "level_8_title", "subtitle_key": "level_8_subtitle", "spawn_interval": 0.50, "speed_multiplier": 1.40, "long_every": 1, "target_notes": 28, "variants": {
+		"Easy": {"spawn_interval": 0.60, "speed_multiplier": 1.20, "long_every": 2, "target_notes": 26},
+		"Normal": {"spawn_interval": 0.50, "speed_multiplier": 1.40, "long_every": 1, "target_notes": 28},
+		"Hard": {"spawn_interval": 0.42, "speed_multiplier": 1.60, "long_every": 1, "target_notes": 30}
+	}},
+	{"id": 9, "title_key": "level_9_title", "subtitle_key": "level_9_subtitle", "spawn_interval": 0.44, "speed_multiplier": 1.55, "long_every": 1, "target_notes": 32, "variants": {
+		"Easy": {"spawn_interval": 0.54, "speed_multiplier": 1.35, "long_every": 2, "target_notes": 30},
+		"Normal": {"spawn_interval": 0.44, "speed_multiplier": 1.55, "long_every": 1, "target_notes": 32},
+		"Hard": {"spawn_interval": 0.36, "speed_multiplier": 1.75, "long_every": 1, "target_notes": 34}
+	}},
+	{"id": 10, "title_key": "level_10_title", "subtitle_key": "level_10_subtitle", "spawn_interval": 0.40, "speed_multiplier": 1.70, "long_every": 1, "target_notes": 36, "variants": {
+		"Easy": {"spawn_interval": 0.50, "speed_multiplier": 1.50, "long_every": 2, "target_notes": 34},
+		"Normal": {"spawn_interval": 0.40, "speed_multiplier": 1.70, "long_every": 1, "target_notes": 36},
+		"Hard": {"spawn_interval": 0.32, "speed_multiplier": 1.90, "long_every": 1, "target_notes": 38}
+	}}
 ]
 const DIFFICULTIES: Array[String] = ["Easy", "Normal", "Hard"]
 const CHART_STEP_COUNT: int = 64
@@ -46,19 +74,25 @@ static var custom_difficulty: String = "Normal"
 static var custom_charts: Dictionary = {"Easy": [], "Normal": [], "Hard": []}
 
 
-static func level_data_for(level_id: int) -> Dictionary:
+static func level_data_for(level_id: int, difficulty: String = "") -> Dictionary:
 	var index: int = clampi(level_id, 1, BUILT_IN_LEVELS.size()) - 1
 	var level: Dictionary = BUILT_IN_LEVELS[index].duplicate()
 	level["title"] = Localization.text(String(level["title_key"]))
 	level["subtitle"] = Localization.text(String(level["subtitle_key"]))
 	if level.has("tutorial_key"):
 		level["tutorial_hint"] = Localization.text(String(level["tutorial_key"]))
+	var selected_difficulty: String = difficulty if difficulty in DIFFICULTIES else "Normal"
+	if level.has("variants") and level["variants"].has(selected_difficulty):
+		var variant: Dictionary = level["variants"][selected_difficulty]
+		for key: String in variant.keys():
+			level[key] = variant[key]
+	level["difficulty"] = selected_difficulty
 	return level
 
 
-static func select_builtin(level_id: int) -> void:
+static func select_builtin(level_id: int, difficulty: String = "") -> void:
 	selected_level_id = clampi(level_id, 1, BUILT_IN_LEVELS.size())
-	var level: Dictionary = level_data_for(selected_level_id)
+	var level: Dictionary = level_data_for(selected_level_id, difficulty)
 	selected_level_title = String(level["title"])
 
 

@@ -1,0 +1,68 @@
+; Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+; Copyright (C) 2026  NebulaJapanese-1221
+
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+[gd_scene format=3 uid="uid://onlineleaderboards000001"]
+
+[ext_resource type="Script" uid="uid://onlineleaderboards_script" path="res://scripts/online_leaderboards.gd" id="1_ol"]
+[ext_resource type="AudioStream" uid="uid://c6wgycuexbpnf" path="res://assets/audio/sfx/interface-sounds/Audio/back_001.ogg" id="2_bs"]
+
+[node name="OnlineLeaderboards" type="Control" unique_id=7000000001]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ol")
+
+[node name="Background" type="ColorRect" parent="." unique_id=7000000002]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02745098, 0.0627451, 0.15294118, 1)
+
+[node name="CenterContainer" type="Control" parent="." unique_id=7000000003]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=7000000004]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/VBox" unique_id=7000000005]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "ONLINE LEADERBOARDS"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/VBox" unique_id=7000000006]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Placeholder — online leaderboards coming in a future build."
+horizontal_alignment = 1
+
+[node name="PlaceholderLabel" type="Label" parent="CenterContainer/VBox" unique_id=7000000007]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Connect an online service to view global rankings."
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=7000000008]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="MenuBack" type="AudioStreamPlayer" parent="." unique_id=7000000009]
+stream = ExtResource("2_bs")
+volume_db = -8.0

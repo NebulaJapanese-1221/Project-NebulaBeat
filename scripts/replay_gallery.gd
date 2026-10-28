@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extends Control
+extends MenuBase
 
 const LEVELS_MENU_PATH: String = "res://scenes/levels_menu.tscn"
 const GAMEPLAY_PATH: String = "res://scenes/nebula_beat.tscn"
@@ -31,12 +31,9 @@ var _replay_buttons: Array[Button] = []
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
 	_apply_localized_text()
 	if _back_button != null:
-		_back_button.text = Localization.text("back")
 		_back_button.pressed.connect(_return_to_levels)
 		_back_button.grab_focus()
 	_reload_replay_list()
@@ -49,6 +46,8 @@ func _apply_localized_text() -> void:
 	var subtitle: Label = get_node_or_null("CenterContainer/VBox/Subtitle")
 	if subtitle != null:
 		subtitle.text = Localization.text("replay_gallery_subtitle")
+	if _back_button != null:
+		_back_button.text = Localization.text("back")
 
 
 func refresh_localization() -> void:

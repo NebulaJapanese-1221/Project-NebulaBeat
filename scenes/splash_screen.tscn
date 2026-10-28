@@ -1,0 +1,66 @@
+; Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+; Copyright (C) 2026  NebulaJapanese-1221
+
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+[gd_scene format=3 uid="uid://splash0000001"]
+
+[ext_resource type="Script" uid="uid://splash_script" path="res://scripts/splash_screen.gd" id="1_spl"]
+
+[node name="SplashScreen" type="Control" unique_id=5000000001]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_spl")
+
+[node name="Background" type="ColorRect" parent="." unique_id=5000000002]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.00784314, 0.02352941, 0.05882353, 1)
+
+[node name="CenterContainer" type="Control" parent="." unique_id=5000000003]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=5000000004]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="GameTitle" type="Label" parent="CenterContainer/VBox" unique_id=5000000005]
+layout_mode = 2
+theme_override_font_sizes/font_size = 56
+text = "NEBULA BEAT"
+horizontal_alignment = 1
+
+[node name="ConstructionLabel" type="Label" parent="CenterContainer/VBox" unique_id=5000000006]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "UNDER CONSTRUCTION"
+horizontal_alignment = 1
+
+[node name="DetailLabel" type="Label" parent="CenterContainer/VBox" unique_id=5000000007]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Development build — not a final release."
+horizontal_alignment = 1
+
+[node name="VersionLabel" type="Label" parent="CenterContainer/VBox" unique_id=5000000008]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "v0.0.1 Development Build 3"
+horizontal_alignment = 1

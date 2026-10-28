@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extends Control
+extends MenuBase
 
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
 const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG/Blue/Default/button_rectangle_depth_gloss.png")
@@ -26,15 +26,11 @@ const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_to_group("localizable_menu")
-	_apply_responsive_layout()
+	_apply_panel_layout()
 	_apply_localized_text()
 	if _back_skin != null:
 		_back_skin.texture = BACK_BUTTON_TEXTURE
-	if _back_button != null:
-		_back_button.text = Localization.text("back")
 	if _back_button != null:
 		_back_button.pressed.connect(_return_to_main_menu)
 		_back_button.grab_focus()
@@ -48,19 +44,7 @@ func _apply_localized_text() -> void:
 		_license_label.text = Localization.text("gpl_license")
 
 
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
-
-
-func refresh_localization() -> void:
-	_apply_localized_text()
-	if _back_button != null:
-		_back_button.text = Localization.text("back")
-
-
-func _apply_responsive_layout() -> void:
+func _apply_panel_layout() -> void:
 	var panel: PanelContainer = get_node_or_null("CenterContainer/AboutPanel")
 	if panel != null:
 		var viewport_size: Vector2 = get_viewport_rect().size

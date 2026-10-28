@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extends Control
+extends MenuBase
 
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
 const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG/Blue/Default/button_rectangle_depth_gloss.png")
@@ -44,8 +44,6 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
-	add_to_group("localizable_menu")
 	_order_content()
 	_apply_mobile_presentation()
 	_apply_localized_text()
@@ -137,18 +135,6 @@ func _apply_localized_text() -> void:
 	_update_timing_offset_label()
 	if _language_label != null:
 		_language_label.text = Localization.text("language")
-
-
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
 
 
 func _setup_language_option() -> void:

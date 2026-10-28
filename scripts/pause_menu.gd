@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extends CanvasLayer
+extends MenuBase
 
 # Pause overlay. Esc (ui_cancel) toggles get_tree().paused; the panel is shown
 # only while paused. This layer's process_mode is ALWAYS so it keeps running
@@ -31,10 +31,8 @@ extends CanvasLayer
 
 
 func _ready() -> void:
-	Localization.apply_saved_locale()
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	add_to_group("localizable_menu")
-	_apply_responsive_layout()
+	_apply_panel_layout()
 	_apply_localized_text()
 	add_to_group("pause_menu")
 	if _panel != null:
@@ -47,7 +45,7 @@ func _ready() -> void:
 		_quit_button.pressed.connect(_on_quit_pressed)
 
 
-func _apply_responsive_layout() -> void:
+func _apply_panel_layout() -> void:
 	var content: VBoxContainer = get_node_or_null("Panel/CenterContainer/VBox")
 	if content != null:
 		var viewport_size: Vector2 = get_viewport().get_visible_rect().size
@@ -65,22 +63,6 @@ func _apply_localized_text() -> void:
 	_set_button_text("Panel/CenterContainer/VBox/ResumeButton", "resume")
 	_set_button_text("Panel/CenterContainer/VBox/RestartButton", "restart")
 	_set_button_text("Panel/CenterContainer/VBox/QuitButton", "quit_to_menu")
-
-
-func _set_label_text(path: String, key: String) -> void:
-	var label: Label = get_node_or_null(path)
-	if label != null:
-		label.text = Localization.text(key)
-
-
-func _set_button_text(path: String, key: String) -> void:
-	var button: Button = get_node_or_null(path)
-	if button != null:
-		button.text = Localization.text(key)
-
-
-func refresh_localization() -> void:
-	_apply_localized_text()
 
 
 func _unhandled_input(event: InputEvent) -> void:
