@@ -21,6 +21,10 @@ extends Control
 # menu scripts stay focused on their own UI logic.
 
 
+func _apply_localized_text() -> void:
+	# Override in concrete menu subclasses to apply localized text.
+
+
 func _ready() -> void:
 	Localization.apply_saved_locale()
 	add_to_group("localizable_menu")

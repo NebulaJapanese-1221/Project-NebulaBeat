@@ -194,10 +194,10 @@ func _save_achievements() -> void:
 	# Auto-start a queued replay from the replay gallery.
 	var replay_level: int = int(_profile_value("nebula_play_replay_level", -1))
 	if replay_level >= 0:
-		var profile: Node = get_tree().root.get_node_or_null("SaveManager")
-		if profile != null:
-			profile.call("erase_key", "nebula_play_replay_level")
-			profile.call("save")
+		var save_manager: Node = get_tree().root.get_node_or_null("SaveManager")
+		if save_manager != null:
+			save_manager.call("erase_key", "nebula_play_replay_level")
+			save_manager.call("save")
 		_start_replay_playback()
 
 
