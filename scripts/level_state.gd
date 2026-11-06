@@ -230,7 +230,9 @@ static func _profile() -> Node:
 	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
 	if scene_tree == null:
 		return null
-	return scene_tree.root.get_node_or_null("SaveManager")
+	if scene_tree.root.has_node("SaveManager"):
+		return scene_tree.root.get_node("SaveManager")
+	return null
 
 
 static func _profile_value(key: String, fallback: Variant) -> Variant:

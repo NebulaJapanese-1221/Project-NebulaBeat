@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@ extends MenuBase
 
 # Pause overlay. Esc (ui_cancel) toggles get_tree().paused; the panel is shown
 # only while paused. This layer's process_mode is ALWAYS so it keeps running
-# while the rest of the tree is frozen — otherwise it could pause but never
+# while the rest of the tree is frozen â€” otherwise it could pause but never
 # un-pause itself. Children inherit ALWAYS, so the buttons stay clickable.
 
 # res:// path of the menu scene "Quit to menu" loads. Empty quits the app.
@@ -92,9 +92,9 @@ func _on_restart_pressed() -> void:
 
 
 func _on_quit_pressed() -> void:
-	# Clear pause before leaving — the next scene must not inherit a frozen tree.
+	# Clear pause before leaving â€” the next scene must not inherit a frozen tree.
 	get_tree().paused = false
 	if menu_target.is_empty():
 		get_tree().quit()
 	else:
-		get_tree().root.get_node_or_null("ScreenTransition").transition_to(menu_target)
+		ScreenTransition.transition_to(menu_target)

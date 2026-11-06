@@ -51,13 +51,15 @@ func refresh_localization() -> void:
 func _process(delta: float) -> void:
 	_timer += delta
 	if _timer >= SPLASH_DURATION:
-		var transition: Node = get_tree().root.get_node_or_null("ScreenTransition")
-		if transition != null:
-			transition.transition_to(MAIN_MENU_PATH)
+		_go_to_main_menu()
+
+
+func _go_to_main_menu() -> void:
+	if ScreenTransition != null:
+		ScreenTransition.transition_to(MAIN_MENU_PATH)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
-		var transition: Node = get_tree().root.get_node_or_null("ScreenTransition")
-		if transition != null:
-			transition.transition_to(MAIN_MENU_PATH)
+		_go_to_main_menu()
+		get_viewport().set_input_as_handled()

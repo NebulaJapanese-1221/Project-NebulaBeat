@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -111,7 +111,7 @@ func _add_replay_button(level_id: int, score: int, stars: int, perfect: int, goo
 	var title: String = String(level_data.get("title", "Level %d" % level_id))
 
 	var btn: Button = Button.new()
-	var star_str: String = "★".repeat(stars) + "☆".repeat(3 - stars)
+	var star_str: String = "â˜…".repeat(stars) + "â˜†".repeat(3 - stars)
 	var total: int = perfect + good + miss
 	var accuracy: int = 0 if total <= 0 else int(float(perfect + good) / float(total) * 100.0)
 	btn.text = "%02d  %s  |  %s %06d  |  %s %d%%  |  %s %d  %s %d  %s %d  |  %s %d" % [
@@ -139,13 +139,13 @@ func _play_replay(level_id: int) -> void:
 		return
 	profile.call("set_value", PLAY_REPLAY_KEY, level_id)
 	profile.call("save")
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(GAMEPLAY_PATH)
+	ScreenTransition.transition_to(GAMEPLAY_PATH)
 
 
 func _return_to_levels() -> void:
 	if _menu_back != null:
 		_menu_back.play()
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+	ScreenTransition.transition_to(LEVELS_MENU_PATH)
 
 
 func _unhandled_input(event: InputEvent) -> void:

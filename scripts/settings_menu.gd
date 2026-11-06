@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -260,7 +260,7 @@ func _on_hit_flash_changed(value: float) -> void:
 
 
 func _open_calibration() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to("res://scenes/calibration_screen.tscn")
+	ScreenTransition.transition_to("res://scenes/calibration_screen.tscn")
 
 
 func _reset_settings() -> void:
@@ -322,4 +322,4 @@ func _unhandled_input(event: InputEvent) -> void:
 func _return_to_main_menu() -> void:
 	if _menu_back != null:
 		_menu_back.play()
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(MAIN_MENU_PATH)
+	ScreenTransition.transition_to(MAIN_MENU_PATH)

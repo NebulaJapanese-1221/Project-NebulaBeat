@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -143,7 +143,7 @@ var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
 @onready var _sfx_hit: AudioStreamPlayer = get_node_or_null("SfxHit")
 @onready var _sfx_miss: AudioStreamPlayer = get_node_or_null("SfxMiss")
-# ── Replay / ghost system ──────────────────────────────────────────────────
+# â”€â”€ Replay / ghost system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 var _is_replaying: bool = false
 var _replay_frames: Array[ReplayFrame] = []
@@ -184,21 +184,21 @@ func _ready() -> void:
 		if saved is Dictionary:
 			_achievements = saved
 
+	# Auto-start a queued replay from the replay gallery.
+	var replay_level: int = int(_profile_value("nebula_play_replay_level", -1))
+	if replay_level >= 0 and profile != null:
+		profile.call("erase_key", "nebula_play_replay_level")
+		profile.call("save")
+		_start_replay_playback()
+	else:
+		_start_replay_recording()
+
 
 func _save_achievements() -> void:
 	var profile: Node = get_tree().root.get_node_or_null("SaveManager")
 	if profile != null:
 		profile.call("set_value", "nebula_achievements", _achievements)
 		profile.call("save")
-
-	# Auto-start a queued replay from the replay gallery.
-	var replay_level: int = int(_profile_value("nebula_play_replay_level", -1))
-	if replay_level >= 0:
-		var save_manager: Node = get_tree().root.get_node_or_null("SaveManager")
-		if save_manager != null:
-			save_manager.call("erase_key", "nebula_play_replay_level")
-			save_manager.call("save")
-		_start_replay_playback()
 
 
 func _profile_value(key: String, fallback: Variant) -> Variant:
@@ -210,6 +210,7 @@ func _profile_value(key: String, fallback: Variant) -> Variant:
 
 func _process(delta: float) -> void:
 	if _is_replaying:
+		_elapsed += delta
 		_update_replay_playback(delta)
 		_update_feedback(delta)
 		queue_redraw()
@@ -350,7 +351,7 @@ func _update_feedback(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		if _level_complete or _game_over:
-			get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+			ScreenTransition.transition_to(LEVELS_MENU_PATH)
 		else:
 			var pause_menu: Node = get_tree().get_first_node_in_group("pause_menu")
 			if pause_menu != null and pause_menu.has_method("_set_paused"):
@@ -370,7 +371,7 @@ func _input(event: InputEvent) -> void:
 					get_viewport().set_input_as_handled()
 					return
 				if _game_over_quit_rect.has_point(click_pos):
-					get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+					ScreenTransition.transition_to(LEVELS_MENU_PATH)
 					get_viewport().set_input_as_handled()
 					return
 			_handle_press(mouse_button.position)
@@ -414,8 +415,18 @@ func _input(event: InputEvent) -> void:
 
 
 func _handle_press(position: Vector2) -> void:
-	if _game_over or _level_complete:
-		get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+	if _game_over:
+		if _game_over_retry_rect.has_point(position):
+			get_tree().paused = false
+			get_tree().reload_current_scene()
+			return
+		if _game_over_quit_rect.has_point(position):
+			ScreenTransition.transition_to(LEVELS_MENU_PATH)
+			return
+		ScreenTransition.transition_to(LEVELS_MENU_PATH)
+		return
+	if _level_complete:
+		ScreenTransition.transition_to(LEVELS_MENU_PATH)
 		return
 	_dragging = true
 	_drag_stroke_id += 1
@@ -570,15 +581,13 @@ func _pan_sfx(position: Vector2) -> void:
 	var pan: float = clampf(dx / half_width, -1.0, 1.0)
 	var left: float = clampf(1.0 - pan, 0.0, 1.0)
 	var right: float = clampf(1.0 + pan, 0.0, 1.0)
-	if _sfx_hit != null:
-		_sfx_hit.left_volume = left
-		_sfx_hit.right_volume = right
-	if _sfx_miss != null:
-		_sfx_miss.left_volume = left
-		_sfx_miss.right_volume = right
+	if _sfx_hit != null and _sfx_hit is AudioStreamPlayer2D:
+		_sfx_hit.position = position
+	if _sfx_miss != null and _sfx_miss is AudioStreamPlayer2D:
+		_sfx_miss.position = position
 
 
-# ── Replay / ghost system ──────────────────────────────────────────────────
+# â”€â”€ Replay / ghost system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 func _record_replay_frame() -> void:
 	var frame: ReplayFrame = ReplayFrame.new()
@@ -656,6 +665,7 @@ func _stop_replay_playback() -> void:
 	_is_replaying = false
 	_replay_frames = []
 	_replay_frame_index = 0
+	ScreenTransition.transition_to(LEVELS_MENU_PATH)
 
 
 func _update_replay_playback(delta: float) -> void:
@@ -684,6 +694,8 @@ func _finish_level() -> void:
 	_level_complete = true
 	var stars: int = _calculate_stars()
 	LevelState.record_completion(LevelState.selected_level_id, _score, stars)
+	_start_replay_recording() # ensure recorder state is consistent if never started
+	_stop_replay_recording()
 	_save_replay()
 	_check_achievements()
 	_vibrate(42)
@@ -746,10 +758,16 @@ func _soft_restart() -> void:
 	_hit_flash = 0.0
 	_screen_shake = 0.0
 	_combo_pop_life = 0.0
+	_combo_pop_value = 0
+	_score_pop_life = 0.0
+	_dragging = false
+	_active_touch_index = -1
 	_notes.clear()
 	_slashes.clear()
 	_telegraphs.clear()
 	_sparks.clear()
+	_note_trails.clear()
+	_start_replay_recording()
 	queue_redraw()
 
 
@@ -1020,13 +1038,13 @@ func _draw_gamepad_cursor() -> void:
 func _draw_hud(viewport_size: Vector2) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var health_ratio: float = float(_core_health) / float(MAX_CORE_HEALTH)
-	var level_title: String = String(_level_data.get("title", "Tutorial 01 — First Slice"))
+	var level_title: String = String(_level_data.get("title", "Tutorial 01 â€” First Slice"))
 	draw_string(font, Vector2(32.0, 44.0), Localization.text("game_title"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 26, Color(0.63, 0.9, 1.0))
 	draw_string(font, Vector2(32.0, 68.0), level_title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(0.55, 0.72, 0.96))
 	if _practice_mode:
 		draw_string(font, Vector2(32.0, 82.0), Localization.text("practice_mode"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14, Color(1.0, 0.82, 0.30))
 	draw_string(font, Vector2(32.0, 94.0), "%s  %06d" % [Localization.text("score"), _score], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 19, Color(0.91, 0.96, 1.0))
-	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index + 1, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
+	draw_string(font, Vector2(32.0, 119.0), "%s %02d / %02d" % [Localization.text("beat"), mini(_spawn_index, _target_notes), _target_notes], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color(0.6, 0.76, 0.96))
 	if _combo > 1:
 		var multiplier: int = 1 + _combo / 10
 		var combo_scale: float = 1.0 + minf(float(_combo) * 0.015, 0.28) + _combo_pulse * 0.16
@@ -1086,8 +1104,8 @@ func _draw_hud(viewport_size: Vector2) -> void:
 		var grade: String = _calculate_grade()
 		var total_attempts: int = _perfect_count + _good_count + _miss_count
 		var accuracy: int = 0 if total_attempts <= 0 else int(float(_perfect_count + _good_count) / float(total_attempts) * 100.0)
-		var result_detail: String = "%s %06d  •  %s %s  •  %s %d%%  •  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("grade"), grade, Localization.text("accuracy"), accuracy, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
-		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "★".repeat(stars) + "☆".repeat(3 - stars) + "  " + "GRADE: " + grade, Color(0.72, 1.0, 0.9), result_detail)
+		var result_detail: String = "%s %06d  â€¢  %s %s  â€¢  %s %d%%  â€¢  %s %d  %s %d  %s %d\n%s" % [Localization.text("score"), _score, Localization.text("grade"), grade, Localization.text("accuracy"), accuracy, Localization.text("perfect"), _perfect_count, Localization.text("good"), _good_count, Localization.text("miss"), _miss_count, Localization.text("tap_return")]
+		_draw_result_overlay(viewport_size, font, Localization.text("level_clear") + "  " + "â˜…".repeat(stars) + "â˜†".repeat(3 - stars) + "  " + "GRADE: " + grade, Color(0.72, 1.0, 0.9), result_detail)
 
 
 func _draw_result_overlay(viewport_size: Vector2, font: Font, title: String, title_color: Color, detail: String) -> void:

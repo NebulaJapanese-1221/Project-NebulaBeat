@@ -1,4 +1,4 @@
-extends Control
+﻿extends Control
 
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
 const SETTINGS_MENU_PATH: String = "res://scenes/settings_menu.tscn"
@@ -157,8 +157,8 @@ func _finish_calibration() -> void:
 
 
 func _hide_calibration() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(SETTINGS_MENU_PATH)
+	ScreenTransition.transition_to(SETTINGS_MENU_PATH)
 
 
 func _return_to_settings() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(SETTINGS_MENU_PATH)
+	ScreenTransition.transition_to(SETTINGS_MENU_PATH)

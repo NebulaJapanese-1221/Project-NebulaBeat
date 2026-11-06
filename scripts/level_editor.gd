@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -248,8 +248,8 @@ func _refresh_editor_from_state() -> void:
 		if beat_button != null:
 			var event: Dictionary = LevelState.event_at_step(index)
 			beat_button.set_pressed_no_signal(not event.is_empty())
-			beat_button.tooltip_text = "Step %02d%s" % [index + 1, " — long note" if bool(event.get("long", false)) else ""]
-	_set_status("%s: %d  •  %s  •  %s" % [Localization.text("chart_steps"), LevelState.get_chart_events().size(), LevelState.custom_difficulty, _audio_status()])
+			beat_button.tooltip_text = "Step %02d%s" % [index + 1, " â€” long note" if bool(event.get("long", false)) else ""]
+	_set_status("%s: %d  â€¢  %s  â€¢  %s" % [Localization.text("chart_steps"), LevelState.get_chart_events().size(), LevelState.custom_difficulty, _audio_status()])
 
 
 func _on_beat_toggled(enabled: bool, beat_index: int) -> void:
@@ -422,7 +422,7 @@ func _on_chart_file_selected(path: String) -> void:
 		_set_status(Localization.text("package_import_failed"))
 
 
-# ── Online chart sharing ──────────────────────────────────────────────────
+# â”€â”€ Online chart sharing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 func _upload_chart_to_catalog() -> void:
 	if _catalog_upload_request == null:
@@ -522,7 +522,7 @@ var _catalog_charts: Array[Dictionary] = []
 
 func _playtest_chart() -> void:
 	LevelState.select_custom()
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(GAMEPLAY_PATH)
+	ScreenTransition.transition_to(GAMEPLAY_PATH)
 
 
 func _reset_chart() -> void:
@@ -570,4 +570,4 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _return_to_levels() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVELS_MENU_PATH)
+	ScreenTransition.transition_to(LEVELS_MENU_PATH)

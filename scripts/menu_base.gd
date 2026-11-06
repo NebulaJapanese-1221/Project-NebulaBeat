@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 extends Control
+class_name MenuBase
 
 # Base class for all NebulaBeat menu screens. Provides shared localization,
 # responsive layout helpers, and standard button/label setters so concrete

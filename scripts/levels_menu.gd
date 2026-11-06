@@ -1,4 +1,4 @@
-# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
+﻿# Project NebulaBeat - A low-poly rhythm action game where players slice incoming notes
 # Copyright (C) 2026  NebulaJapanese-1221
 
 # This program is free software: you can redistribute it and/or modify
@@ -43,10 +43,10 @@ func _ready() -> void:
 		if unlocked:
 			var stars: int = LevelState.best_stars(level_id)
 			var record: int = LevelState.best_score(level_id)
-			suffix = "  %s  %06d" % ["★".repeat(stars) + "☆".repeat(3 - stars), record] if record > 0 else ""
+			suffix = "  %s  %06d" % ["â˜…".repeat(stars) + "â˜†".repeat(3 - stars), record] if record > 0 else ""
 			button.pressed.connect(_open_level.bind(level_id))
 		else:
-			suffix = "  •  " + Localization.text("locked")
+			suffix = "  â€¢  " + Localization.text("locked")
 		button.text = "%02d  %s%s" % [level_id, String(level_data["title"]), suffix]
 	var editor_button: Button = get_node_or_null("CenterContainer/VBox/EditorButton")
 	if editor_button != null:
@@ -117,7 +117,13 @@ func refresh_localization() -> void:
 		if button != null:
 			var unlocked: bool = LevelState.is_level_unlocked(level_id)
 			var level_data: Dictionary = LevelState.level_data_for(level_id)
-			var suffix: String = "  •  " + Localization.text("locked") if not unlocked else ""
+			var suffix: String = ""
+			if unlocked:
+				var stars: int = LevelState.best_stars(level_id)
+				var record: int = LevelState.best_score(level_id)
+				suffix = "  %s  %06d" % ["★".repeat(stars) + "☆".repeat(3 - stars), record] if record > 0 else ""
+			else:
+				suffix = "  •  " + Localization.text("locked")
 			button.text = "%02d  %s%s" % [level_id, String(level_data["title"]), suffix]
 	if _scores_panel != null and _scores_panel.visible:
 		_populate_scores()
@@ -181,7 +187,7 @@ func _populate_scores() -> void:
 				var entry: Dictionary = entries[index]
 				var score: int = int(entry.get("score", 0))
 				var stars: int = int(entry.get("stars", 0))
-				var star_str: String = "★".repeat(stars) + "☆".repeat(3 - stars)
+				var star_str: String = "â˜…".repeat(stars) + "â˜†".repeat(3 - stars)
 				var row: Label = Label.new()
 				row.text = "  #%d  %06d  %s" % [index + 1, score, star_str]
 				row.add_theme_font_size_override("font_size", 14)
@@ -203,20 +209,20 @@ func _open_level(level_id: int) -> void:
 	if not LevelState.is_level_unlocked(level_id):
 		return
 	LevelState.select_builtin(level_id)
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(GAMEPLAY_PATH)
+	ScreenTransition.transition_to(GAMEPLAY_PATH)
 
 
 func _open_editor() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVEL_EDITOR_PATH)
+	ScreenTransition.transition_to(LEVEL_EDITOR_PATH)
 
 
 func _open_downloader() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(LEVEL_DOWNLOADER_PATH)
+	ScreenTransition.transition_to(LEVEL_DOWNLOADER_PATH)
 
 
 func _return_to_main_menu() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to(MAIN_MENU_PATH)
+	ScreenTransition.transition_to(MAIN_MENU_PATH)
 
 
 func _open_replays() -> void:
-	get_tree().root.get_node_or_null("ScreenTransition").transition_to("res://scenes/replay_gallery.tscn")
+	ScreenTransition.transition_to("res://scenes/replay_gallery.tscn")
