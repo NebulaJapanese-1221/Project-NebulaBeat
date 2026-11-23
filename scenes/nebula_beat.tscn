@@ -17,6 +17,7 @@
 
 [ext_resource type="Script" uid="uid://df2ff58nhrxjg" path="res://scripts/nebula_beat.gd" id="1_fcpvn"]
 [ext_resource type="Script" uid="uid://bypx75y4q8swo" path="res://scripts/pause_menu.gd" id="2_8qua7"]
+[ext_resource type="Environment" uid="uid://nebula_beat_env" path="res://environments/nebula_beat_env.tres" id="3_env"]
 
 [node name="NebulaBeat" type="Control" unique_id=926916036]
 layout_mode = 3
@@ -24,6 +25,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_fcpvn")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=3847291056]
+environment = ExtResource("3_env")
 
 [node name="PauseMenu" type="CanvasLayer" parent="." unique_id=1628380726 groups=["pause_menu"]]
 process_mode = 3
@@ -78,3 +82,12 @@ text = "QUIT TO MENU"
 
 [node name="MusicTrack" type="AudioStreamPlayer" parent="." unique_id=926916037]
 bus = "Music"
+
+[node name="SfxSlice" type="AudioStreamPlayer2D" parent="." unique_id=926916038]
+bus = "SFX"
+
+[node name="SfxHit" type="AudioStreamPlayer2D" parent="." unique_id=926916039]
+bus = "SFX"
+
+[node name="SfxMiss" type="AudioStreamPlayer2D" parent="." unique_id=926916040]
+bus = "SFX"

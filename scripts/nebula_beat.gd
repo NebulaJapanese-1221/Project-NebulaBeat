@@ -140,9 +140,9 @@ var _game_over_quit_rect: Rect2 = Rect2()
 var _gamepad_last_position: Vector2 = Vector2.ZERO
 @onready var _music_track: AudioStreamPlayer = get_node_or_null("MusicTrack")
 @export var music_stream: AudioStream
-@onready var _sfx_slice: AudioStreamPlayer = get_node_or_null("SfxSlice")
-@onready var _sfx_hit: AudioStreamPlayer = get_node_or_null("SfxHit")
-@onready var _sfx_miss: AudioStreamPlayer = get_node_or_null("SfxMiss")
+@onready var _sfx_slice: AudioStreamPlayer2D = get_node_or_null("SfxSlice")
+@onready var _sfx_hit: AudioStreamPlayer2D = get_node_or_null("SfxHit")
+@onready var _sfx_miss: AudioStreamPlayer2D = get_node_or_null("SfxMiss")
 # â”€â”€ Replay / ghost system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 var _is_replaying: bool = false
@@ -298,7 +298,7 @@ func _update_notes(delta: float) -> void:
 		note.position = note.position.move_toward(core_position, travel_speed * delta)
 		note.phase += delta * (2.0 + proximity * 5.0)
 		if proximity > 0.5:
-			note.trail.append_back(note.position)
+			note.trail.append(note.position)
 			if note.trail.size() > 6:
 				note.trail.remove_at(0)
 			var trail: NoteTrail = NoteTrail.new()
@@ -885,27 +885,31 @@ func _draw_achievements(viewport_size: Vector2) -> void:
 
 
 func _draw_telegraphs() -> void:
+	var telegraph_glow_intensity: float = 2.0
 	for telegraph: Telegraph in _telegraphs:
 		var alpha: float = clampf(1.0 - telegraph.life / telegraph.maximum_life, 0.0, 1.0) * 0.62
 		var color: Color = Color.from_hsv(telegraph.hue, 0.48, 1.0, alpha)
+		var hdr_color: Color = Color(color.r * telegraph_glow_intensity, color.g * telegraph_glow_intensity, color.b * telegraph_glow_intensity, alpha)
 		if telegraph.is_long:
-			draw_rect(Rect2(telegraph.position - Vector2(45.0, 11.0), Vector2(90.0, 22.0)), color, false, 2.0)
+			draw_rect(Rect2(telegraph.position - Vector2(45.0, 11.0), Vector2(90.0, 22.0)), hdr_color, false, 2.0)
 		else:
-			draw_arc(telegraph.position, NOTE_RADIUS + 12.0, 0.0, TAU, 24, color, 2.0, true)
+			draw_arc(telegraph.position, NOTE_RADIUS + 12.0, 0.0, TAU, 24, hdr_color, 2.0, true)
 
 
 func _draw_notes(center: Vector2) -> void:
+	var note_glow_intensity: float = 2.5
 	for note: Note in _notes:
 		var approach_direction: Vector2 = (center - note.position).normalized()
 		var side_direction: Vector2 = Vector2(-approach_direction.y, approach_direction.x)
 		var pulse: float = 1.0 if _reduced_motion else 1.0 + sin(note.phase * 5.0) * 0.08
 		var note_color: Color = Color.from_hsv(note.hue, 0.72, 1.0)
 		var outline_color: Color = Color.from_hsv(note.hue, 0.35, 1.0, 0.45)
+		var hdr_note_color: Color = Color(note_color.r * note_glow_intensity, note_color.g * note_glow_intensity, note_color.b * note_glow_intensity, note_color.a)
 		if note.is_long:
 			var half_length: float = 58.0
 			var half_width: float = 15.0
 			var long_points: PackedVector2Array = PackedVector2Array([note.position - side_direction * half_length - approach_direction * half_width, note.position + side_direction * half_length - approach_direction * half_width, note.position + side_direction * half_length + approach_direction * half_width, note.position - side_direction * half_length + approach_direction * half_width])
-			draw_colored_polygon(long_points, Color(note_color, 0.78))
+			draw_colored_polygon(long_points, Color(hdr_note_color, 0.78))
 			draw_polyline(long_points + PackedVector2Array([long_points[0]]), outline_color, 3.0, true)
 			var progress_ratio: float = 1.0 - float(note.hits_remaining) / float(LONG_NOTE_HITS)
 			draw_rect(Rect2(note.position - side_direction * 42.0 - approach_direction * 4.0, side_direction * 84.0 + approach_direction * 8.0), Color(0.03, 0.08, 0.16, 0.8))
@@ -919,27 +923,30 @@ func _draw_notes(center: Vector2) -> void:
 			var radius: float = NOTE_RADIUS * pulse
 			if _color_safe:
 				var triangle: PackedVector2Array = PackedVector2Array([note.position + Vector2(0.0, -radius), note.position + Vector2(radius * 0.86, radius * 0.72), note.position + Vector2(-radius * 0.86, radius * 0.72)])
-				draw_colored_polygon(triangle, note_color)
+				draw_colored_polygon(triangle, hdr_note_color)
 				draw_polyline(triangle + PackedVector2Array([triangle[0]]), Color.WHITE, 2.5, true)
 			else:
 				var diamond: PackedVector2Array = PackedVector2Array([note.position + Vector2(0.0, -radius), note.position + Vector2(radius, 0.0), note.position + Vector2(0.0, radius), note.position + Vector2(-radius, 0.0)])
-				draw_colored_polygon(diamond, note_color)
+				draw_colored_polygon(diamond, hdr_note_color)
 				draw_polyline(diamond + PackedVector2Array([diamond[0]]), Color.WHITE, 2.0, true)
 			draw_circle(note.position, 5.0, Color(0.03, 0.08, 0.16, 0.78))
 
 
 func _draw_sparks() -> void:
+	var spark_glow_intensity: float = 3.0
 	for spark: Spark in _sparks:
 		var alpha: float = clampf(spark.life / spark.maximum_life, 0.0, 1.0)
-		draw_circle(spark.position, 2.5 + alpha * 2.5, Color(spark.color, alpha))
+		var hdr_color: Color = Color(spark.color.r * spark_glow_intensity, spark.color.g * spark_glow_intensity, spark.color.b * spark_glow_intensity, alpha)
+		draw_circle(spark.position, 2.5 + alpha * 2.5, hdr_color)
 
 
 func _draw_note_trails() -> void:
+	var trail_glow_intensity: float = 2.0
 	for trail: NoteTrail in _note_trails:
 		var alpha: float = clampf(trail.life / trail.maximum_life, 0.0, 1.0)
-		var color: Color = Color(trail.color, alpha * 0.6)
+		var hdr_color: Color = Color(trail.color.r * trail_glow_intensity, trail.color.g * trail_glow_intensity, trail.color.b * trail_glow_intensity, alpha * 0.6)
 		if trail.positions.size() >= 2:
-			draw_polyline(trail.positions, color, 2.0 * alpha + 1.0, false)
+			draw_polyline(trail.positions, hdr_color, 2.0 * alpha + 1.0, false)
 
 
 func _draw_waveform(center: Vector2) -> void:
@@ -948,6 +955,8 @@ func _draw_waveform(center: Vector2) -> void:
 	var beat_phase: float = fmod(_beat_clock, _beat_interval) / _beat_interval
 	var waveform_radius: float = CORE_RADIUS + 40.0 + sin(_elapsed * 6.0) * 4.0
 	var waveform_color: Color = Color(0.3, 0.6, 1.0, 0.35)
+	var waveform_glow_intensity: float = 2.0
+	var hdr_waveform_color: Color = Color(waveform_color.r * waveform_glow_intensity, waveform_color.g * waveform_glow_intensity, waveform_color.b * waveform_glow_intensity, waveform_color.a)
 	var segment_count: int = 64
 	var points: PackedVector2Array = PackedVector2Array()
 	for i: int in range(segment_count + 1):
@@ -956,7 +965,7 @@ func _draw_waveform(center: Vector2) -> void:
 		var beat_boost: float = pow(1.0 - abs(beat_phase - 0.5) * 2.0, 2.0) * 6.0
 		var r: float = waveform_radius + sample * 12.0 + beat_boost
 		points.append(center + Vector2(cos(angle), sin(angle)) * r)
-	draw_polyline(points, waveform_color, 2.0, true)
+	draw_polyline(points, hdr_waveform_color, 2.0, true)
 
 
 func _draw_core(center: Vector2) -> void:
@@ -969,24 +978,30 @@ func _draw_core(center: Vector2) -> void:
 	var hot_color: Color = Color(0.94 + damage_ratio * 0.06, 0.99 - damage_ratio * 0.38, 1.0 - damage_ratio * 0.42)
 	var rotation: float = 0.0 if _reduced_motion else _elapsed * 1.75
 
-	# Soft stacked halos create a mobile-friendly bloom impression without post-processing.
+	# HDR glow intensity for bloom effect (values > 1.0 will bloom with WorldEnvironment)
+	var glow_intensity: float = 3.0
+
+	# Soft stacked halos create bloom glow using HDR colors.
 	for glow_index: int in range(5, 0, -1):
 		var glow_progress: float = float(glow_index) / 5.0
 		var glow_radius: float = CORE_RADIUS + 18.0 + glow_progress * 48.0 + pulse_amount * glow_progress
 		var glow_alpha: float = (0.018 + beat_pulse * 0.026 + _hit_flash * 0.05) * (1.0 - glow_progress * 0.72)
-		draw_circle(center, glow_radius, Color(core_color, glow_alpha))
+		var hdr_color: Color = Color(core_color.r * glow_intensity, core_color.g * glow_intensity, core_color.b * glow_intensity, glow_alpha)
+		draw_circle(center, glow_radius, hdr_color)
 
-	# Orbiting segmented rings make the core read as unstable contained energy.
+	# Orbiting segmented rings with HDR glow.
 	for ring_index: int in range(3):
 		var ring_radius: float = CORE_RADIUS + 10.0 + float(ring_index) * 12.0 + pulse_amount * 0.24
 		var ring_rotation: float = rotation * (1.0 if ring_index % 2 == 0 else -0.72) + float(ring_index) * 1.35
 		var ring_span: float = TAU * (0.42 + beat_pulse * 0.12)
 		var ring_color: Color = Color(core_color, 0.42 - float(ring_index) * 0.08 + _hit_flash * 0.22)
-		draw_arc(center, ring_radius, ring_rotation, ring_rotation + ring_span, 48, ring_color, 3.5 - float(ring_index) * 0.55, true)
+		var hdr_ring_color: Color = Color(ring_color.r * glow_intensity, ring_color.g * glow_intensity, ring_color.b * glow_intensity, ring_color.a)
+		draw_arc(center, ring_radius, ring_rotation, ring_rotation + ring_span, 48, hdr_ring_color, 3.5 - float(ring_index) * 0.55, true)
 		draw_arc(center, ring_radius, ring_rotation + PI, ring_rotation + PI + ring_span * 0.48, 32, Color(hot_color, 0.48), 2.0, true)
 
 	draw_circle(center, CORE_RADIUS + 7.0 + pulse_amount * 0.14, Color(0.025, 0.10, 0.24, 0.96))
-	draw_circle(center, CORE_RADIUS + 1.0 + pulse_amount * 0.12, Color(core_color, 0.94))
+	var hdr_core_color: Color = Color(core_color.r * glow_intensity, core_color.g * glow_intensity, core_color.b * glow_intensity, 0.94)
+	draw_circle(center, CORE_RADIUS + 1.0 + pulse_amount * 0.12, hdr_core_color)
 
 	# Hit zone rings: narrowing visual cue for the perfect/good timing windows.
 	if _beat_guides:
@@ -999,9 +1014,11 @@ func _draw_core(center: Vector2) -> void:
 		var perfect_radius: float = CORE_RADIUS + 10.0 + ring_pulse * 2.0
 		var good_radius: float = CORE_RADIUS + 18.0 + ring_pulse * 3.0
 		if perfect_alpha > 0.0:
-			draw_arc(center, perfect_radius, 0.0, TAU, 64, Color(0.82, 1.0, 0.96, perfect_alpha * 0.7), 2.5, true)
+			var hdr_perfect: Color = Color(0.82 * glow_intensity, 1.0 * glow_intensity, 0.96 * glow_intensity, perfect_alpha * 0.7)
+			draw_arc(center, perfect_radius, 0.0, TAU, 64, hdr_perfect, 2.5, true)
 		if good_alpha > 0.0:
-			draw_arc(center, good_radius, 0.0, TAU, 64, Color(0.62, 0.82, 1.0, good_alpha * 0.5), 2.0, true)
+			var hdr_good: Color = Color(0.62 * glow_intensity, 0.82 * glow_intensity, 1.0 * glow_intensity, good_alpha * 0.5)
+			draw_arc(center, good_radius, 0.0, TAU, 64, hdr_good, 2.0, true)
 
 	var shard_points: PackedVector2Array = PackedVector2Array()
 	for shard_index: int in range(12):
@@ -1011,16 +1028,19 @@ func _draw_core(center: Vector2) -> void:
 	draw_colored_polygon(shard_points, Color(0.20 + damage_ratio * 0.45, 0.88 - damage_ratio * 0.28, 1.0, 0.92))
 
 	var inner_radius: float = CORE_RADIUS * (0.34 + beat_pulse * 0.055)
-	draw_circle(center, inner_radius, Color(hot_color, 0.98))
+	var hdr_hot_color: Color = Color(hot_color.r * glow_intensity, hot_color.g * glow_intensity, hot_color.b * glow_intensity, 0.98)
+	draw_circle(center, inner_radius, hdr_hot_color)
 	draw_circle(center - Vector2(8.0, 10.0), inner_radius * 0.34, Color.WHITE)
 	if _hit_flash > 0.0:
 		draw_circle(center, CORE_RADIUS + 10.0 + _hit_flash * 18.0, Color(1.0, 0.24, 0.38, _hit_flash * 0.22), false, 2.5, true)
 
 
 func _draw_slashes() -> void:
+	var slash_glow_intensity: float = 2.5
 	for slash: SlashTrail in _slashes:
 		var alpha: float = clampf(slash.life / 0.16, 0.0, 1.0)
-		draw_line(slash.start, slash.finish, Color(0.88, 0.98, 1.0, alpha), 7.0 * alpha + 1.0, true)
+		var hdr_color: Color = Color(0.88 * slash_glow_intensity, 0.98 * slash_glow_intensity, 1.0 * slash_glow_intensity, alpha)
+		draw_line(slash.start, slash.finish, hdr_color, 7.0 * alpha + 1.0, true)
 
 
 func _draw_gamepad_cursor() -> void:
@@ -1028,7 +1048,8 @@ func _draw_gamepad_cursor() -> void:
 	if joy_count <= 0:
 		return
 	var alpha: float = 1.0 if _gamepad_dragging else 0.6
-	var cursor_color: Color = Color(0.88, 0.98, 1.0, alpha)
+	var cursor_glow_intensity: float = 2.0
+	var cursor_color: Color = Color(0.88 * cursor_glow_intensity, 0.98 * cursor_glow_intensity, 1.0 * cursor_glow_intensity, alpha)
 	draw_circle(_gamepad_cursor, 14.0, cursor_color)
 	draw_circle(_gamepad_cursor, 10.0, Color(0.03, 0.08, 0.16, 0.9), false, 2.0, true)
 	draw_line(_gamepad_cursor + Vector2(-6.0, 0.0), _gamepad_cursor + Vector2(6.0, 0.0), cursor_color, 2.0, true)

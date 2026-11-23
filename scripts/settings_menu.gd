@@ -17,6 +17,8 @@
 extends MenuBase
 
 const MAIN_MENU_PATH: String = "res://scenes/main_menu.tscn"
+const INPUT_REBINDING_PATH: String = "res://scenes/input_rebinding.tscn"
+const CALIBRATION_PATH: String = "res://scenes/calibration_screen.tscn"
 const BACK_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/ui-pack/PNG/Blue/Default/button_rectangle_depth_gloss.png")
 const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/SettingsContent"
 
@@ -35,6 +37,7 @@ const CONTENT_PATH: String = "CenterContainer/SettingsPanel/ScrollContainer/Sett
 @onready var _beat_guide_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle")
 @onready var _practice_mode_toggle: CheckButton = get_node_or_null(CONTENT_PATH + "/GameplayGroup/PracticeModeToggle")
 @onready var _calibration_button: Button = get_node_or_null(CONTENT_PATH + "/GameplayGroup/CalibrationButton")
+@onready var _input_rebinding_button: Button = get_node_or_null(CONTENT_PATH + "/GameplayGroup/InputRebindingButton")
 @onready var _reset_settings_button: Button = get_node_or_null(CONTENT_PATH + "/ResetSettingsButton")
 @onready var _language_label: Label = get_node_or_null(CONTENT_PATH + "/LanguageLabel")
 @onready var _language_option: OptionButton = get_node_or_null(CONTENT_PATH + "/LanguageOption")
@@ -66,6 +69,8 @@ func _ready() -> void:
 	_setup_toggle(_practice_mode_toggle, "practice_mode", _on_practice_mode_toggled, false)
 	if _calibration_button != null:
 		_calibration_button.pressed.connect(_open_calibration)
+	if _input_rebinding_button != null:
+		_input_rebinding_button.pressed.connect(_open_input_rebinding)
 	if _reset_settings_button != null:
 		_reset_settings_button.pressed.connect(_reset_settings)
 	if _back_button != null:
@@ -80,7 +85,7 @@ func _order_content() -> void:
 	var order: Array[String] = [
 		"SettingsTitle", "AudioSection", "AudioGroup", "DisplaySection", "DisplayGroup",
 		"GameplaySection", "GameplayGroup", "AccessibilitySection", "AccessibilityGroup",
-		"LanguageLabel", "LanguageOption", "CalibrationButton", "NoteSpeedSlider", "ScreenShakeSlider", "HitFlashSlider", "ResetSettingsButton", "BackButton"
+		"LanguageLabel", "LanguageOption", "CalibrationButton", "InputRebindingButton", "NoteSpeedSlider", "ScreenShakeSlider", "HitFlashSlider", "ResetSettingsButton", "BackButton"
 	]
 	for child_name: String in order:
 		var child: Node = _content.get_node_or_null(child_name)
@@ -127,6 +132,7 @@ func _apply_localized_text() -> void:
 	_set_button_text(CONTENT_PATH + "/GameplayGroup/BeatGuideToggle", "beat_guides")
 	_set_button_text(CONTENT_PATH + "/GameplayGroup/PracticeModeToggle", "practice_mode")
 	_set_button_text(CONTENT_PATH + "/GameplayGroup/CalibrationButton", "calibration_start")
+	_set_button_text(CONTENT_PATH + "/GameplayGroup/InputRebindingButton", "input_rebinding")
 	_set_label_text(CONTENT_PATH + "/GameplayGroup/NoteSpeedLabel", "note_speed")
 	_set_label_text(CONTENT_PATH + "/GameplayGroup/ScreenShakeLabel", "screen_shake")
 	_set_label_text(CONTENT_PATH + "/GameplayGroup/HitFlashLabel", "hit_flash")
@@ -260,7 +266,11 @@ func _on_hit_flash_changed(value: float) -> void:
 
 
 func _open_calibration() -> void:
-	ScreenTransition.transition_to("res://scenes/calibration_screen.tscn")
+	ScreenTransition.transition_to(CALIBRATION_PATH)
+
+
+func _open_input_rebinding() -> void:
+	ScreenTransition.transition_to(INPUT_REBINDING_PATH)
 
 
 func _reset_settings() -> void:

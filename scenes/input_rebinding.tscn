@@ -32,32 +32,43 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.02745098, 0.0627451, 0.15294118, 1)
 
-[node name="CenterContainer" type="Control" parent="." unique_id=6000000003]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=6000000003]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=6000000004]
 layout_mode = 2
+theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="CenterContainer/VBox" unique_id=6000000005]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "INPUT REBINDING"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="CenterContainer/VBox" unique_id=6000000006]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "Placeholder — input rebinding coming in a future build."
 horizontal_alignment = 1
 
-[node name="PlaceholderLabel" type="Label" parent="CenterContainer/VBox" unique_id=6000000007]
+[node name="HintLabel" type="Label" parent="CenterContainer/VBox" unique_id=6000000007]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "No rebindable inputs configured yet."
 horizontal_alignment = 1
 
-[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=6000000008]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/VBox" unique_id=6000000008]
+layout_mode = 2
+v_size_flags = 2
+custom_minimum_size = Vector2(0, 300)
+
+[node name="RebindContainer" type="VBoxContainer" parent="CenterContainer/VBox/ScrollContainer" unique_id=6000000009]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBox" unique_id=6000000010]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 2
+
+[node name="ResetButton" type="Button" parent="CenterContainer/VBox" unique_id=6000000011]
 custom_minimum_size = Vector2(220, 64)
 layout_mode = 2

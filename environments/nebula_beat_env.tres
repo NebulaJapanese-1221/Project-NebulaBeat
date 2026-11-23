@@ -1,0 +1,25 @@
+[gd_resource type="Environment" format=3 uid="uid://nebula_beat_env"]
+
+[resource]
+background_mode = 2
+background_color = Color(0.02, 0.03, 0.10, 1)
+background_canvas_max_layer = 10
+glow_enabled = true
+glow_intensity = 1.5
+glow_strength = 1.5
+glow_bloom = 0.3
+glow_hdr_threshold = 0.9
+glow_hdr_scale = 2.0
+glow_hdr_luminance_cap = 12.0
+glow_blend_mode = 1
+glow_level_0 = 0.8
+glow_level_1 = 0.5
+glow_level_2 = 0.3
+glow_level_3 = 0.15
+glow_level_4 = 0.05
+glow_level_5 = 0.02
+glow_level_6 = 0.01
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.2
+adjustment_color_correction = Color(1.0, 0.95, 1.05, 1)
