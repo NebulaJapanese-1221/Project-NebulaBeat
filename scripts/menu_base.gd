@@ -24,6 +24,7 @@ class_name MenuBase
 
 func _apply_localized_text() -> void:
 	# Override in concrete menu subclasses to apply localized text.
+	pass
 
 
 func _ready() -> void:
